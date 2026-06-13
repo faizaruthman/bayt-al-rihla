@@ -637,6 +637,88 @@
     .coming-soon-title { font-size: 2rem; font-weight: 800; color: var(--t900); margin-bottom: 10px; letter-spacing: -0.5px; }
     .coming-soon-text { font-size: 0.92rem; color: var(--t500); max-width: 380px; margin: 0 auto; line-height: 1.75; }
 
+    /* ── Breadcrumb title ────────────────────────────────────────────── */
+    .bc-root { color: var(--t400); font-weight: 700; }
+    .bc-sep  { color: var(--t400); margin: 0 12px; font-weight: 400; }
+
+    /* ── Subject menu (Learn / Books / Questions) ────────────────────── */
+    .sp-menu { max-width: 1100px; margin: 0 auto; padding: 6px 5% 88px; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .menu-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 230px;
+      text-align: left;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: var(--radius);
+      padding: 34px 30px;
+      cursor: pointer;
+      box-shadow: var(--sh0);
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .menu-card:hover { transform: translateY(-6px); box-shadow: var(--sh2); }
+    .menu-card[data-view="learn"]     { background: var(--mint); }
+    .menu-card[data-view="books"]     { background: var(--lav); }
+    .menu-card[data-view="questions"] { background: var(--pink); }
+
+    .menu-card-icon  { font-size: 2.4rem; line-height: 1; }
+    .menu-card-title { font-size: 1.45rem; font-weight: 800; color: var(--t900); letter-spacing: -0.4px; }
+    .menu-card-desc  { font-size: 0.9rem; color: var(--t700); line-height: 1.6; flex: 1; }
+    .menu-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--t900);
+      margin-top: 4px;
+    }
+    .menu-card-cta .arrow { transition: transform var(--ease); }
+    .menu-card:hover .menu-card-cta .arrow { transform: translateX(4px); }
+
+    /* ── Curriculum / lessons ────────────────────────────────────────── */
+    .sp-curriculum { max-width: 820px; margin: 0 auto; padding: 0 5% 88px; }
+
+    .lesson-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .lesson-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 20px 24px;
+      box-shadow: var(--sh0);
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .lesson-item:hover { transform: translateX(4px); box-shadow: var(--sh1); }
+
+    .lesson-num {
+      flex-shrink: 0;
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      background: var(--mint);
+      color: var(--mint-tx);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .lesson-body  { flex: 1; }
+    .lesson-title { font-size: 0.98rem; font-weight: 700; color: var(--t900); margin-bottom: 2px; }
+    .lesson-status{ font-size: 0.78rem; color: var(--t400); font-weight: 500; }
+    .lesson-lock  { font-size: 1rem; opacity: 0.3; flex-shrink: 0; }
+
     /* ── Scroll fade-in ──────────────────────────────────────────────── */
     .fade-in {
       opacity: 0;
@@ -675,6 +757,7 @@
 
       section { padding: 72px 4%; }
       .books-grid { grid-template-columns: 1fr; }
+      .menu-grid  { grid-template-columns: 1fr; }
       .sp-header-row { flex-direction: column; align-items: flex-start; }
       .sp-search { width: 100%; max-width: 360px; }
       .hero-float { display: none; }
@@ -691,9 +774,9 @@
   <!-- ── NAV ──────────────────────────────────────────────────────────── -->
   <nav>
     <!-- shown only on subject page -->
-    <button class="nav-back" id="navBack" aria-label="Back to home">
+    <button class="nav-back" id="navBack" aria-label="Go back">
       <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9,2 4,7 9,12"/></svg>
-      Back to home
+      <span id="navBackLabel">Back to home</span>
     </button>
 
     <!-- always shown -->
@@ -733,11 +816,11 @@
     <div class="sp-header">
       <div class="sp-header-row">
         <div class="sp-header-left">
-          <h1 class="sp-page-title">Choose a Book</h1>
-          <p class="sp-page-subtitle">Study from classical texts — organised, aesthetic, and proof-based.</p>
+          <h1 class="sp-page-title" id="spPageTitle">Choose a Book</h1>
+          <p class="sp-page-subtitle" id="spPageSubtitle">Study from classical texts — organised, aesthetic, and proof-based.</p>
           <p class="sp-book-count" id="spBookCount"></p>
         </div>
-        <div class="sp-search-wrap">
+        <div class="sp-search-wrap" id="spSearchWrap">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input
             type="text"
@@ -934,6 +1017,7 @@
     const SUBJECTS = {
       aqeedah: {
         name: 'Aqeedah',
+        icon: '🕌',
         books: [
           {
             titleMain: 'Thalathat al-Usool',
@@ -964,6 +1048,7 @@
 
       hadith: {
         name: 'Hadith',
+        icon: '📜',
         books: [
           {
             titleMain: "Al-Arba'een al-Nawawiyyah",
@@ -1036,56 +1121,153 @@
     const subjectPage     = document.getElementById('subject-page');
     const spContent       = document.getElementById('spContent');
     const spBookCount     = document.getElementById('spBookCount');
+    const spPageTitle     = document.getElementById('spPageTitle');
+    const spPageSubtitle  = document.getElementById('spPageSubtitle');
+    const spSearchWrap    = document.getElementById('spSearchWrap');
     const navSubjectName  = document.getElementById('navSubjectName');
     const navBack         = document.getElementById('navBack');
+    const navBackLabel    = document.getElementById('navBackLabel');
     const spSearchEl      = document.getElementById('spSearch');
+
+    /* current location within the subject page */
+    let currentKey  = null;
+    let currentView = 'menu';   // 'menu' | 'learn' | 'books' | 'questions'
+
+    /* ── small builders ─────────────────────────────────────────────── */
+    function setHeader(titleHTML, subtitle, count) {
+      spPageTitle.innerHTML       = titleHTML;
+      spPageSubtitle.textContent  = subtitle;
+      spBookCount.textContent     = count || '';
+    }
+
+    function breadcrumb(name, leaf) {
+      return `<span class="bc-root">${name}</span><span class="bc-sep">→</span>${leaf}`;
+    }
+
+    function comingSoonHTML(data, text) {
+      return `
+        <div class="coming-soon-wrap">
+          <span class="coming-soon-pill">Coming Soon</span>
+          <span class="coming-soon-icon">${data.icon || '✦'}</span>
+          <h2 class="coming-soon-title">${data.name}</h2>
+          <p class="coming-soon-text">${text}</p>
+        </div>`;
+    }
+
+    function buildBookCards(books) {
+      return books.map(b => {
+        const searchable = [b.titleMain, b.titleEn, b.author, b.badge, b.desc].join(' ').toLowerCase();
+        const style = `--card-bg:${b.card.bg}; --badge-bg:${b.card.badgeBg}; --badge-tx:${b.card.badgeTx}`;
+        return `
+          <article class="book-card" style="${style}" data-search="${searchable.replace(/"/g,'&quot;')}">
+            <div class="book-card-top">
+              <span class="book-badge">${b.badge}</span>
+              <span class="book-icon-wrap">📖</span>
+            </div>
+            <h3 class="book-title-main">${b.titleMain}</h3>
+            <p class="book-title-en">${b.titleEn}</p>
+            <p class="book-author-line">${b.author}</p>
+            <p class="book-desc-text">${b.desc}</p>
+            <button class="book-btn">Open book &rarr;</button>
+          </article>`;
+      }).join('');
+    }
+
+    /* ── per-view renderers ─────────────────────────────────────────── */
+    function renderMenu(data) {
+      spSearchWrap.style.display = 'none';
+      setHeader(data.name, `Choose how you'd like to study ${data.name}.`, '');
+      spContent.innerHTML = `
+        <div class="sp-menu">
+          <div class="menu-grid">
+            <button class="menu-card" data-view="learn">
+              <span class="menu-card-icon">🎓</span>
+              <span class="menu-card-title">Learn</span>
+              <span class="menu-card-desc">Structured curriculum from lesson 1 onwards</span>
+              <span class="menu-card-cta">Start learning <span class="arrow">→</span></span>
+            </button>
+            <button class="menu-card" data-view="books">
+              <span class="menu-card-icon">📚</span>
+              <span class="menu-card-title">Books</span>
+              <span class="menu-card-desc">Study classical texts at your own pace</span>
+              <span class="menu-card-cta">Browse books <span class="arrow">→</span></span>
+            </button>
+            <button class="menu-card" data-view="questions">
+              <span class="menu-card-icon">💬</span>
+              <span class="menu-card-title">Questions</span>
+              <span class="menu-card-desc">Common questions and answers</span>
+              <span class="menu-card-cta">View questions <span class="arrow">→</span></span>
+            </button>
+          </div>
+        </div>`;
+    }
+
+    function renderLearn(data) {
+      spSearchWrap.style.display = 'none';
+      setHeader(breadcrumb(data.name, 'Learn'),
+                'A structured curriculum — lesson by lesson, from the very beginning.', '');
+      const lessons = Array.from({ length: 8 }, (_, i) => i + 1).map(n => `
+        <div class="lesson-item">
+          <div class="lesson-num">${n}</div>
+          <div class="lesson-body">
+            <p class="lesson-title">Lesson ${n}</p>
+            <p class="lesson-status">Coming soon</p>
+          </div>
+          <span class="lesson-lock">🔒</span>
+        </div>`).join('');
+      spContent.innerHTML = `<div class="sp-curriculum"><div class="lesson-list">${lessons}</div></div>`;
+    }
+
+    function renderBooks(data) {
+      const hasBooks = data.books && data.books.length;
+      setHeader(breadcrumb(data.name, 'Books'),
+                'Study from classical texts — organised, aesthetic, and proof-based.', '');
+      if (hasBooks) {
+        spSearchWrap.style.display = '';
+        const n = data.books.length;
+        spBookCount.textContent = `${n} book${n !== 1 ? 's' : ''}`;
+        spContent.innerHTML = `<div class="sp-books"><div class="books-grid">${buildBookCards(data.books)}</div></div>`;
+      } else {
+        spSearchWrap.style.display = 'none';
+        spContent.innerHTML = comingSoonHTML(data,
+          `We are carefully curating books for <strong>${data.name}</strong>. Check back soon — this section is being prepared with care.`);
+      }
+    }
+
+    function renderQuestions(data) {
+      spSearchWrap.style.display = 'none';
+      setHeader(breadcrumb(data.name, 'Questions'),
+                'Common questions and answers on this subject.', '');
+      spContent.innerHTML = comingSoonHTML(data,
+        `A collection of common questions and answers for <strong>${data.name}</strong> is being prepared.`);
+    }
+
+    /* ── render whatever the current state points at ────────────────── */
+    function renderView() {
+      const data = SUBJECTS[currentKey];
+      if (!data) return;
+
+      navSubjectName.textContent = data.name;
+      navBackLabel.textContent   = currentView === 'menu' ? 'Back to home' : 'Back';
+      spSearchEl.value = '';
+
+      if (currentView === 'learn')          renderLearn(data);
+      else if (currentView === 'books')     renderBooks(data);
+      else if (currentView === 'questions') renderQuestions(data);
+      else                                  renderMenu(data);
+
+      const leaf = currentView === 'menu' ? '' :
+        ' — ' + currentView.charAt(0).toUpperCase() + currentView.slice(1);
+      document.title = `${data.name}${leaf} — Bayt Al-Rihla`;
+    }
 
     function openSubject(key) {
       const data = SUBJECTS[key];
       if (!data) return;
 
-      // Update nav badge
-      navSubjectName.textContent = data.name;
-
-      // Build content
-      if (data.comingSoon) {
-        spBookCount.textContent = '';
-        spContent.innerHTML = `
-          <div class="coming-soon-wrap">
-            <span class="coming-soon-pill">Coming Soon</span>
-            <span class="coming-soon-icon">${data.icon}</span>
-            <h2 class="coming-soon-title">${data.name}</h2>
-            <p class="coming-soon-text">
-              We are carefully curating books and resources for <strong>${data.name}</strong>.
-              Check back soon — this section is being prepared with care.
-            </p>
-          </div>`;
-      } else {
-        const n = data.books.length;
-        spBookCount.textContent = `${n} book${n !== 1 ? 's' : ''}`;
-
-        const cards = data.books.map(b => {
-          const searchable = [b.titleMain, b.titleEn, b.author, b.badge, b.desc].join(' ').toLowerCase();
-          const style = `--card-bg:${b.card.bg}; --badge-bg:${b.card.badgeBg}; --badge-tx:${b.card.badgeTx}`;
-          return `
-            <article class="book-card" style="${style}" data-search="${searchable.replace(/"/g,'&quot;')}">
-              <div class="book-card-top">
-                <span class="book-badge">${b.badge}</span>
-                <span class="book-icon-wrap">📖</span>
-              </div>
-              <h3 class="book-title-main">${b.titleMain}</h3>
-              <p class="book-title-en">${b.titleEn}</p>
-              <p class="book-author-line">${b.author}</p>
-              <p class="book-desc-text">${b.desc}</p>
-              <button class="book-btn">Open book &rarr;</button>
-            </article>`;
-        }).join('');
-
-        spContent.innerHTML = `<div class="sp-books"><div class="books-grid">${cards}</div></div>`;
-      }
-
-      // Clear search
-      spSearchEl.value = '';
+      currentKey  = key;
+      currentView = 'menu';
+      renderView();
 
       // Transition: fade out main → show subject page → fade in
       mainContent.classList.add('hidden');
@@ -1097,8 +1279,19 @@
       requestAnimationFrame(() => requestAnimationFrame(() => {
         subjectPage.classList.add('faded-in');
       }));
+    }
 
-      document.title = `${data.name} — Bayt Al-Rihla`;
+    /* go to a sub-view (Learn / Books / Questions) within the subject */
+    function showView(view) {
+      currentView = view;
+      renderView();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    /* nav back: sub-view → menu, menu → home */
+    function goBack() {
+      if (currentView !== 'menu') showView('menu');
+      else closeSubject();
     }
 
     function closeSubject() {
@@ -1109,6 +1302,8 @@
         subjectPage.classList.remove('visible');
         mainContent.classList.remove('hidden');
         document.body.classList.remove('subject-open');
+        currentKey  = null;
+        currentView = 'menu';
         window.scrollTo({ top: 0, behavior: 'instant' });
         document.title = 'Bayt Al-Rihla — Islamic Knowledge Hub';
       }, 350);
@@ -1122,8 +1317,14 @@
       });
     });
 
-    // Back buttons (nav + any future)
-    navBack.addEventListener('click', closeSubject);
+    // Delegate menu-card clicks (cards are rendered dynamically)
+    spContent.addEventListener('click', e => {
+      const card = e.target.closest('.menu-card[data-view]');
+      if (card) showView(card.dataset.view);
+    });
+
+    // Back button: context-aware
+    navBack.addEventListener('click', goBack);
 
     /* ══════════════════════════════════════════════════════════════════
        MOBILE NAV

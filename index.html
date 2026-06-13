@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bayt Al-Rihla — Islamic Knowledge Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset ──────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ── Tokens ─────────────────────────────────────────────────────── */
+    :root {
+      --cream:       #faf8f5;
+      --cream-alt:   #f2efe8;
+      --white:       #ffffff;
+
+      --g900: #14532d;
+      --g700: #166534;
+      --g600: #16a34a;
+      --g200: #bbf7d0;
+      --g100: #dcfce7;
+      --g50:  #f0fdf4;
+
+      --t900: #111827;
+      --t700: #374151;
+      --t500: #6b7280;
+      --t400: #9ca3af;
+      --t200: #e5e7eb;
+      --t100: #f3f4f6;
+
+      /* Pastel palette */
+      --mint:    #d1fae5;  --mint-dk:  #6ee7b7;  --mint-tx:  #065f46;
+      --lav:     #e0e7ff;  --lav-dk:   #a5b4fc;  --lav-tx:   #3730a3;
+      --yell:    #fef9c3;  --yell-dk:  #fde68a;  --yell-tx:  #78350f;
+      --pink:    #fce7f3;  --pink-dk:  #f9a8d4;  --pink-tx:  #831843;
+      --sky:     #e0f2fe;  --sky-dk:   #7dd3fc;  --sky-tx:   #0c4a6e;
+      --amber:   #fef3c7;  --amber-dk: #fcd34d;  --amber-tx: #78350f;
+      --violet:  #ede9fe;  --violet-dk:#c4b5fd;  --violet-tx:#4c1d95;
+      --orange:  #ffedd5;  --orange-dk:#fdba74;  --orange-tx:#7c2d12;
+
+      --radius:    20px;
+      --radius-sm: 12px;
+      --pill:      999px;
+
+      --sh0: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+      --sh1: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --sh2: 0 12px 40px rgba(0,0,0,0.12), 0 4px 14px rgba(0,0,0,0.06);
+      --ease: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Base ───────────────────────────────────────────────────────── */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cream);
+      background-image: radial-gradient(circle, rgba(0,0,0,0.038) 1px, transparent 1px);
+      background-size: 22px 22px;
+      color: var(--t900);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      height: 68px;
+      background: rgba(255,255,255,0.93);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      padding: 0 5%;
+      gap: 12px;
+    }
+
+    /* back link — hidden on main page */
+    .nav-back {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--t500);
+      text-decoration: none;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 6px 0;
+      white-space: nowrap;
+      transition: color var(--ease);
+      flex-shrink: 0;
+    }
+    .nav-back:hover { color: var(--t900); }
+    .nav-back svg { width: 14px; height: 14px; }
+
+    /* logo */
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: var(--g700);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon svg { width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .logo-text { display: flex; flex-direction: column; gap: 1px; }
+    .logo-name { font-family: 'Cinzel', serif; font-size: 0.9rem; font-weight: 700; color: var(--g900); line-height: 1.2; }
+    .logo-sub  { font-size: 0.65rem; color: var(--t500); letter-spacing: 0.3px; }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-links { display: flex; gap: 2px; list-style: none; }
+    .nav-links a {
+      display: block;
+      padding: 7px 14px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--t700);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: background var(--ease), color var(--ease);
+    }
+    .nav-links a:hover { background: var(--g100); color: var(--g700); }
+
+    /* subject badge — hidden on main page */
+    .nav-subject-badge {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--g700);
+      white-space: nowrap;
+    }
+    .nav-subject-badge .sparkle { font-size: 0.9rem; }
+
+    /* hamburger */
+    .nav-toggle { display: none; cursor: pointer; flex-direction: column; gap: 4px; background: none; border: none; padding: 4px; }
+    .nav-toggle span { display: block; width: 22px; height: 2px; background: var(--t700); border-radius: 2px; transition: var(--ease); }
+
+    /* ── Nav state: subject page open ─── (toggled via body class) ── */
+    body.subject-open .nav-back          { display: flex; }
+    body.subject-open .nav-subject-badge { display: flex; }
+    body.subject-open #navLinks          { display: none !important; }
+    body.subject-open .nav-toggle        { display: none !important; }
+
+    /* ── HERO ───────────────────────────────────────────────────────── */
+    #home {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 110px 5% 90px;
+      overflow: hidden;
+    }
+
+    /* soft green radial glow behind hero text */
+    #home::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(220,252,231,0.7) 0%, transparent 68%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -55%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      position: relative; z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--g100);
+      color: var(--g700);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: var(--pill);
+      margin-bottom: 28px;
+    }
+
+    .hero-title {
+      position: relative; z-index: 1;
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 700;
+      color: var(--g900);
+      line-height: 1.05;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+      position: relative; z-index: 1;
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      color: var(--t500);
+      font-weight: 400;
+      max-width: 480px;
+      margin: 0 auto 44px;
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      position: relative; z-index: 1;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 13px 32px;
+      background: var(--g700);
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: var(--pill);
+      text-decoration: none;
+      border: 2px solid var(--g700);
+      transition: background var(--ease), border-color var(--ease), transform var(--ease), box-shadow var(--ease);
+    }
+    .btn-primary:hover {
+      background: var(--g900);
+      border-color: var(--g900);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(20,83,45,0.28);
+    }
+    .btn-secondary {
+      display: inline-block;
+      padding: 13px 32px;
+      background: transparent;
+      color: var(--t700);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: var(--pill);
+      text-decoration: none;
+      border: 2px solid var(--t200);
+      transition: border-color var(--ease), color var(--ease), background var(--ease);
+    }
+    .btn-secondary:hover { border-color: var(--t700); color: var(--t900); background: var(--t100); }
+
+    /* floating pastel badges */
+    .hero-float {
+      position: absolute; z-index: 0;
+      pointer-events: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: var(--sh0);
+    }
+    .hf1 { top: 18%; left: 7%;  background: var(--mint);   color: var(--mint-tx);   animation: hfloat1 4.2s ease-in-out infinite; }
+    .hf2 { top: 22%; right: 7%; background: var(--lav);    color: var(--lav-tx);    animation: hfloat2 3.8s ease-in-out infinite; }
+    .hf3 { bottom: 24%; left: 9%;  background: var(--yell);   color: var(--yell-tx);   animation: hfloat1 4.8s ease-in-out infinite; }
+    .hf4 { bottom: 22%; right: 9%; background: var(--pink);   color: var(--pink-tx);   animation: hfloat2 5.2s ease-in-out infinite; }
+    @keyframes hfloat1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes hfloat2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+
+    /* scroll caret */
+    .scroll-caret {
+      position: absolute;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      animation: caretbob 2s ease-in-out infinite;
+      opacity: 0.35;
+    }
+    .scroll-caret svg { width: 28px; height: 28px; stroke: var(--g700); fill: none; stroke-width: 2; }
+    @keyframes caretbob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(7px)} }
+
+    /* ── SHARED SECTION ─────────────────────────────────────────────── */
+    section { padding: 100px 5%; }
+
+    .section-header { text-align: center; margin-bottom: 56px; }
+
+    .section-eyebrow {
+      display: inline-block;
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--g700);
+      background: var(--g100);
+      padding: 4px 14px;
+      border-radius: var(--pill);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--t900);
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+    }
+    .section-subtitle {
+      font-size: 0.98rem;
+      color: var(--t500);
+      max-width: 480px;
+      margin: 12px auto 0;
+      line-height: 1.75;
+      font-style: italic;
+    }
+
+    /* ── SUBJECTS ───────────────────────────────────────────────────── */
+    #subjects { background: var(--white); }
+
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .subject-card {
+      border-radius: var(--radius);
+      padding: 26px 22px;
+      cursor: pointer;
+      transition: transform var(--ease), box-shadow var(--ease);
+      position: relative;
+    }
+    .subject-card:hover { transform: translateY(-5px); box-shadow: var(--sh2); }
+
+    /* per-subject pastel backgrounds */
+    .subject-card[data-subject="aqeedah"]  { background: var(--mint); }
+    .subject-card[data-subject="hadith"]   { background: var(--lav); }
+    .subject-card[data-subject="fiqh"]     { background: var(--yell); }
+    .subject-card[data-subject="tafseer"]  { background: var(--pink); }
+    .subject-card[data-subject="seerah"]   { background: var(--sky); }
+    .subject-card[data-subject="ethics"]   { background: var(--amber); }
+    .subject-card[data-subject="history"]  { background: var(--violet); }
+    .subject-card[data-subject="arabic"]   { background: var(--orange); }
+
+    .subject-card-arrow {
+      position: absolute;
+      top: 18px; right: 18px;
+      font-size: 0.95rem;
+      color: rgba(0,0,0,0.22);
+      transition: transform var(--ease), color var(--ease);
+    }
+    .subject-card:hover .subject-card-arrow { transform: translate(3px,-3px); color: rgba(0,0,0,0.5); }
+
+    .subject-icon { font-size: 1.9rem; margin-bottom: 14px; display: block; }
+    .subject-name { font-size: 1rem; font-weight: 700; color: var(--t900); margin-bottom: 5px; }
+    .subject-desc { font-size: 0.8rem; color: var(--t500); line-height: 1.5; }
+
+    /* ── SCHOLARS ───────────────────────────────────────────────────── */
+    #scholars { background: var(--cream-alt); }
+
+    .scholars-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .scholar-card {
+      grid-column: span 3;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 28px 18px 22px;
+      text-align: center;
+      box-shadow: var(--sh0);
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .scholar-card:hover { transform: translateY(-4px); box-shadow: var(--sh1); }
+
+    /* centre last 3 in 12-col grid */
+    .scholar-card:nth-child(5) { grid-column: 3  / span 3; }
+    .scholar-card:nth-child(6) { grid-column: 6  / span 3; }
+    .scholar-card:nth-child(7) { grid-column: 9  / span 3; }
+
+    .scholar-avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .scholar-card:nth-child(1) .scholar-avatar { background: var(--mint);   color: var(--mint-tx); }
+    .scholar-card:nth-child(2) .scholar-avatar { background: var(--lav);    color: var(--lav-tx); }
+    .scholar-card:nth-child(3) .scholar-avatar { background: var(--yell);   color: var(--yell-tx); }
+    .scholar-card:nth-child(4) .scholar-avatar { background: var(--pink);   color: var(--pink-tx); }
+    .scholar-card:nth-child(5) .scholar-avatar { background: var(--sky);    color: var(--sky-tx); }
+    .scholar-card:nth-child(6) .scholar-avatar { background: var(--violet); color: var(--violet-tx); }
+    .scholar-card:nth-child(7) .scholar-avatar { background: var(--amber);  color: var(--amber-tx); }
+
+    .scholar-name { font-size: 0.88rem; font-weight: 700; color: var(--t900); margin-bottom: 4px; line-height: 1.3; }
+    .scholar-divider { width: 28px; height: 2px; background: var(--t200); border-radius: var(--pill); margin: 8px auto; }
+    .scholar-desc { font-size: 0.73rem; color: var(--t500); line-height: 1.5; }
+
+    /* ── ABOUT ──────────────────────────────────────────────────────── */
+    #about { background: var(--white); text-align: center; }
+    .about-inner { max-width: 640px; margin: 0 auto; }
+    .about-inner p { color: var(--t500); font-size: 0.98rem; line-height: 1.85; margin-bottom: 16px; }
+    .about-inner p:last-child { margin-bottom: 0; }
+    .about-inner strong { color: var(--t900); font-weight: 600; }
+
+    /* ── FOOTER ─────────────────────────────────────────────────────── */
+    footer {
+      background: var(--g900);
+      padding: 56px 5%;
+      text-align: center;
+    }
+    .footer-logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .footer-logo-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .footer-logo-icon svg { width: 18px; height: 18px; fill: none; stroke: var(--g200); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .footer-brand { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; color: white; }
+    .footer-sub { font-size: 0.82rem; color: var(--g200); margin-bottom: 24px; }
+    .footer-divider { width: 40px; height: 1px; background: rgba(255,255,255,0.15); border-radius: var(--pill); margin: 0 auto 18px; }
+    .footer-arabic { font-size: 0.78rem; color: rgba(255,255,255,0.3); letter-spacing: 0.5px; }
+
+    /* ── PAGE TRANSITIONS ────────────────────────────────────────────── */
+    #main-content { transition: opacity 0.35s ease; }
+    #main-content.hidden { opacity: 0; pointer-events: none; }
+
+    /* ── SUBJECT DETAIL PAGE ─────────────────────────────────────────── */
+    #subject-page {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      padding-top: 68px;
+      min-height: 100vh;
+      background-color: var(--cream);
+      background-image: radial-gradient(circle, rgba(0,0,0,0.038) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    #subject-page.visible  { display: block; }
+    #subject-page.faded-in { opacity: 1; }
+
+    /* page header */
+    .sp-header {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 52px 5% 0;
+    }
+    .sp-header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .sp-page-title {
+      font-size: clamp(2rem, 4.5vw, 3.2rem);
+      font-weight: 800;
+      color: var(--t900);
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .sp-page-subtitle { font-size: 0.92rem; color: var(--t500); margin-bottom: 4px; }
+    .sp-book-count { font-size: 0.78rem; color: var(--t400); font-weight: 500; }
+
+    /* search bar */
+    .sp-search-wrap { position: relative; flex-shrink: 0; }
+    .sp-search-wrap svg {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      width: 15px; height: 15px;
+      stroke: var(--t400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+    .sp-search {
+      width: 310px;
+      padding: 11px 16px 11px 38px;
+      background: var(--white);
+      border: 1.5px solid var(--t200);
+      border-radius: var(--pill);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.83rem;
+      color: var(--t700);
+      outline: none;
+      transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .sp-search::placeholder { color: var(--t400); }
+    .sp-search:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+
+    .sp-header-divider { height: 1px; background: var(--t200); margin: 28px 0; }
+
+    /* ── Books grid ──────────────────────────────────────────────────── */
+    .sp-books { max-width: 1200px; margin: 0 auto; padding: 0 5% 88px; }
+
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    /* ── Book card ───────────────────────────────────────────────────── */
+    .book-card {
+      background: var(--card-bg, var(--mint));
+      border-radius: var(--radius);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--sh0);
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .book-card:hover { transform: translateY(-5px); box-shadow: var(--sh2); }
+    .book-card.search-hidden { display: none; }
+
+    .book-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .book-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--badge-bg, rgba(0,0,0,0.08));
+      color: var(--badge-tx, var(--t700));
+      border-radius: var(--pill);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .book-icon-wrap { font-size: 1.3rem; opacity: 0.55; }
+
+    .book-title-main {
+      font-size: 1.22rem;
+      font-weight: 800;
+      color: var(--t900);
+      line-height: 1.25;
+    }
+    .book-title-en {
+      font-size: 0.82rem;
+      color: var(--t500);
+      font-style: italic;
+      margin-top: -2px;
+    }
+    .book-author-line {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--t700);
+    }
+    .book-desc-text {
+      font-size: 0.83rem;
+      color: var(--t700);
+      line-height: 1.68;
+      flex: 1;
+    }
+    .book-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      background: var(--white);
+      color: var(--t900);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: var(--pill);
+      cursor: pointer;
+      align-self: flex-start;
+      margin-top: 6px;
+      transition: background var(--ease), color var(--ease), border-color var(--ease), transform var(--ease);
+    }
+    .book-btn:hover { background: var(--t900); color: white; border-color: var(--t900); transform: translateX(2px); }
+
+    /* no results message */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 56px 0;
+      color: var(--t400);
+      font-size: 0.92rem;
+    }
+    .no-results span { display: block; font-size: 2rem; margin-bottom: 12px; }
+
+    /* ── Coming soon ──────────────────────────────────────────────────── */
+    .coming-soon-wrap {
+      padding: 80px 5%;
+      text-align: center;
+    }
+    .coming-soon-pill {
+      display: inline-block;
+      padding: 5px 16px;
+      background: var(--yell);
+      color: var(--yell-tx);
+      border-radius: var(--pill);
+      font-size: 0.73rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .coming-soon-icon { font-size: 2.8rem; display: block; margin-bottom: 16px; opacity: 0.6; }
+    .coming-soon-title { font-size: 2rem; font-weight: 800; color: var(--t900); margin-bottom: 10px; letter-spacing: -0.5px; }
+    .coming-soon-text { font-size: 0.92rem; color: var(--t500); max-width: 380px; margin: 0 auto; line-height: 1.75; }
+
+    /* ── Scroll fade-in ──────────────────────────────────────────────── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: none; }
+    .fade-in.d1 { transition-delay: 0.07s; }
+    .fade-in.d2 { transition-delay: 0.14s; }
+    .fade-in.d3 { transition-delay: 0.21s; }
+    .fade-in.d4 { transition-delay: 0.28s; }
+
+    /* ── Responsive ──────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .subjects-grid { grid-template-columns: repeat(2, 1fr); }
+      .scholars-grid { grid-template-columns: repeat(2, 1fr); }
+      .scholar-card { grid-column: span 1 !important; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 4%; }
+      .nav-links {
+        position: fixed;
+        top: 68px; left: 0; right: 0;
+        background: rgba(255,255,255,0.98);
+        flex-direction: column;
+        padding: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease, padding 0.3s ease;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+      }
+      .nav-links.open { max-height: 280px; padding: 10px 0; }
+      .nav-links li { width: 100%; }
+      .nav-links a { padding: 11px 5%; border-radius: 0; }
+      .nav-toggle { display: flex; }
+
+      section { padding: 72px 4%; }
+      .books-grid { grid-template-columns: 1fr; }
+      .sp-header-row { flex-direction: column; align-items: flex-start; }
+      .sp-search { width: 100%; max-width: 360px; }
+      .hero-float { display: none; }
+    }
+    @media (max-width: 480px) {
+      .subjects-grid { grid-template-columns: 1fr; }
+      .scholars-grid { grid-template-columns: 1fr !important; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────────────────────────── -->
+  <nav>
+    <!-- shown only on subject page -->
+    <button class="nav-back" id="navBack" aria-label="Back to home">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9,2 4,7 9,12"/></svg>
+      Back to home
+    </button>
+
+    <!-- always shown -->
+    <a href="#home" class="nav-logo" id="navLogo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Bayt Al Rihla</span>
+        <span class="logo-sub">House of the Journey</span>
+      </div>
+    </a>
+
+    <div class="nav-spacer"></div>
+
+    <!-- main nav links -->
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#subjects">Subjects</a></li>
+      <li><a href="#scholars">Scholars</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+
+    <!-- shown only on subject page -->
+    <div class="nav-subject-badge" id="navSubjectBadge">
+      <span class="sparkle">✦</span>
+      <span id="navSubjectName"></span>
+    </div>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ── SUBJECT DETAIL PAGE ───────────────────────────────────────────── -->
+  <div id="subject-page" aria-hidden="true">
+    <div class="sp-header">
+      <div class="sp-header-row">
+        <div class="sp-header-left">
+          <h1 class="sp-page-title">Choose a Book</h1>
+          <p class="sp-page-subtitle">Study from classical texts — organised, aesthetic, and proof-based.</p>
+          <p class="sp-book-count" id="spBookCount"></p>
+        </div>
+        <div class="sp-search-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input
+            type="text"
+            class="sp-search"
+            id="spSearch"
+            placeholder="Search books, badges, or descriptions…"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+      <div class="sp-header-divider"></div>
+    </div>
+    <div id="spContent"></div>
+  </div>
+
+  <!-- ── MAIN CONTENT ──────────────────────────────────────────────────── -->
+  <div id="main-content">
+
+  <!-- ── HERO ─────────────────────────────────────────────────────────── -->
+  <section id="home">
+
+    <!-- floating pastel labels -->
+    <div class="hero-float hf1">📚 Aqeedah</div>
+    <div class="hero-float hf2">📜 Hadith</div>
+    <div class="hero-float hf3">⚖️ Fiqh</div>
+    <div class="hero-float hf4">🌙 Seerah</div>
+
+    <span class="hero-eyebrow">✦ &nbsp;Islamic Knowledge Hub</span>
+    <h1 class="hero-title">Bayt Al-Rihla</h1>
+    <p class="hero-subtitle">Your journey in Islamic knowledge begins here — explore the books, scholars, and sciences of this blessed religion.</p>
+    <div class="hero-actions">
+      <a href="#subjects" class="btn-primary">Explore Subjects</a>
+      <a href="#scholars" class="btn-secondary">Meet the Scholars</a>
+    </div>
+
+    <div class="scroll-caret">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </section>
+
+  <!-- ── SUBJECTS ──────────────────────────────────────────────────────── -->
+  <section id="subjects">
+    <div class="section-header fade-in">
+      <span class="section-eyebrow">Explore</span>
+      <h2 class="section-title">Subjects of Knowledge</h2>
+    </div>
+
+    <div class="subjects-grid">
+      <div class="subject-card fade-in d1" data-subject="aqeedah" role="button" tabindex="0" aria-label="Open Aqeedah">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">🕌</span>
+        <p class="subject-name">Aqeedah</p>
+        <p class="subject-desc">The foundations of Islamic belief</p>
+      </div>
+      <div class="subject-card fade-in d2" data-subject="hadith" role="button" tabindex="0" aria-label="Open Hadith">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">📜</span>
+        <p class="subject-name">Hadith</p>
+        <p class="subject-desc">The sayings and actions of the Prophet ﷺ</p>
+      </div>
+      <div class="subject-card fade-in d3" data-subject="fiqh" role="button" tabindex="0" aria-label="Open Fiqh">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">⚖️</span>
+        <p class="subject-name">Fiqh</p>
+        <p class="subject-desc">Islamic jurisprudence and rulings</p>
+      </div>
+      <div class="subject-card fade-in d4" data-subject="tafseer" role="button" tabindex="0" aria-label="Open Tafseer">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">📖</span>
+        <p class="subject-name">Tafseer</p>
+        <p class="subject-desc">Quranic exegesis and interpretation</p>
+      </div>
+      <div class="subject-card fade-in d1" data-subject="seerah" role="button" tabindex="0" aria-label="Open Seerah">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">🌙</span>
+        <p class="subject-name">Seerah</p>
+        <p class="subject-desc">The life and biography of the Prophet ﷺ</p>
+      </div>
+      <div class="subject-card fade-in d2" data-subject="ethics" role="button" tabindex="0" aria-label="Open Islamic Ethics">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">🌿</span>
+        <p class="subject-name">Islamic Ethics</p>
+        <p class="subject-desc">Morals, manners and character in Islam</p>
+      </div>
+      <div class="subject-card fade-in d3" data-subject="history" role="button" tabindex="0" aria-label="Open Islamic History">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">🏛️</span>
+        <p class="subject-name">Islamic History</p>
+        <p class="subject-desc">The great civilisation of Islam</p>
+      </div>
+      <div class="subject-card fade-in d4" data-subject="arabic" role="button" tabindex="0" aria-label="Open Arabic">
+        <span class="subject-card-arrow">↗</span>
+        <span class="subject-icon">✒️</span>
+        <p class="subject-name">Arabic</p>
+        <p class="subject-desc">The language of the Quran</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SCHOLARS ───────────────────────────────────────────────────────── -->
+  <section id="scholars">
+    <div class="section-header fade-in">
+      <span class="section-eyebrow">The Inheritors of the Prophets</span>
+      <h2 class="section-title">The Scholars</h2>
+      <p class="section-subtitle">"Those who inherited the knowledge of the Prophets"</p>
+    </div>
+
+    <div class="scholars-grid">
+      <div class="scholar-card fade-in d1">
+        <div class="scholar-avatar">IT</div>
+        <p class="scholar-name">Ibn Taymiyyah</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">Shaykhul Islam<br/>661–728 AH</p>
+      </div>
+      <div class="scholar-card fade-in d2">
+        <div class="scholar-avatar">IQ</div>
+        <p class="scholar-name">Ibn al-Qayyim</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">Student of Ibn Taymiyyah<br/>691–751 AH</p>
+      </div>
+      <div class="scholar-card fade-in d3">
+        <div class="scholar-avatar">MW</div>
+        <p class="scholar-name">Muhammad ibn Abd al-Wahhab</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">Reviver of Tawheed<br/>1115–1206 AH</p>
+      </div>
+      <div class="scholar-card fade-in d4">
+        <div class="scholar-avatar">AL</div>
+        <p class="scholar-name">Al-Albani</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">Scholar of Hadith<br/>1914–1999 CE</p>
+      </div>
+      <div class="scholar-card fade-in d1">
+        <div class="scholar-avatar">IB</div>
+        <p class="scholar-name">Ibn Baz</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">Grand Mufti of Saudi Arabia<br/>1910–1999 CE</p>
+      </div>
+      <div class="scholar-card fade-in d2">
+        <div class="scholar-avatar">IU</div>
+        <p class="scholar-name">Ibn Uthaymeen</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">The Beloved Scholar<br/>1925–2001 CE</p>
+      </div>
+      <div class="scholar-card fade-in d3">
+        <div class="scholar-avatar">SF</div>
+        <p class="scholar-name">Salih al-Fawzan</p>
+        <div class="scholar-divider"></div>
+        <p class="scholar-desc">Senior Scholar of our time</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ──────────────────────────────────────────────────────────── -->
+  <section id="about">
+    <div class="section-header fade-in">
+      <span class="section-eyebrow">Our Mission</span>
+      <h2 class="section-title">About Bayt Al-Rihla</h2>
+    </div>
+    <div class="about-inner fade-in d1">
+      <p>
+        <strong>Bayt Al-Rihla</strong> — "The House of the Journey" — is a sanctuary for those who seek authentic Islamic knowledge. Just as the great scholars of Islam traversed lands and seas in pursuit of a single hadith, we invite you to embark on your own journey of learning.
+      </p>
+      <p>
+        Our platform brings together the foundational sciences of Islam — from the pillars of <strong>Aqeedah</strong> to the eloquence of <strong>Arabic</strong> — drawing from the well of the <strong>scholars who preserved this deen</strong> across centuries.
+      </p>
+      <p>
+        Knowledge is a light. May Allah illuminate your path and make this journey a means of nearness to Him.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo-row">
+      <div class="footer-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <span class="footer-brand">Bayt Al-Rihla</span>
+    </div>
+    <p class="footer-sub">Travelling the Path of Knowledge</p>
+    <div class="footer-divider"></div>
+    <p class="footer-arabic">طَلَبُ الْعِلْمِ فَرِيضَةٌ — Seeking knowledge is an obligation</p>
+  </footer>
+
+  </div><!-- /#main-content -->
+
+  <!-- ── JS ────────────────────────────────────────────────────────────── -->
+  <script>
+    /* ══════════════════════════════════════════════════════════════════
+       SUBJECT DATA
+       card:  { bg, badgeBg, badgeTx } — CSS colour strings
+    ══════════════════════════════════════════════════════════════════ */
+    const SUBJECTS = {
+      aqeedah: {
+        name: 'Aqeedah',
+        books: [
+          {
+            titleMain: 'Thalathat al-Usool',
+            titleEn:   'The Three Fundamental Principles',
+            author:    'Imam Muhammad ibn Abd al-Wahhab',
+            badge:     'Beginner Friendly',
+            desc:      'A concise yet profound treatise on the three questions every Muslim will be asked in the grave: Who is your Lord? What is your religion? Who is your Prophet? The essential starting point for every student of Aqeedah.',
+            card:      { bg: '#fef9c3', badgeBg: '#fde68a', badgeTx: '#78350f' }
+          },
+          {
+            titleMain: 'Kitaab al-Tawheed',
+            titleEn:   'The Book of Monotheism',
+            author:    'Imam Muhammad ibn Abd al-Wahhab',
+            badge:     'Core Text',
+            desc:      'The foundational text on the Tawheed of Allah — His oneness in lordship, worship, and names and attributes. Draws directly from the Quran and authentic Sunnah, with chapters refuting every form of shirk.',
+            card:      { bg: '#d1fae5', badgeBg: '#6ee7b7', badgeTx: '#065f46' }
+          },
+          {
+            titleMain: 'Al-Aqeedah al-Wasitiyyah',
+            titleEn:   'The Wasitiyyah Creed',
+            author:    'Shaykhul Islam Ibn Taymiyyah',
+            badge:     'Attributes & Creed',
+            desc:      'A masterwork of Sunni creed covering the Names and Attributes of Allah, the pillars of faith, and the way of Ahlus-Sunnah wal-Jamaa\'ah — written as a comprehensive summary of orthodox Islamic belief.',
+            card:      { bg: '#e0e7ff', badgeBg: '#a5b4fc', badgeTx: '#3730a3' }
+          }
+        ]
+      },
+
+      hadith: {
+        name: 'Hadith',
+        books: [
+          {
+            titleMain: "Al-Arba'een al-Nawawiyyah",
+            titleEn:   'The Forty Hadith',
+            author:    'Imam al-Nawawi',
+            badge:     'Hadith Collection',
+            desc:      'Forty-two carefully selected hadith forming the pillars of Islamic knowledge — covering belief, worship, ethics, and the path to Allah. Memorised and studied by generations of students across the Muslim world.',
+            card:      { bg: '#d1fae5', badgeBg: '#6ee7b7', badgeTx: '#065f46' }
+          },
+          {
+            titleMain: 'Riyaadh al-Saaliheen',
+            titleEn:   'Gardens of the Righteous',
+            author:    'Imam al-Nawawi',
+            badge:     'Core Text',
+            desc:      'A vast and beloved collection of Quranic verses and authentic hadith covering every aspect of a Muslim\'s daily life — from worship and manners to repentance and supplication. A timeless companion for the believer.',
+            card:      { bg: '#e0e7ff', badgeBg: '#a5b4fc', badgeTx: '#3730a3' }
+          },
+          {
+            titleMain: 'Umdah al-Ahkaam',
+            titleEn:   'The Reliance of Rulings',
+            author:    'Ibn Qudamah al-Maqdisi',
+            badge:     'Legal Rulings',
+            desc:      'A precise collection of hadith pertaining to Islamic rulings in worship and transactions. All narrations are from al-Bukhari and Muslim, making it a rigorous hadith-based foundation for the study of fiqh.',
+            card:      { bg: '#fef9c3', badgeBg: '#fde68a', badgeTx: '#78350f' }
+          }
+        ]
+      },
+
+      fiqh:    { name: 'Fiqh',           icon: '⚖️',  comingSoon: true },
+      tafseer: { name: 'Tafseer',         icon: '📖',  comingSoon: true },
+      seerah:  { name: 'Seerah',          icon: '🌙',  comingSoon: true },
+      ethics:  { name: 'Islamic Ethics',  icon: '🌿',  comingSoon: true },
+      history: { name: 'Islamic History', icon: '🏛️', comingSoon: true },
+      arabic:  { name: 'Arabic',          icon: '✒️', comingSoon: true }
+    };
+
+    /* ══════════════════════════════════════════════════════════════════
+       SEARCH
+    ══════════════════════════════════════════════════════════════════ */
+    document.getElementById('spSearch').addEventListener('input', function () {
+      const q = this.value.trim().toLowerCase();
+      const cards  = document.querySelectorAll('.book-card');
+      let   shown  = 0;
+
+      cards.forEach(card => {
+        const haystack = card.dataset.search || '';
+        const match = !q || haystack.includes(q);
+        card.classList.toggle('search-hidden', !match);
+        if (match) shown++;
+      });
+
+      // show "no results" if nothing matches
+      let noRes = document.querySelector('.no-results');
+      if (shown === 0) {
+        if (!noRes) {
+          noRes = document.createElement('p');
+          noRes.className = 'no-results';
+          noRes.innerHTML = '<span>🔍</span>No books matched your search.';
+          document.querySelector('.books-grid').appendChild(noRes);
+        }
+      } else if (noRes) {
+        noRes.remove();
+      }
+    });
+
+    /* ══════════════════════════════════════════════════════════════════
+       PAGE SWITCHING
+    ══════════════════════════════════════════════════════════════════ */
+    const mainContent     = document.getElementById('main-content');
+    const subjectPage     = document.getElementById('subject-page');
+    const spContent       = document.getElementById('spContent');
+    const spBookCount     = document.getElementById('spBookCount');
+    const navSubjectName  = document.getElementById('navSubjectName');
+    const navBack         = document.getElementById('navBack');
+    const spSearchEl      = document.getElementById('spSearch');
+
+    function openSubject(key) {
+      const data = SUBJECTS[key];
+      if (!data) return;
+
+      // Update nav badge
+      navSubjectName.textContent = data.name;
+
+      // Build content
+      if (data.comingSoon) {
+        spBookCount.textContent = '';
+        spContent.innerHTML = `
+          <div class="coming-soon-wrap">
+            <span class="coming-soon-pill">Coming Soon</span>
+            <span class="coming-soon-icon">${data.icon}</span>
+            <h2 class="coming-soon-title">${data.name}</h2>
+            <p class="coming-soon-text">
+              We are carefully curating books and resources for <strong>${data.name}</strong>.
+              Check back soon — this section is being prepared with care.
+            </p>
+          </div>`;
+      } else {
+        const n = data.books.length;
+        spBookCount.textContent = `${n} book${n !== 1 ? 's' : ''}`;
+
+        const cards = data.books.map(b => {
+          const searchable = [b.titleMain, b.titleEn, b.author, b.badge, b.desc].join(' ').toLowerCase();
+          const style = `--card-bg:${b.card.bg}; --badge-bg:${b.card.badgeBg}; --badge-tx:${b.card.badgeTx}`;
+          return `
+            <article class="book-card" style="${style}" data-search="${searchable.replace(/"/g,'&quot;')}">
+              <div class="book-card-top">
+                <span class="book-badge">${b.badge}</span>
+                <span class="book-icon-wrap">📖</span>
+              </div>
+              <h3 class="book-title-main">${b.titleMain}</h3>
+              <p class="book-title-en">${b.titleEn}</p>
+              <p class="book-author-line">${b.author}</p>
+              <p class="book-desc-text">${b.desc}</p>
+              <button class="book-btn">Open book &rarr;</button>
+            </article>`;
+        }).join('');
+
+        spContent.innerHTML = `<div class="sp-books"><div class="books-grid">${cards}</div></div>`;
+      }
+
+      // Clear search
+      spSearchEl.value = '';
+
+      // Transition: fade out main → show subject page → fade in
+      mainContent.classList.add('hidden');
+      document.body.classList.add('subject-open');
+      subjectPage.setAttribute('aria-hidden', 'false');
+      subjectPage.classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        subjectPage.classList.add('faded-in');
+      }));
+
+      document.title = `${data.name} — Bayt Al-Rihla`;
+    }
+
+    function closeSubject() {
+      subjectPage.classList.remove('faded-in');
+      subjectPage.setAttribute('aria-hidden', 'true');
+
+      setTimeout(() => {
+        subjectPage.classList.remove('visible');
+        mainContent.classList.remove('hidden');
+        document.body.classList.remove('subject-open');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        document.title = 'Bayt Al-Rihla — Islamic Knowledge Hub';
+      }, 350);
+    }
+
+    // Attach subject card clicks
+    document.querySelectorAll('.subject-card[data-subject]').forEach(card => {
+      card.addEventListener('click', () => openSubject(card.dataset.subject));
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSubject(card.dataset.subject); }
+      });
+    });
+
+    // Back buttons (nav + any future)
+    navBack.addEventListener('click', closeSubject);
+
+    /* ══════════════════════════════════════════════════════════════════
+       MOBILE NAV
+    ══════════════════════════════════════════════════════════════════ */
+    const navToggle = document.getElementById('navToggle');
+    const navLinks  = document.getElementById('navLinks');
+
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      const spans = navToggle.querySelectorAll('span');
+      if (navLinks.classList.contains('open')) {
+        spans[0].style.transform = 'translateY(6px) rotate(45deg)';
+        spans[1].style.opacity   = '0';
+        spans[2].style.transform = 'translateY(-6px) rotate(-45deg)';
+      } else {
+        spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+      }
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+    /* ══════════════════════════════════════════════════════════════════
+       SCROLL FADE-IN
+    ══════════════════════════════════════════════════════════════════ */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+
+    /* ══════════════════════════════════════════════════════════════════
+       ACTIVE NAV HIGHLIGHT
+    ══════════════════════════════════════════════════════════════════ */
+    const sectionIO = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          document.querySelectorAll('.nav-links a').forEach(a => {
+            a.style.background = '';
+            a.style.color = '';
+            if (a.getAttribute('href') === '#' + e.target.id) {
+              a.style.background = 'var(--g100)';
+              a.style.color = 'var(--g700)';
+            }
+          });
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+
+    document.querySelectorAll('section[id]').forEach(s => sectionIO.observe(s));
+  </script>
+
+</body>
+</html>

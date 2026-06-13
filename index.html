@@ -869,12 +869,19 @@
     .admin-btn.danger:hover { background: #b91c1c; color: #fff; border-color: #b91c1c; }
     .admin-btn.block { width: 100%; justify-content: center; margin-bottom: 14px; }
 
-    .dirty-indicator {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.74rem; font-weight: 600; color: var(--amber-tx);
-      background: var(--amber); padding: 6px 12px; border-radius: var(--pill);
+    .sync-indicator {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 0.74rem; font-weight: 600;
+      padding: 6px 12px; border-radius: var(--pill);
+      transition: background var(--ease), color var(--ease);
     }
-    .dirty-indicator[hidden] { display: none; }
+    .sync-indicator::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+    .sync-saved   { background: var(--g100); color: var(--g700); }
+    .sync-saving  { background: var(--amber); color: var(--amber-tx); }
+    .sync-offline { background: #fef2f2; color: #b91c1c; }
 
     .admin-note {
       font-size: 0.76rem; color: var(--t500); line-height: 1.6;
@@ -1158,9 +1165,9 @@
         </div>
 
         <div class="admin-actions">
-          <span class="dirty-indicator" id="dirtyIndicator" hidden>● Unsaved — Export to save</span>
-          <button class="admin-btn" id="btnExport">⬇ Export</button>
-          <button class="admin-btn" id="btnImport">⬆ Import</button>
+          <span class="sync-indicator sync-saved" id="syncIndicator" title="Live sync with Supabase">Saved</span>
+          <button class="admin-btn" id="btnExport" title="Download a data.json backup">⬇ Export</button>
+          <button class="admin-btn" id="btnImport" title="Load a data.json backup">⬆ Import</button>
           <input type="file" id="importFile" accept="application/json,.json" hidden />
           <button class="admin-btn" id="btnLock">Lock</button>
           <a href="#home" class="admin-btn" id="btnToSite">← Site</a>
@@ -1168,9 +1175,10 @@
       </div>
 
       <div class="admin-note">
-        <strong>How your data is saved:</strong> edits auto-save to this browser (localStorage).
-        To keep them permanently and publish to the live site, click <strong>Export</strong> to download
-        <strong>data.json</strong> and commit it to the repo. Use <strong>Import</strong> to load a data.json back in.
+        <strong>How your data is saved:</strong> edits sync <strong>live to Supabase</strong> (watch the status
+        pill above) and to this browser as an offline backup. If Supabase is unreachable, changes are kept
+        locally and re-synced automatically when it's back. <strong>Export / Import</strong> remain available
+        for manual <strong>data.json</strong> backups.
         &nbsp;·&nbsp; <em>Note: the password gate is light protection only — not real security.</em>
       </div>
 
@@ -1837,8 +1845,17 @@
 
     let DATA = { folders: [] };
     let selectedLessonId = null;
-    let exportDirty = false;     // true = changes not yet Exported to data.json
     let dragData = null;
+
+    /* ── Supabase sync state ──────────────────────────────────────────
+       SB (the Supabase client) is created in the module script at the
+       bottom of this file and handed to window.__startApp(). See there
+       to change the project URL / anon key. */
+    let SB = null;               // Supabase client (or null when offline)
+    const SB_ROW_ID = 1;         // row in site_data that holds the whole tree
+    let saveTimer = null;        // debounce timer for pushes
+    let pendingSync = false;     // local changes not yet confirmed in Supabase
+    let isSaving = false;
 
     const SUBJECT_OPTIONS = Object.entries(SUBJECTS).map(([k, v]) => [k, v.name]);
     const uid = () => 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
@@ -1866,26 +1883,85 @@
       };
     }
 
+    /* local mirror (offline fallback + instant persistence) */
     function saveData() { try { localStorage.setItem(LS_DATA, JSON.stringify(DATA)); } catch (e) {} }
 
-    /* Load priority: localStorage working copy → committed data.json → sample.
-       (A fresh visitor has no localStorage, so they get the committed
-        data.json. The owner's local edits survive refresh — see Export note.) */
-    async function loadData() {
-      const ls = localStorage.getItem(LS_DATA);
-      if (ls) { try { DATA = JSON.parse(ls); return; } catch (e) {} }
-      try {
-        const res = await fetch('data.json', { cache: 'no-store' });
-        if (res.ok) { DATA = await res.json(); saveData(); return; }
-      } catch (e) {}
-      DATA = defaultData();
-      saveData();
+    /* ── sync status pill ('Saving…' / 'Saved' / 'Offline') ─────────── */
+    function setSync(state) {
+      const el = document.getElementById('syncIndicator');
+      if (!el) return;
+      el.classList.remove('sync-saved', 'sync-saving', 'sync-offline');
+      if (state === 'saving')       { el.classList.add('sync-saving');  el.textContent = 'Saving…'; }
+      else if (state === 'offline') { el.classList.add('sync-offline'); el.textContent = 'Offline — saved locally'; }
+      else                          { el.classList.add('sync-saved');   el.textContent = 'Saved'; }
     }
 
-    /* ── dirty / unsaved-since-export indicator ─────────────────────── */
-    function updateDirty() { const el = document.getElementById('dirtyIndicator'); if (el) el.hidden = !exportDirty; }
-    function markDirty()   { exportDirty = true; updateDirty(); }
-    function commit()      { saveData(); markDirty(); }   // persist + flag (after structural changes)
+    /* a valid data tree must be an object with a folders array */
+    function isTree(d) { return !!(d && Array.isArray(d.folders)); }
+    function safeParse(s) { try { return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+
+    /* Load priority: Supabase (row id=1) → localStorage → data.json → sample.
+       An empty/blank Supabase row is treated as a fresh, empty tree (we do
+       NOT overwrite it with sample data). If Supabase is unreachable but we
+       have a local copy, it's marked pending so it syncs UP once back. */
+    async function loadData() {
+      if (SB) {
+        try {
+          const { data, error } = await SB.from('site_data').select('content').eq('id', SB_ROW_ID).single();
+          if (!error && data) {
+            DATA = isTree(data.content) ? data.content : { folders: [] };
+            saveData(); pendingSync = false; setSync('saved');
+            return;
+          }
+        } catch (e) { /* unreachable → offline fallbacks below */ }
+      }
+      const local = safeParse(localStorage.getItem(LS_DATA));
+      if (isTree(local)) {
+        DATA = local; pendingSync = !!SB; setSync(SB ? 'saving' : 'saved');
+        if (SB) pushToSupabase();                 // sync local copy up to the row
+        return;
+      }
+      try {
+        const res = await fetch('data.json', { cache: 'no-store' });
+        if (res.ok) {
+          const j = await res.json();
+          if (isTree(j)) {
+            DATA = j; saveData(); pendingSync = !!SB; setSync(SB ? 'saving' : 'saved');
+            if (SB) pushToSupabase();
+            return;
+          }
+        }
+      } catch (e) {}
+      DATA = defaultData(); saveData(); pendingSync = !!SB; setSync(SB ? 'saving' : 'saved');
+      if (SB) pushToSupabase();
+    }
+
+    /* ── live save: write localStorage now, push to Supabase (debounced) ── */
+    function scheduleSave() {
+      saveData();
+      pendingSync = true;
+      setSync('saving');
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(pushToSupabase, 800);
+    }
+
+    async function pushToSupabase() {
+      if (!SB) { setSync('offline'); return; }          // stays pending; retried on reconnect
+      isSaving = true; setSync('saving');
+      try {
+        const { error } = await SB.from('site_data').upsert({ id: SB_ROW_ID, content: DATA }, { onConflict: 'id' });
+        if (error) throw error;
+        pendingSync = false; isSaving = false; setSync('saved');
+      } catch (e) {
+        isSaving = false; setSync('offline');            // keep pending; will retry
+      }
+    }
+
+    /* Retry the upload when the network comes back or periodically. */
+    window.addEventListener('online', () => { if (pendingSync) pushToSupabase(); });
+    setInterval(() => { if (pendingSync && !isSaving && SB) pushToSupabase(); }, 15000);
+
+    function commit() { scheduleSave(); }   // persist + sync (after structural changes)
 
     /* ── admin rendering ────────────────────────────────────────────── */
     const adminPage = document.getElementById('admin-page');
@@ -1893,6 +1969,7 @@
     function renderAdmin() { renderSidebar(); renderEditor(); }
 
     function renderSidebar() {
+      if (!isTree(DATA)) DATA = { folders: [] };
       const list = document.getElementById('folderList');
       const q = (document.getElementById('adminSearch').value || '').trim().toLowerCase();
 
@@ -2078,12 +2155,12 @@
       const elPreview = document.getElementById('edPreview');
 
       elTitle.addEventListener('input', () => {
-        l.title = elTitle.value; saveData(); markDirty();
+        l.title = elTitle.value; scheduleSave();
         const lbl = document.querySelector('.admin-lesson[data-lesson="' + l.id + '"] .admin-lesson-title');
         if (lbl) lbl.textContent = l.title;
       });
       elContent.addEventListener('input', () => {
-        l.content = elContent.value; saveData(); markDirty();
+        l.content = elContent.value; scheduleSave();
         elPreview.innerHTML = renderMarkdown(l.content);
       });
       document.getElementById('edPublished').addEventListener('change', e => { l.published = e.target.checked; commit(); renderSidebar(); });
@@ -2110,7 +2187,6 @@
       a.href = url; a.download = 'data.json';
       document.body.appendChild(a); a.click(); a.remove();
       URL.revokeObjectURL(url);
-      exportDirty = false; updateDirty();
     });
 
     const importFile = document.getElementById('importFile');
@@ -2122,9 +2198,10 @@
         try {
           const parsed = JSON.parse(reader.result);
           if (!parsed || !Array.isArray(parsed.folders)) throw new Error('bad shape');
-          DATA = parsed; selectedLessonId = null; saveData();
-          exportDirty = false; updateDirty(); renderAdmin();
-          alert('Imported data.json successfully.');
+          DATA = parsed; selectedLessonId = null;
+          scheduleSave();   // saves locally and pushes the imported tree up to Supabase
+          renderAdmin();
+          alert('Imported data.json successfully. Syncing to Supabase…');
         } catch (e) { alert('Could not import: that file is not a valid data.json export.'); }
         importFile.value = '';
       };
@@ -2177,13 +2254,67 @@
     });
     document.getElementById('btnLock').addEventListener('click', () => { localStorage.removeItem(LS_UNLOCK); showGate(); });
 
-    /* ── hash routing + unsaved-changes guard ───────────────────────── */
+    /* ── hash routing + unsynced-changes guard ──────────────────────── */
     function handleHash() { if (location.hash === '#admin') openAdmin(); else closeAdmin(); }
     window.addEventListener('hashchange', handleHash);
-    window.addEventListener('beforeunload', e => { if (exportDirty) { e.preventDefault(); e.returnValue = ''; return ''; } });
+    window.addEventListener('beforeunload', e => { if (pendingSync) { e.preventDefault(); e.returnValue = ''; return ''; } });
 
-    /* ── boot ───────────────────────────────────────────────────────── */
-    loadData().then(() => { updateDirty(); handleHash(); });
+    /* ── boot ─────────────────────────────────────────────────────────
+       The static page is visible immediately. Lesson DATA loads from
+       Supabase as soon as the client (created in the module script below)
+       is ready. If Supabase / the CDN can't be reached, we boot offline
+       from localStorage after a short fallback and sync up later. */
+    let booted = false;
+    function boot() { if (booted) return; booted = true; loadData().then(handleHash); }
+
+    /* pull the authoritative tree from Supabase and re-render what's visible */
+    async function refreshFromSupabase() {
+      if (!SB) return;
+      try {
+        const { data, error } = await SB.from('site_data').select('content').eq('id', SB_ROW_ID).single();
+        if (!error && data && data.content) {
+          DATA = data.content; saveData(); pendingSync = false; setSync('saved');
+          const adminOpen = adminPage.classList.contains('visible') &&
+                            document.getElementById('adminApp').classList.contains('show');
+          if (adminOpen) renderAdmin(); else if (currentKey) renderView();
+        }
+      } catch (e) { setSync('offline'); }
+    }
+
+    /* Called by the Supabase module script with the client (or null). */
+    window.__startApp = function (client) {
+      SB = client || null;
+      if (!booted) { boot(); return; }      // first boot reads from Supabase via loadData()
+      if (!SB) return;                       // booted offline, still no client
+      if (pendingSync) pushToSupabase();     // we made edits offline → push them up
+      else refreshFromSupabase();            // no local edits → load authoritative remote
+    };
+
+    /* Safety net: if the module never reports in (CDN blocked / slow / import
+       hangs), start offline so the admin and lessons still work. */
+    setTimeout(() => { if (!booted) boot(); }, 2500);
+  </script>
+
+  <!-- ── SUPABASE CLIENT (ESM via CDN) ──────────────────────────────────
+       Creates the Supabase client and boots the app. If the CDN or
+       Supabase can't be reached, the app still starts in offline mode
+       (localStorage) and syncs up once Supabase is available again.
+
+       ┌─────────────────────────────────────────────────────────────┐
+       │  CHANGE YOUR SUPABASE PROJECT URL AND ANON KEY HERE          │
+       └─────────────────────────────────────────────────────────────┘ -->
+  <script type="module">
+    const SUPABASE_URL      = 'https://xsltznfymqtoqkiishvd.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzbHR6bmZ5bXF0b3FraWlzaHZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzODI4NTYsImV4cCI6MjA5Njk1ODg1Nn0.xUEjZHqKJjF21lWPZ-E-E2ZUwhGLPoGOfe7z10RPsvQ';
+
+    let client = null;
+    try {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+      console.warn('Supabase unavailable — starting in offline mode (localStorage).', e);
+    }
+    window.__startApp(client);
   </script>
 
 </body>

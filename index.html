@@ -819,9 +819,38 @@
     .gate-logo svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; }
     .gate-title { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--g900); margin-bottom: 6px; }
     .gate-sub { font-size: 0.85rem; color: var(--t500); margin-bottom: 22px; line-height: 1.6; }
-    .gate-error { color: #b91c1c; font-size: 0.8rem; min-height: 18px; margin-top: 8px; }
+    .gate-input {
+      width: 100%; padding: 12px 16px; margin-bottom: 10px;
+      border: 1.5px solid var(--t200); border-radius: 12px;
+      font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--t900);
+      outline: none; transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .gate-input:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .gate-error { color: #b91c1c; font-size: 0.8rem; min-height: 18px; margin: 2px 0 8px; }
     .gate-back { display: inline-block; margin-top: 16px; font-size: 0.82rem; color: var(--t500); text-decoration: none; }
     .gate-back:hover { color: var(--t900); }
+
+    /* signed-in user chip */
+    .admin-user {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.74rem; font-weight: 600; color: var(--g700);
+      background: var(--g50); border: 1px solid var(--g100);
+      padding: 6px 11px; border-radius: var(--pill); max-width: 200px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .admin-user[hidden] { display: none; }
+
+    /* "please sign in" banner when a write is rejected */
+    .auth-msg {
+      font-size: 0.82rem; color: #b91c1c; font-weight: 600;
+      padding: 10px 20px; background: #fef2f2;
+      border-bottom: 1px solid #fecaca; flex-shrink: 0;
+    }
+    .auth-msg[hidden] { display: none; }
+    .linklike {
+      border: none; background: none; padding: 0; cursor: pointer;
+      color: #b91c1c; font: inherit; font-weight: 700; text-decoration: underline;
+    }
 
     /* ── App shell ── */
     .admin-app { display: none; flex-direction: column; height: 100%; }
@@ -1132,17 +1161,18 @@
   <!-- ── ADMIN PANEL (hidden; reached via #admin) ──────────────────────── -->
   <div id="admin-page" aria-hidden="true">
 
-    <!-- password gate -->
+    <!-- sign-in gate (Supabase Auth — email + password) -->
     <div class="admin-gate" id="adminGate">
-      <form class="gate-card" id="gateForm" autocomplete="off">
+      <form class="gate-card" id="gateForm" autocomplete="on">
         <div class="gate-logo">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
         </div>
-        <h2 class="gate-title">Admin Access</h2>
-        <p class="gate-sub">Enter the password to manage lessons and folders.</p>
-        <input type="password" id="gateInput" class="editor-title-input" style="width:100%;font-size:0.95rem;font-weight:500;" placeholder="Password" autocomplete="current-password" />
+        <h2 class="gate-title">Admin Sign In</h2>
+        <p class="gate-sub">Sign in with your Supabase account to manage lessons.</p>
+        <input type="email" id="gateEmail" class="gate-input" placeholder="Email" autocomplete="username" required />
+        <input type="password" id="gatePassword" class="gate-input" placeholder="Password" autocomplete="current-password" required />
         <p class="gate-error" id="gateError"></p>
-        <button type="submit" class="admin-btn primary" style="width:100%;justify-content:center;">Unlock</button>
+        <button type="submit" class="admin-btn primary" id="gateSubmit" style="width:100%;justify-content:center;">Sign in</button>
         <a href="#home" class="gate-back">← Back to site</a>
       </form>
     </div>
@@ -1166,20 +1196,26 @@
 
         <div class="admin-actions">
           <span class="sync-indicator sync-saved" id="syncIndicator" title="Live sync with Supabase">Saved</span>
+          <span class="admin-user" id="adminUser" hidden></span>
           <button class="admin-btn" id="btnExport" title="Download a data.json backup">⬇ Export</button>
           <button class="admin-btn" id="btnImport" title="Load a data.json backup">⬆ Import</button>
           <input type="file" id="importFile" accept="application/json,.json" hidden />
-          <button class="admin-btn" id="btnLock">Lock</button>
+          <button class="admin-btn" id="btnSignOut">Sign out</button>
           <a href="#home" class="admin-btn" id="btnToSite">← Site</a>
         </div>
       </div>
 
+      <!-- shown if a save is rejected because the session is missing/expired -->
+      <div class="auth-msg" id="authMsg" hidden>
+        ⚠ Your changes aren't saving — your session ended. Please
+        <button type="button" class="linklike" id="authMsgSignIn">sign in again</button>.
+      </div>
+
       <div class="admin-note">
-        <strong>How your data is saved:</strong> edits sync <strong>live to Supabase</strong> (watch the status
-        pill above) and to this browser as an offline backup. If Supabase is unreachable, changes are kept
-        locally and re-synced automatically when it's back. <strong>Export / Import</strong> remain available
-        for manual <strong>data.json</strong> backups.
-        &nbsp;·&nbsp; <em>Note: the password gate is light protection only — not real security.</em>
+        <strong>How your data is saved:</strong> you must be <strong>signed in</strong> to edit. Changes sync
+        <strong>live to Supabase</strong> (watch the status pill) and to this browser as an offline backup;
+        if Supabase is unreachable they re-sync automatically once it's back. The public site stays readable
+        by everyone. <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
       </div>
 
       <div class="admin-body">
@@ -1835,17 +1871,17 @@
     /* ══════════════════════════════════════════════════════════════════
        LESSON DATA + ADMIN PANEL
        ------------------------------------------------------------------
-       LIGHT PROTECTION ONLY. The password below lives in the page source
-       and is trivially readable — it is NOT real security. It only keeps
-       the admin UI out of casual sight on this static site.
+       Access is gated by REAL Supabase Auth (email + password). Only an
+       authenticated session can write to the database; the public can
+       still read. Auth is wired in the "AUTH" section further below and
+       the Supabase client is created in the module script at the bottom.
     ══════════════════════════════════════════════════════════════════ */
-    const ADMIN_PASSWORD = 'admin123';        // ← change this to your own password
-    const LS_DATA   = 'bar_lessons_v1';
-    const LS_UNLOCK = 'bar_admin_unlock';
+    const LS_DATA = 'bar_lessons_v1';
 
     let DATA = { folders: [] };
     let selectedLessonId = null;
     let dragData = null;
+    let authSession = null;      // current Supabase Auth session (or null)
 
     /* ── Supabase sync state ──────────────────────────────────────────
        SB (the Supabase client) is created in the module script at the
@@ -1945,16 +1981,32 @@
       saveTimer = setTimeout(pushToSupabase, 800);
     }
 
+    /* an error is "auth-related" if RLS blocked it or there's no session */
+    function isAuthError(e) {
+      if (!authSession) return true;
+      const code = e && (e.code || e.status);
+      const msg = (e && e.message || '').toLowerCase();
+      return code === '42501' || code === 401 || code === 403 ||
+             /row-level security|jwt|not authorized|permission|policy/.test(msg);
+    }
+
     async function pushToSupabase() {
       if (!SB) { setSync('offline'); return; }          // stays pending; retried on reconnect
+      if (!authSession) { setSync('offline'); showAuthMsg(true); return; }  // must be signed in to write
       isSaving = true; setSync('saving');
       try {
         const { error } = await SB.from('site_data').upsert({ id: SB_ROW_ID, content: DATA }, { onConflict: 'id' });
         if (error) throw error;
-        pendingSync = false; isSaving = false; setSync('saved');
+        pendingSync = false; isSaving = false; setSync('saved'); showAuthMsg(false);
       } catch (e) {
         isSaving = false; setSync('offline');            // keep pending; will retry
+        if (isAuthError(e)) showAuthMsg(true);           // friendly "please sign in"
       }
+    }
+
+    function showAuthMsg(on) {
+      const el = document.getElementById('authMsg');
+      if (el) el.hidden = !on;
     }
 
     /* Retry the upload when the network comes back or periodically. */
@@ -2215,23 +2267,35 @@
       document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     });
 
-    /* ── password gate + open / close ───────────────────────────────── */
-    function isUnlocked() { return localStorage.getItem(LS_UNLOCK) === '1'; }
+    /* ══════════════════════════════════════════════════════════════════
+       AUTH (Supabase email + password)
+       ------------------------------------------------------------------
+       Only a signed-in user can write (enforced by Row Level Security on
+       the database — see the SQL provided with this feature). The session
+       is persisted by the Supabase client across refreshes automatically.
+    ══════════════════════════════════════════════════════════════════ */
     function showGate() {
       document.getElementById('adminGate').classList.add('show');
       document.getElementById('adminApp').classList.remove('show');
-      setTimeout(() => { const i = document.getElementById('gateInput'); if (i) i.focus(); }, 50);
+      setTimeout(() => { const i = document.getElementById('gateEmail'); if (i) i.focus(); }, 50);
     }
     function showApp() {
       document.getElementById('adminGate').classList.remove('show');
       document.getElementById('adminApp').classList.add('show');
+      const u = document.getElementById('adminUser');
+      if (u && authSession && authSession.user) { u.hidden = false; u.textContent = '✓ ' + authSession.user.email; }
       renderAdmin();
+    }
+    /* show the right screen based on whether we have a session */
+    function reflectAuth() {
+      if (!adminPage.classList.contains('visible')) return;
+      authSession ? showApp() : showGate();
     }
     function openAdmin() {
       adminPage.classList.add('visible');
       adminPage.setAttribute('aria-hidden', 'false');
       document.title = 'Lesson Admin — Bayt Al-Rihla';
-      isUnlocked() ? showApp() : showGate();
+      reflectAuth();
     }
     function closeAdmin() {
       if (!adminPage.classList.contains('visible')) return;
@@ -2240,19 +2304,43 @@
       document.getElementById('gateError').textContent = '';
     }
 
-    document.getElementById('gateForm').addEventListener('submit', e => {
+    function setGateError(msg) { document.getElementById('gateError').textContent = msg || ''; }
+
+    /* sign in with email + password */
+    document.getElementById('gateForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const input = document.getElementById('gateInput');
-      if (input.value === ADMIN_PASSWORD) {
-        localStorage.setItem(LS_UNLOCK, '1');
-        input.value = '';
-        document.getElementById('gateError').textContent = '';
-        showApp();
-      } else {
-        document.getElementById('gateError').textContent = 'Incorrect password. Try again.';
+      if (!SB) { setGateError('Can’t reach Supabase right now — check your connection.'); return; }
+      const email = document.getElementById('gateEmail').value.trim();
+      const password = document.getElementById('gatePassword').value;
+      const btn = document.getElementById('gateSubmit');
+      setGateError(''); btn.disabled = true; btn.textContent = 'Signing in…';
+      try {
+        const { data, error } = await SB.auth.signInWithPassword({ email, password });
+        if (error) { setGateError(error.message || 'Sign-in failed.'); }
+        else {
+          authSession = data.session;
+          document.getElementById('gatePassword').value = '';
+          showAuthMsg(false);
+          showApp();
+          if (pendingSync) pushToSupabase();   // flush anything queued while signed out
+        }
+      } catch (err) {
+        setGateError('Sign-in failed. Please try again.');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Sign in';
       }
     });
-    document.getElementById('btnLock').addEventListener('click', () => { localStorage.removeItem(LS_UNLOCK); showGate(); });
+
+    /* sign out */
+    document.getElementById('btnSignOut').addEventListener('click', async () => {
+      if (SB) { try { await SB.auth.signOut(); } catch (e) {} }
+      authSession = null;
+      const u = document.getElementById('adminUser'); if (u) { u.hidden = true; u.textContent = ''; }
+      showGate();
+    });
+
+    /* re-show the gate from the "please sign in again" banner */
+    document.getElementById('authMsgSignIn').addEventListener('click', () => { showAuthMsg(false); showGate(); });
 
     /* ── hash routing + unsynced-changes guard ──────────────────────── */
     function handleHash() { if (location.hash === '#admin') openAdmin(); else closeAdmin(); }
@@ -2281,10 +2369,26 @@
       } catch (e) { setSync('offline'); }
     }
 
+    /* load the current auth session and keep it in sync across refreshes,
+       token refreshes, and other tabs */
+    async function initAuth() {
+      try { const { data } = await SB.auth.getSession(); authSession = data.session || null; }
+      catch (e) { authSession = null; }
+      SB.auth.onAuthStateChange((_event, session) => {
+        authSession = session || null;
+        const u = document.getElementById('adminUser');
+        if (authSession && authSession.user) { if (u) { u.hidden = false; u.textContent = '✓ ' + authSession.user.email; } }
+        else if (u) { u.hidden = true; u.textContent = ''; }
+        reflectAuth();
+      });
+      reflectAuth();   // in case the admin opened before the session resolved
+    }
+
     /* Called by the Supabase module script with the client (or null). */
     window.__startApp = function (client) {
       SB = client || null;
-      if (!booted) { boot(); return; }      // first boot reads from Supabase via loadData()
+      if (SB) initAuth();                    // resolve session + subscribe (non-blocking)
+      if (!booted) { boot(); return; }       // first boot reads from Supabase via loadData()
       if (!SB) return;                       // booted offline, still no client
       if (pendingSync) pushToSupabase();     // we made edits offline → push them up
       else refreshFromSupabase();            // no local edits → load authoritative remote

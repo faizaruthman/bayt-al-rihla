@@ -354,6 +354,13 @@
     .subject-card[data-subject="history"]  { background: var(--violet); }
     .subject-card[data-subject="arabic"]   { background: var(--orange); }
 
+    /* featured card — a tasteful gold accent border to make it stand out */
+    .subject-card.is-featured {
+      border: 2.5px solid #ca8a04;
+      box-shadow: 0 0 0 4px rgba(202,138,4,0.12);
+    }
+    .subject-card.is-featured:hover { box-shadow: 0 0 0 4px rgba(202,138,4,0.18), var(--sh2); }
+
     .subject-card-arrow {
       position: absolute;
       top: 18px; right: 18px;
@@ -1234,11 +1241,11 @@
         <p class="subject-name">Seerah</p>
         <p class="subject-desc">The life and biography of the Prophet ﷺ</p>
       </div>
-      <div class="subject-card fade-in d2" data-subject="ethics" role="button" tabindex="0" aria-label="Open Islamic Ethics">
+      <div class="subject-card fade-in d2" data-subject="arabic" role="button" tabindex="0" aria-label="Open Arabic">
         <span class="subject-card-arrow">↗</span>
-        <span class="subject-icon">🌿</span>
-        <p class="subject-name">Islamic Ethics</p>
-        <p class="subject-desc">Morals, manners and character in Islam</p>
+        <span class="subject-icon">✒️</span>
+        <p class="subject-name">Arabic</p>
+        <p class="subject-desc">The language of the Quran</p>
       </div>
       <div class="subject-card fade-in d3" data-subject="history" role="button" tabindex="0" aria-label="Open Islamic History">
         <span class="subject-card-arrow">↗</span>
@@ -1246,11 +1253,11 @@
         <p class="subject-name">Islamic History</p>
         <p class="subject-desc">The great civilisation of Islam</p>
       </div>
-      <div class="subject-card fade-in d4" data-subject="arabic" role="button" tabindex="0" aria-label="Open Arabic">
+      <div class="subject-card is-featured fade-in d4" data-subject="ethics" role="button" tabindex="0" aria-label="Open Questions">
         <span class="subject-card-arrow">↗</span>
-        <span class="subject-icon">✒️</span>
-        <p class="subject-name">Arabic</p>
-        <p class="subject-desc">The language of the Quran</p>
+        <span class="subject-icon">💬</span>
+        <p class="subject-name">Questions</p>
+        <p class="subject-desc">Common questions and answers</p>
       </div>
     </div>
   </section>
@@ -1378,7 +1385,7 @@
       fiqh:    { name: 'Fiqh',           icon: '⚖️',  comingSoon: true },
       tafseer: { name: 'Tafseer',         icon: '📖',  comingSoon: true },
       seerah:  { name: 'Seerah',          icon: '🌙',  comingSoon: true },
-      ethics:  { name: 'Islamic Ethics',  icon: '🌿',  comingSoon: true },
+      ethics:  { name: 'Questions',        icon: '💬',  comingSoon: true },
       history: { name: 'Islamic History', icon: '🏛️', comingSoon: true },
       arabic:  { name: 'Arabic',          icon: '✒️', comingSoon: true }
     };

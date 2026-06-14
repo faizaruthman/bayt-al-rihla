@@ -731,22 +731,6 @@
     .fade-in.d3 { transition-delay: 0.21s; }
     .fade-in.d4 { transition-delay: 0.28s; }
 
-    /* ── Nav gear (admin link) ───────────────────────────────────────── */
-    .nav-gear {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px; height: 34px;
-      border-radius: 9px;
-      color: var(--t400);
-      text-decoration: none;
-      flex-shrink: 0;
-      transition: background var(--ease), color var(--ease), transform var(--ease);
-    }
-    .nav-gear svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; }
-    .nav-gear:hover { background: var(--g100); color: var(--g700); transform: rotate(40deg); }
-    body.subject-open .nav-gear { display: none; }
-
     /* ── Public Learn list (data-driven) ─────────────────────────────── */
     .learn-module { margin-bottom: 32px; }
     .learn-module:last-child { margin-bottom: 0; }
@@ -780,263 +764,6 @@
     .reading-content strong { color: var(--t900); font-weight: 700; }
     .reading-content em { font-style: italic; }
 
-    /* ══ ADMIN PANEL ═════════════════════════════════════════════════════ */
-    #admin-page {
-      position: fixed; inset: 0; z-index: 300;
-      display: none;
-      flex-direction: column;
-      background-color: var(--cream);
-      background-image: radial-gradient(circle, rgba(0,0,0,0.038) 1px, transparent 1px);
-      background-size: 22px 22px;
-      overflow: hidden;
-    }
-    #admin-page.visible { display: flex; }
-
-    /* ── Password gate ── */
-    .admin-gate {
-      position: absolute; inset: 0; z-index: 10;
-      display: none;
-      align-items: center; justify-content: center;
-      padding: 24px;
-      background-color: var(--cream);
-      background-image: radial-gradient(circle, rgba(0,0,0,0.038) 1px, transparent 1px);
-      background-size: 22px 22px;
-    }
-    .admin-gate.show { display: flex; }
-    .gate-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--sh1);
-      padding: 40px 36px;
-      width: min(390px, 100%);
-      text-align: center;
-    }
-    .gate-logo {
-      width: 54px; height: 54px; margin: 0 auto 18px;
-      background: var(--g700); border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .gate-logo svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; }
-    .gate-title { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--g900); margin-bottom: 6px; }
-    .gate-sub { font-size: 0.85rem; color: var(--t500); margin-bottom: 22px; line-height: 1.6; }
-    .gate-input {
-      width: 100%; padding: 12px 16px; margin-bottom: 10px;
-      border: 1.5px solid var(--t200); border-radius: 12px;
-      font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--t900);
-      outline: none; transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    .gate-input:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-    .gate-error { color: #b91c1c; font-size: 0.8rem; min-height: 18px; margin: 2px 0 8px; }
-    .gate-back { display: inline-block; margin-top: 16px; font-size: 0.82rem; color: var(--t500); text-decoration: none; }
-    .gate-back:hover { color: var(--t900); }
-
-    /* signed-in user chip */
-    .admin-user {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.74rem; font-weight: 600; color: var(--g700);
-      background: var(--g50); border: 1px solid var(--g100);
-      padding: 6px 11px; border-radius: var(--pill); max-width: 200px;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .admin-user[hidden] { display: none; }
-
-    /* "please sign in" banner when a write is rejected */
-    .auth-msg {
-      font-size: 0.82rem; color: #b91c1c; font-weight: 600;
-      padding: 10px 20px; background: #fef2f2;
-      border-bottom: 1px solid #fecaca; flex-shrink: 0;
-    }
-    .auth-msg[hidden] { display: none; }
-    .linklike {
-      border: none; background: none; padding: 0; cursor: pointer;
-      color: #b91c1c; font: inherit; font-weight: 700; text-decoration: underline;
-    }
-
-    /* ── App shell ── */
-    .admin-app { display: none; flex-direction: column; height: 100%; }
-    .admin-app.show { display: flex; }
-
-    .admin-topbar {
-      display: flex; align-items: center; gap: 14px;
-      padding: 12px 20px;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,0,0,0.07);
-      flex-shrink: 0;
-      flex-wrap: wrap;
-    }
-    .admin-brand { display: flex; align-items: center; gap: 10px; }
-    .admin-brand .logo-icon { width: 36px; height: 36px; }
-    .admin-title { font-family: 'Cinzel', serif; font-size: 0.92rem; font-weight: 700; color: var(--g900); line-height: 1.15; }
-    .admin-sub { font-size: 0.66rem; color: var(--t500); }
-
-    .admin-search-wrap { position: relative; flex: 1; min-width: 160px; max-width: 360px; }
-    .admin-search {
-      width: 100%; padding: 9px 16px;
-      background: var(--cream); border: 1.5px solid var(--t200);
-      border-radius: var(--pill); font-family: 'Inter', sans-serif;
-      font-size: 0.82rem; color: var(--t700); outline: none;
-      transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    .admin-search:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-
-    .admin-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
-
-    .admin-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px;
-      background: var(--white); color: var(--t700);
-      border: 1.5px solid var(--t200); border-radius: var(--pill);
-      font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600;
-      cursor: pointer; text-decoration: none;
-      transition: background var(--ease), color var(--ease), border-color var(--ease), transform var(--ease);
-    }
-    .admin-btn:hover { background: var(--t100); color: var(--t900); transform: translateY(-1px); }
-    .admin-btn.primary { background: var(--g700); color: #fff; border-color: var(--g700); }
-    .admin-btn.primary:hover { background: var(--g900); border-color: var(--g900); color: #fff; }
-    .admin-btn.danger { color: #b91c1c; border-color: #fecaca; background: #fef2f2; }
-    .admin-btn.danger:hover { background: #b91c1c; color: #fff; border-color: #b91c1c; }
-    .admin-btn.block { width: 100%; justify-content: center; margin-bottom: 14px; }
-
-    .sync-indicator {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 0.74rem; font-weight: 600;
-      padding: 6px 12px; border-radius: var(--pill);
-      transition: background var(--ease), color var(--ease);
-    }
-    .sync-indicator::before {
-      content: ''; width: 7px; height: 7px; border-radius: 50%;
-      background: currentColor; flex-shrink: 0;
-    }
-    .sync-saved   { background: var(--g100); color: var(--g700); }
-    .sync-saving  { background: var(--amber); color: var(--amber-tx); }
-    .sync-offline { background: #fef2f2; color: #b91c1c; }
-
-    .admin-note {
-      font-size: 0.76rem; color: var(--t500); line-height: 1.6;
-      padding: 10px 20px; background: var(--g50);
-      border-bottom: 1px solid var(--t200); flex-shrink: 0;
-    }
-    .admin-note strong { color: var(--g700); }
-
-    .admin-body { flex: 1; display: flex; min-height: 0; }
-
-    /* ── Sidebar ── */
-    .admin-sidebar {
-      width: 330px; flex-shrink: 0;
-      border-right: 1px solid var(--t200);
-      background: var(--white);
-      overflow-y: auto;
-      padding: 16px;
-    }
-    .sidebar-empty, .folder-empty {
-      font-size: 0.8rem; color: var(--t400); text-align: center; padding: 14px 0;
-    }
-    .folder-empty { padding: 8px 0; }
-
-    .folder {
-      background: var(--cream);
-      border: 1px solid var(--t200);
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-      transition: box-shadow var(--ease);
-    }
-    .folder.drag-over { box-shadow: 0 0 0 2px var(--g600); }
-    .folder-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px 6px; }
-    .drag-dots { cursor: grab; color: var(--t400); font-size: 0.85rem; letter-spacing: -2px; user-select: none; }
-    .folder-name-input {
-      flex: 1; min-width: 0; border: none; background: transparent;
-      font-family: 'Inter', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--t900);
-      outline: none; padding: 2px 4px; border-radius: 6px;
-    }
-    .folder-name-input:focus { background: var(--white); box-shadow: 0 0 0 1.5px var(--g200); }
-    .folder-count {
-      background: var(--g100); color: var(--g700);
-      border-radius: var(--pill); font-size: 0.66rem; font-weight: 700;
-      padding: 2px 9px; flex-shrink: 0;
-    }
-    .icon-btn {
-      border: none; background: none; cursor: pointer;
-      color: var(--t400); font-size: 0.85rem; padding: 2px 5px; border-radius: 6px;
-      transition: background var(--ease), color var(--ease);
-    }
-    .icon-btn:hover { background: #fef2f2; color: #b91c1c; }
-
-    .folder-meta { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px; }
-    .folder-subject {
-      flex: 1; min-width: 0;
-      font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--t600, var(--t700));
-      padding: 4px 8px; border: 1px solid var(--t200); border-radius: 8px;
-      background: var(--white); cursor: pointer; outline: none;
-    }
-    .mini-btn {
-      border: 1px dashed var(--g600); background: var(--g50); color: var(--g700);
-      font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600;
-      padding: 4px 10px; border-radius: 8px; cursor: pointer; flex-shrink: 0;
-      transition: background var(--ease);
-    }
-    .mini-btn:hover { background: var(--g100); }
-
-    .folder-lessons { padding: 0 8px 8px; display: flex; flex-direction: column; gap: 6px; min-height: 8px; }
-
-    .admin-lesson {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px;
-      background: var(--white);
-      border: 1px solid var(--t200);
-      border-radius: 10px;
-      cursor: pointer;
-      transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
-    }
-    .admin-lesson:hover { border-color: var(--g200); }
-    .admin-lesson.selected { border-color: var(--g600); box-shadow: 0 0 0 2px rgba(22,163,74,0.14); }
-    .admin-lesson.drag-over { border-top: 2px solid var(--g600); }
-    .admin-lesson-title { flex: 1; min-width: 0; font-size: 0.83rem; font-weight: 600; color: var(--t900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .admin-lesson .tag {
-      font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: var(--pill);
-      text-transform: uppercase; letter-spacing: 0.3px; flex-shrink: 0;
-    }
-    .tag-draft  { background: var(--amber); color: var(--amber-tx); }
-    .tag-locked { background: var(--t100); color: var(--t500); }
-
-    /* ── Editor ── */
-    .admin-main { flex: 1; overflow-y: auto; padding: 28px; min-width: 0; }
-    .editor-empty { color: var(--t400); text-align: center; padding-top: 90px; font-size: 0.92rem; }
-
-    .editor-head { display: flex; gap: 12px; align-items: center; margin-bottom: 18px; }
-    .editor-title-input {
-      flex: 1; padding: 12px 16px;
-      border: 1.5px solid var(--t200); border-radius: 12px;
-      font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; color: var(--t900);
-      outline: none; transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    .editor-title-input:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-
-    .editor-toggles { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 20px; }
-    .switch { display: inline-flex; align-items: center; gap: 9px; cursor: pointer; font-size: 0.84rem; font-weight: 600; color: var(--t700); user-select: none; }
-    .switch input { display: none; }
-    .switch .track { width: 40px; height: 22px; background: var(--t200); border-radius: var(--pill); position: relative; transition: background var(--ease); flex-shrink: 0; }
-    .switch .track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: var(--sh0); transition: transform var(--ease); }
-    .switch input:checked + .track { background: var(--g600); }
-    .switch input:checked + .track::after { transform: translateX(18px); }
-    .editor-hint { font-size: 0.74rem; color: var(--t400); margin-left: auto; }
-
-    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
-    .editor-label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t500); margin-bottom: 8px; }
-    .editor-textarea {
-      width: 100%; min-height: 360px; padding: 14px;
-      border: 1.5px solid var(--t200); border-radius: 12px;
-      font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.86rem; line-height: 1.7; color: var(--t900);
-      outline: none; resize: vertical;
-      transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    .editor-textarea:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-    .preview-box {
-      background: var(--cream); border: 1px solid var(--t200);
-      border-radius: var(--radius-sm); padding: 22px 24px; min-height: 360px;
-    }
-
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
       .subjects-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1065,13 +792,6 @@
       .books-grid { grid-template-columns: 1fr; }
       .menu-grid  { grid-template-columns: 1fr; }
 
-      /* admin → stacked on mobile */
-      .admin-body { flex-direction: column; }
-      .admin-sidebar { width: 100%; max-height: 42vh; border-right: none; border-bottom: 1px solid var(--t200); }
-      .editor-grid { grid-template-columns: 1fr; }
-      .editor-textarea, .preview-box { min-height: 220px; }
-      .admin-topbar { padding: 10px 14px; }
-      .admin-search-wrap { order: 3; flex-basis: 100%; max-width: none; }
       .sp-header-row { flex-direction: column; align-items: flex-start; }
       .sp-search { width: 100%; max-width: 360px; }
       .hero-float { display: none; }
@@ -1120,14 +840,6 @@
       <span id="navSubjectName"></span>
     </div>
 
-    <!-- subtle admin link -->
-    <a href="#admin" class="nav-gear" id="navGear" aria-label="Admin panel" title="Admin">
-      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-      </svg>
-    </a>
-
     <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
       <span></span><span></span><span></span>
     </button>
@@ -1156,78 +868,6 @@
       <div class="sp-header-divider"></div>
     </div>
     <div id="spContent"></div>
-  </div>
-
-  <!-- ── ADMIN PANEL (hidden; reached via #admin) ──────────────────────── -->
-  <div id="admin-page" aria-hidden="true">
-
-    <!-- sign-in gate (Supabase Auth — email + password) -->
-    <div class="admin-gate" id="adminGate">
-      <form class="gate-card" id="gateForm" autocomplete="on">
-        <div class="gate-logo">
-          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-        </div>
-        <h2 class="gate-title">Admin Sign In</h2>
-        <p class="gate-sub">Sign in with your Supabase account to manage lessons.</p>
-        <input type="email" id="gateEmail" class="gate-input" placeholder="Email" autocomplete="username" required />
-        <input type="password" id="gatePassword" class="gate-input" placeholder="Password" autocomplete="current-password" required />
-        <p class="gate-error" id="gateError"></p>
-        <button type="submit" class="admin-btn primary" id="gateSubmit" style="width:100%;justify-content:center;">Sign in</button>
-        <a href="#home" class="gate-back">← Back to site</a>
-      </form>
-    </div>
-
-    <!-- app -->
-    <div class="admin-app" id="adminApp">
-      <div class="admin-topbar">
-        <div class="admin-brand">
-          <div class="logo-icon">
-            <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          </div>
-          <div>
-            <div class="admin-title">Lesson Admin</div>
-            <div class="admin-sub">Bayt Al-Rihla</div>
-          </div>
-        </div>
-
-        <div class="admin-search-wrap">
-          <input type="text" id="adminSearch" class="admin-search" placeholder="Search lessons…" autocomplete="off" />
-        </div>
-
-        <div class="admin-actions">
-          <span class="sync-indicator sync-saved" id="syncIndicator" title="Live sync with Supabase">Saved</span>
-          <span class="admin-user" id="adminUser" hidden></span>
-          <button class="admin-btn" id="btnExport" title="Download a data.json backup">⬇ Export</button>
-          <button class="admin-btn" id="btnImport" title="Load a data.json backup">⬆ Import</button>
-          <input type="file" id="importFile" accept="application/json,.json" hidden />
-          <button class="admin-btn" id="btnSignOut">Sign out</button>
-          <a href="#home" class="admin-btn" id="btnToSite">← Site</a>
-        </div>
-      </div>
-
-      <!-- shown if a save is rejected because the session is missing/expired -->
-      <div class="auth-msg" id="authMsg" hidden>
-        ⚠ Your changes aren't saving — your session ended. Please
-        <button type="button" class="linklike" id="authMsgSignIn">sign in again</button>.
-      </div>
-
-      <div class="admin-note">
-        <strong>How your data is saved:</strong> you must be <strong>signed in</strong> to edit. Changes sync
-        <strong>live to Supabase</strong> (watch the status pill) and to this browser as an offline backup;
-        if Supabase is unreachable they re-sync automatically once it's back. The public site stays readable
-        by everyone. <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
-      </div>
-
-      <div class="admin-body">
-        <aside class="admin-sidebar">
-          <button class="admin-btn primary block" id="btnNewFolder">+ New Folder</button>
-          <div id="folderList"></div>
-        </aside>
-        <main class="admin-main" id="adminMain">
-          <div class="editor-empty">Select a lesson to edit, or create one inside a folder.</div>
-        </main>
-      </div>
-    </div>
   </div>
 
   <!-- ── MAIN CONTENT ──────────────────────────────────────────────────── -->
@@ -1869,533 +1509,83 @@
     document.querySelectorAll('section[id]').forEach(s => sectionIO.observe(s));
 
     /* ══════════════════════════════════════════════════════════════════
-       LESSON DATA + ADMIN PANEL
+       LESSON DATA (READ-ONLY)
        ------------------------------------------------------------------
-       Access is gated by REAL Supabase Auth (email + password). Only an
-       authenticated session can write to the database; the public can
-       still read. Auth is wired in the "AUTH" section further below and
-       the Supabase client is created in the module script at the bottom.
+       The public site only READS the shared lesson tree from Supabase
+       (table site_data, row id = 1) — the SAME row the private editor at
+       admin.html writes to. All editing lives in admin.html; there is no
+       editing UI here. If Supabase / the CDN can't be reached we fall back
+       to a local cache (and bundled data.json) so lessons still display,
+       and we live-update via Supabase Realtime when it's available.
     ══════════════════════════════════════════════════════════════════ */
-    const LS_DATA = 'bar_lessons_v1';
+    const LS_DATA = 'bar_lessons_v1';   // local read cache (shared key with admin.html)
 
     let DATA = { folders: [] };
-    let selectedLessonId = null;
-    let dragData = null;
-    let authSession = null;      // current Supabase Auth session (or null)
+    let SB = null;                       // Supabase client (or null when offline)
+    const SB_ROW_ID = 1;                 // row in site_data holding the whole tree
 
-    /* ── Supabase sync state ──────────────────────────────────────────
-       SB (the Supabase client) is created in the module script at the
-       bottom of this file and handed to window.__startApp(). See there
-       to change the project URL / anon key. */
-    let SB = null;               // Supabase client (or null when offline)
-    const SB_ROW_ID = 1;         // row in site_data that holds the whole tree
-    let saveTimer = null;        // debounce timer for pushes
-    let pendingSync = false;     // local changes not yet confirmed in Supabase
-    let isSaving = false;
+    function saveData()  { try { localStorage.setItem(LS_DATA, JSON.stringify(DATA)); } catch (e) {} }
+    function isTree(d)   { return !!(d && Array.isArray(d.folders)); }
+    function safeParse(s){ try { return s ? JSON.parse(s) : null; } catch (e) { return null; } }
 
-    const SUBJECT_OPTIONS = Object.entries(SUBJECTS).map(([k, v]) => [k, v.name]);
-    const uid = () => 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
-
-    function defaultData() {
-      return {
-        folders: [
-          {
-            id: uid(), name: 'Foundations of Aqeedah', subject: 'aqeedah',
-            lessons: [
-              { id: uid(), title: 'What is Tawheed?', published: true, locked: false,
-                content: '# What is Tawheed?\n\nTawheed is the **oneness of Allah** — the foundation of all of Islam.\n\nIt is divided into three categories:\n\n- Tawheed al-Ruboobiyyah — His Lordship\n- Tawheed al-Uloohiyyah — His worship\n- Tawheed al-Asmaa was-Sifaat — His Names & Attributes\n\nThis is the first and most important lesson in the curriculum.' },
-              { id: uid(), title: 'The Categories of Tawheed', published: true, locked: true,
-                content: '# The Categories of Tawheed\n\nThis lesson is currently *locked*.' }
-            ]
-          },
-          {
-            id: uid(), name: 'Hadith Essentials', subject: 'hadith',
-            lessons: [
-              { id: uid(), title: 'Actions are by Intentions', published: true, locked: false,
-                content: '# Actions are by Intentions\n\nThe Prophet ﷺ said:\n\n*"Actions are but by intentions, and every person will have only what they intended."*\n\nThis hadith is a foundation of the religion.' }
-            ]
-          }
-        ]
-      };
-    }
-
-    /* local mirror (offline fallback + instant persistence) */
-    function saveData() { try { localStorage.setItem(LS_DATA, JSON.stringify(DATA)); } catch (e) {} }
-
-    /* ── sync status pill ('Saving…' / 'Saved' / 'Offline') ─────────── */
-    function setSync(state) {
-      const el = document.getElementById('syncIndicator');
-      if (!el) return;
-      el.classList.remove('sync-saved', 'sync-saving', 'sync-offline');
-      if (state === 'saving')       { el.classList.add('sync-saving');  el.textContent = 'Saving…'; }
-      else if (state === 'offline') { el.classList.add('sync-offline'); el.textContent = 'Offline — saved locally'; }
-      else                          { el.classList.add('sync-saved');   el.textContent = 'Saved'; }
-    }
-
-    /* a valid data tree must be an object with a folders array */
-    function isTree(d) { return !!(d && Array.isArray(d.folders)); }
-    function safeParse(s) { try { return s ? JSON.parse(s) : null; } catch (e) { return null; } }
-
-    /* Load priority: Supabase (row id=1) → localStorage → data.json → sample.
-       An empty/blank Supabase row is treated as a fresh, empty tree (we do
-       NOT overwrite it with sample data). If Supabase is unreachable but we
-       have a local copy, it's marked pending so it syncs UP once back. */
+    /* Read priority: Supabase (row id=1) → local cache → bundled data.json → empty. */
     async function loadData() {
       if (SB) {
         try {
           const { data, error } = await SB.from('site_data').select('content').eq('id', SB_ROW_ID).single();
-          if (!error && data) {
-            DATA = isTree(data.content) ? data.content : { folders: [] };
-            saveData(); pendingSync = false; setSync('saved');
-            return;
-          }
-        } catch (e) { /* unreachable → offline fallbacks below */ }
+          if (!error && data) { DATA = isTree(data.content) ? data.content : { folders: [] }; saveData(); return; }
+        } catch (e) { /* unreachable → fall back below */ }
       }
       const local = safeParse(localStorage.getItem(LS_DATA));
-      if (isTree(local)) {
-        DATA = local; pendingSync = !!SB; setSync(SB ? 'saving' : 'saved');
-        if (SB) pushToSupabase();                 // sync local copy up to the row
-        return;
-      }
+      if (isTree(local)) { DATA = local; return; }
       try {
         const res = await fetch('data.json', { cache: 'no-store' });
-        if (res.ok) {
-          const j = await res.json();
-          if (isTree(j)) {
-            DATA = j; saveData(); pendingSync = !!SB; setSync(SB ? 'saving' : 'saved');
-            if (SB) pushToSupabase();
-            return;
-          }
-        }
+        if (res.ok) { const j = await res.json(); if (isTree(j)) { DATA = j; saveData(); return; } }
       } catch (e) {}
-      DATA = defaultData(); saveData(); pendingSync = !!SB; setSync(SB ? 'saving' : 'saved');
-      if (SB) pushToSupabase();
+      DATA = { folders: [] };
     }
 
-    /* ── live save: write localStorage now, push to Supabase (debounced) ── */
-    function scheduleSave() {
-      saveData();
-      pendingSync = true;
-      setSync('saving');
-      if (saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(pushToSupabase, 800);
-    }
-
-    /* an error is "auth-related" if RLS blocked it or there's no session */
-    function isAuthError(e) {
-      if (!authSession) return true;
-      const code = e && (e.code || e.status);
-      const msg = (e && e.message || '').toLowerCase();
-      return code === '42501' || code === 401 || code === 403 ||
-             /row-level security|jwt|not authorized|permission|policy/.test(msg);
-    }
-
-    async function pushToSupabase() {
-      if (!SB) { setSync('offline'); return; }          // stays pending; retried on reconnect
-      if (!authSession) { setSync('offline'); showAuthMsg(true); return; }  // must be signed in to write
-      isSaving = true; setSync('saving');
-      try {
-        const { error } = await SB.from('site_data').upsert({ id: SB_ROW_ID, content: DATA }, { onConflict: 'id' });
-        if (error) throw error;
-        pendingSync = false; isSaving = false; setSync('saved'); showAuthMsg(false);
-      } catch (e) {
-        isSaving = false; setSync('offline');            // keep pending; will retry
-        if (isAuthError(e)) showAuthMsg(true);           // friendly "please sign in"
-      }
-    }
-
-    function showAuthMsg(on) {
-      const el = document.getElementById('authMsg');
-      if (el) el.hidden = !on;
-    }
-
-    /* Retry the upload when the network comes back or periodically. */
-    window.addEventListener('online', () => { if (pendingSync) pushToSupabase(); });
-    setInterval(() => { if (pendingSync && !isSaving && SB) pushToSupabase(); }, 15000);
-
-    function commit() { scheduleSave(); }   // persist + sync (after structural changes)
-
-    /* ── admin rendering ────────────────────────────────────────────── */
-    const adminPage = document.getElementById('admin-page');
-
-    function renderAdmin() { renderSidebar(); renderEditor(); }
-
-    function renderSidebar() {
-      if (!isTree(DATA)) DATA = { folders: [] };
-      const list = document.getElementById('folderList');
-      const q = (document.getElementById('adminSearch').value || '').trim().toLowerCase();
-
-      if (!DATA.folders.length) {
-        list.innerHTML = '<p class="sidebar-empty">No folders yet.<br>Create one to begin.</p>';
-        return;
-      }
-
-      list.innerHTML = DATA.folders.map(f => {
-        const lessons = f.lessons || [];
-        const visible = q ? lessons.filter(l => l.title.toLowerCase().includes(q)) : lessons;
-        const rows = visible.map(l => {
-          const tags =
-            (l.published ? '' : '<span class="tag tag-draft">Draft</span>') +
-            (l.locked ? '<span class="tag tag-locked">🔒</span>' : '');
-          return `<div class="admin-lesson ${l.id === selectedLessonId ? 'selected' : ''}"
-                       draggable="true" data-lesson="${escAttrQ(l.id)}" data-folder="${escAttrQ(f.id)}">
-                    <span class="drag-dots">⠿</span>
-                    <span class="admin-lesson-title">${escHTML(l.title)}</span>
-                    ${tags}
-                  </div>`;
-        }).join('') || '<p class="folder-empty">No lessons</p>';
-
-        const opts = SUBJECT_OPTIONS.map(([k, n]) =>
-          `<option value="${k}" ${f.subject === k ? 'selected' : ''}>${escHTML(n)}</option>`).join('');
-
-        return `<div class="folder" data-folder="${escAttrQ(f.id)}" draggable="true">
-          <div class="folder-head">
-            <span class="drag-dots folder-drag" title="Drag to reorder">⠿</span>
-            <input class="folder-name-input" value="${escAttrQ(f.name)}" data-folder="${escAttrQ(f.id)}" />
-            <span class="folder-count" title="Lessons in this folder">${lessons.length}</span>
-            <button class="icon-btn" data-act="del-folder" data-folder="${escAttrQ(f.id)}" title="Delete folder">✕</button>
-          </div>
-          <div class="folder-meta">
-            <select class="folder-subject" data-folder="${escAttrQ(f.id)}" title="Which subject's Learn page shows this folder">${opts}</select>
-            <button class="mini-btn" data-act="new-lesson" data-folder="${escAttrQ(f.id)}">+ Lesson</button>
-          </div>
-          <div class="folder-lessons" data-folder="${escAttrQ(f.id)}">${rows}</div>
-        </div>`;
-      }).join('');
-
-      wireSidebar();
-    }
-
-    function wireSidebar() {
-      const list = document.getElementById('folderList');
-
-      // lessons: select + drag
-      list.querySelectorAll('.admin-lesson').forEach(el => {
-        el.addEventListener('click', () => { selectedLessonId = el.dataset.lesson; renderAdmin(); });
-        el.addEventListener('dragstart', e => {
-          dragData = { type: 'lesson', id: el.dataset.lesson, from: el.dataset.folder };
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', el.dataset.lesson);
-          e.stopPropagation();
-        });
-        el.addEventListener('dragover', e => {
-          if (dragData && dragData.type === 'lesson') { e.preventDefault(); e.stopPropagation(); el.classList.add('drag-over'); }
-        });
-        el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-        el.addEventListener('drop', e => {
-          el.classList.remove('drag-over');
-          if (dragData && dragData.type === 'lesson') { e.preventDefault(); e.stopPropagation(); moveLesson(dragData.id, el.dataset.folder, el.dataset.lesson); }
-        });
-      });
-
-      // lesson drop zone (append / move into folder)
-      list.querySelectorAll('.folder-lessons').forEach(zone => {
-        zone.addEventListener('dragover', e => { if (dragData && dragData.type === 'lesson') e.preventDefault(); });
-        zone.addEventListener('drop', e => {
-          if (dragData && dragData.type === 'lesson') { e.preventDefault(); e.stopPropagation(); moveLesson(dragData.id, zone.dataset.folder, null); }
-        });
-      });
-
-      // folders: reorder + accept dropped lessons
-      list.querySelectorAll('.folder').forEach(fEl => {
-        fEl.addEventListener('dragstart', e => {
-          if (e.target.closest('.admin-lesson')) return;                 // lesson handles itself
-          if (e.target.closest('input,select,button')) { e.preventDefault(); return; }
-          dragData = { type: 'folder', id: fEl.dataset.folder };
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', fEl.dataset.folder);
-        });
-        fEl.addEventListener('dragover', e => {
-          if (!dragData) return;
-          if (dragData.type === 'folder' && dragData.id !== fEl.dataset.folder) { e.preventDefault(); fEl.classList.add('drag-over'); }
-          else if (dragData.type === 'lesson') e.preventDefault();
-        });
-        fEl.addEventListener('dragleave', () => fEl.classList.remove('drag-over'));
-        fEl.addEventListener('drop', e => {
-          fEl.classList.remove('drag-over');
-          if (!dragData) return;
-          if (dragData.type === 'folder')      { e.preventDefault(); moveFolder(dragData.id, fEl.dataset.folder); }
-          else if (dragData.type === 'lesson') { e.preventDefault(); moveLesson(dragData.id, fEl.dataset.folder, null); }
-        });
-      });
-
-      // folder name / subject / buttons
-      list.querySelectorAll('.folder-name-input').forEach(inp => {
-        inp.addEventListener('input', () => { const f = DATA.folders.find(x => x.id === inp.dataset.folder); if (f) { f.name = inp.value; commit(); } });
-        inp.addEventListener('mousedown', e => e.stopPropagation());
-      });
-      list.querySelectorAll('.folder-subject').forEach(sel => {
-        sel.addEventListener('change', () => { const f = DATA.folders.find(x => x.id === sel.dataset.folder); if (f) { f.subject = sel.value; commit(); } });
-      });
-      list.querySelectorAll('[data-act="del-folder"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const f = DATA.folders.find(x => x.id === btn.dataset.folder);
-          if (!f || !confirm(`Delete folder "${f.name}" and all its lessons?`)) return;
-          if ((f.lessons || []).some(l => l.id === selectedLessonId)) selectedLessonId = null;
-          DATA.folders = DATA.folders.filter(x => x.id !== f.id);
-          commit(); renderAdmin();
-        });
-      });
-      list.querySelectorAll('[data-act="new-lesson"]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const f = DATA.folders.find(x => x.id === btn.dataset.folder);
-          if (!f) return;
-          const lesson = { id: uid(), title: 'Untitled lesson', content: '', published: false, locked: false };
-          (f.lessons = f.lessons || []).push(lesson);
-          selectedLessonId = lesson.id;
-          commit(); renderAdmin();
-        });
-      });
-    }
-
-    function moveLesson(lessonId, toFolderId, beforeLessonId) {
-      if (beforeLessonId === lessonId) return;
-      const src = findLessonById(lessonId);
-      const toFolder = DATA.folders.find(f => f.id === toFolderId);
-      if (!src || !toFolder) return;
-      const [lesson] = src.folder.lessons.splice(src.index, 1);
-      toFolder.lessons = toFolder.lessons || [];
-      let idx = toFolder.lessons.length;
-      if (beforeLessonId) { const bi = toFolder.lessons.findIndex(l => l.id === beforeLessonId); if (bi >= 0) idx = bi; }
-      toFolder.lessons.splice(idx, 0, lesson);
-      commit(); renderSidebar();
-    }
-
-    function moveFolder(folderId, beforeFolderId) {
-      if (folderId === beforeFolderId) return;
-      const i = DATA.folders.findIndex(f => f.id === folderId);
-      if (i < 0) return;
-      const [folder] = DATA.folders.splice(i, 1);
-      let idx = DATA.folders.length;
-      if (beforeFolderId) { const bi = DATA.folders.findIndex(f => f.id === beforeFolderId); if (bi >= 0) idx = bi; }
-      DATA.folders.splice(idx, 0, folder);
-      commit(); renderSidebar();
-    }
-
-    function renderEditor() {
-      const main = document.getElementById('adminMain');
-      const found = selectedLessonId ? findLessonById(selectedLessonId) : null;
-      if (!found) {
-        selectedLessonId = null;
-        main.innerHTML = '<div class="editor-empty">Select a lesson to edit, or create one inside a folder.</div>';
-        return;
-      }
-      const l = found.lesson;
-      main.innerHTML = `
-        <div class="editor-head">
-          <input id="edTitle" class="editor-title-input" value="${escAttrQ(l.title)}" placeholder="Lesson title" />
-          <button class="admin-btn danger" id="edDelete">Delete</button>
-        </div>
-        <div class="editor-toggles">
-          <label class="switch"><input type="checkbox" id="edPublished" ${l.published ? 'checked' : ''}><span class="track"></span> Published</label>
-          <label class="switch"><input type="checkbox" id="edLocked" ${l.locked ? 'checked' : ''}><span class="track"></span> Locked</label>
-          <span class="editor-hint"># heading&nbsp;·&nbsp;**bold**&nbsp;·&nbsp;*italic*&nbsp;·&nbsp;- list</span>
-        </div>
-        <div class="editor-grid">
-          <div>
-            <label class="editor-label">Content (Markdown)</label>
-            <textarea id="edContent" class="editor-textarea" placeholder="Write the lesson…">${escHTML(l.content)}</textarea>
-          </div>
-          <div>
-            <label class="editor-label">Live preview</label>
-            <div class="preview-box reading-content" id="edPreview">${renderMarkdown(l.content)}</div>
-          </div>
-        </div>`;
-
-      const elTitle = document.getElementById('edTitle');
-      const elContent = document.getElementById('edContent');
-      const elPreview = document.getElementById('edPreview');
-
-      elTitle.addEventListener('input', () => {
-        l.title = elTitle.value; scheduleSave();
-        const lbl = document.querySelector('.admin-lesson[data-lesson="' + l.id + '"] .admin-lesson-title');
-        if (lbl) lbl.textContent = l.title;
-      });
-      elContent.addEventListener('input', () => {
-        l.content = elContent.value; scheduleSave();
-        elPreview.innerHTML = renderMarkdown(l.content);
-      });
-      document.getElementById('edPublished').addEventListener('change', e => { l.published = e.target.checked; commit(); renderSidebar(); });
-      document.getElementById('edLocked').addEventListener('change',   e => { l.locked = e.target.checked; commit(); renderSidebar(); });
-      document.getElementById('edDelete').addEventListener('click', () => {
-        if (!confirm(`Delete lesson "${l.title}"?`)) return;
-        found.folder.lessons.splice(found.index, 1);
-        selectedLessonId = null; commit(); renderAdmin();
-      });
-    }
-
-    /* ── toolbar actions ────────────────────────────────────────────── */
-    document.getElementById('btnNewFolder').addEventListener('click', () => {
-      const folder = { id: uid(), name: 'New Folder', subject: SUBJECT_OPTIONS[0][0], lessons: [] };
-      DATA.folders.push(folder); commit(); renderSidebar();
-      const inp = document.querySelector('.folder[data-folder="' + folder.id + '"] .folder-name-input');
-      if (inp) { inp.focus(); inp.select(); }
-    });
-
-    document.getElementById('btnExport').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'data.json';
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    const importFile = document.getElementById('importFile');
-    document.getElementById('btnImport').addEventListener('click', () => importFile.click());
-    importFile.addEventListener('change', () => {
-      const file = importFile.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result);
-          if (!parsed || !Array.isArray(parsed.folders)) throw new Error('bad shape');
-          DATA = parsed; selectedLessonId = null;
-          scheduleSave();   // saves locally and pushes the imported tree up to Supabase
-          renderAdmin();
-          alert('Imported data.json successfully. Syncing to Supabase…');
-        } catch (e) { alert('Could not import: that file is not a valid data.json export.'); }
-        importFile.value = '';
-      };
-      reader.readAsText(file);
-    });
-
-    document.getElementById('adminSearch').addEventListener('input', renderSidebar);
-
-    document.addEventListener('dragend', () => {
-      dragData = null;
-      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-    });
-
-    /* ══════════════════════════════════════════════════════════════════
-       AUTH (Supabase email + password)
-       ------------------------------------------------------------------
-       Only a signed-in user can write (enforced by Row Level Security on
-       the database — see the SQL provided with this feature). The session
-       is persisted by the Supabase client across refreshes automatically.
-    ══════════════════════════════════════════════════════════════════ */
-    function showGate() {
-      document.getElementById('adminGate').classList.add('show');
-      document.getElementById('adminApp').classList.remove('show');
-      setTimeout(() => { const i = document.getElementById('gateEmail'); if (i) i.focus(); }, 50);
-    }
-    function showApp() {
-      document.getElementById('adminGate').classList.remove('show');
-      document.getElementById('adminApp').classList.add('show');
-      const u = document.getElementById('adminUser');
-      if (u && authSession && authSession.user) { u.hidden = false; u.textContent = '✓ ' + authSession.user.email; }
-      renderAdmin();
-    }
-    /* show the right screen based on whether we have a session */
-    function reflectAuth() {
-      if (!adminPage.classList.contains('visible')) return;
-      authSession ? showApp() : showGate();
-    }
-    function openAdmin() {
-      adminPage.classList.add('visible');
-      adminPage.setAttribute('aria-hidden', 'false');
-      document.title = 'Lesson Admin — Bayt Al-Rihla';
-      reflectAuth();
-    }
-    function closeAdmin() {
-      if (!adminPage.classList.contains('visible')) return;
-      adminPage.classList.remove('visible');
-      adminPage.setAttribute('aria-hidden', 'true');
-      document.getElementById('gateError').textContent = '';
-    }
-
-    function setGateError(msg) { document.getElementById('gateError').textContent = msg || ''; }
-
-    /* sign in with email + password */
-    document.getElementById('gateForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      if (!SB) { setGateError('Can’t reach Supabase right now — check your connection.'); return; }
-      const email = document.getElementById('gateEmail').value.trim();
-      const password = document.getElementById('gatePassword').value;
-      const btn = document.getElementById('gateSubmit');
-      setGateError(''); btn.disabled = true; btn.textContent = 'Signing in…';
-      try {
-        const { data, error } = await SB.auth.signInWithPassword({ email, password });
-        if (error) { setGateError(error.message || 'Sign-in failed.'); }
-        else {
-          authSession = data.session;
-          document.getElementById('gatePassword').value = '';
-          showAuthMsg(false);
-          showApp();
-          if (pendingSync) pushToSupabase();   // flush anything queued while signed out
-        }
-      } catch (err) {
-        setGateError('Sign-in failed. Please try again.');
-      } finally {
-        btn.disabled = false; btn.textContent = 'Sign in';
-      }
-    });
-
-    /* sign out */
-    document.getElementById('btnSignOut').addEventListener('click', async () => {
-      if (SB) { try { await SB.auth.signOut(); } catch (e) {} }
-      authSession = null;
-      const u = document.getElementById('adminUser'); if (u) { u.hidden = true; u.textContent = ''; }
-      showGate();
-    });
-
-    /* re-show the gate from the "please sign in again" banner */
-    document.getElementById('authMsgSignIn').addEventListener('click', () => { showAuthMsg(false); showGate(); });
-
-    /* ── hash routing + unsynced-changes guard ──────────────────────── */
-    function handleHash() { if (location.hash === '#admin') openAdmin(); else closeAdmin(); }
-    window.addEventListener('hashchange', handleHash);
-    window.addEventListener('beforeunload', e => { if (pendingSync) { e.preventDefault(); e.returnValue = ''; return ''; } });
-
-    /* ── boot ─────────────────────────────────────────────────────────
-       The static page is visible immediately. Lesson DATA loads from
-       Supabase as soon as the client (created in the module script below)
-       is ready. If Supabase / the CDN can't be reached, we boot offline
-       from localStorage after a short fallback and sync up later. */
-    let booted = false;
-    function boot() { if (booted) return; booted = true; loadData().then(handleHash); }
-
-    /* pull the authoritative tree from Supabase and re-render what's visible */
+    /* re-read the authoritative tree and re-render whatever subject is open */
     async function refreshFromSupabase() {
       if (!SB) return;
       try {
         const { data, error } = await SB.from('site_data').select('content').eq('id', SB_ROW_ID).single();
-        if (!error && data && data.content) {
-          DATA = data.content; saveData(); pendingSync = false; setSync('saved');
-          const adminOpen = adminPage.classList.contains('visible') &&
-                            document.getElementById('adminApp').classList.contains('show');
-          if (adminOpen) renderAdmin(); else if (currentKey) renderView();
+        if (!error && data && isTree(data.content)) {
+          DATA = data.content; saveData();
+          if (currentKey) renderView();
         }
-      } catch (e) { setSync('offline'); }
+      } catch (e) {}
     }
 
-    /* load the current auth session and keep it in sync across refreshes,
-       token refreshes, and other tabs */
-    async function initAuth() {
-      try { const { data } = await SB.auth.getSession(); authSession = data.session || null; }
-      catch (e) { authSession = null; }
-      SB.auth.onAuthStateChange((_event, session) => {
-        authSession = session || null;
-        const u = document.getElementById('adminUser');
-        if (authSession && authSession.user) { if (u) { u.hidden = false; u.textContent = '✓ ' + authSession.user.email; } }
-        else if (u) { u.hidden = true; u.textContent = ''; }
-        reflectAuth();
-      });
-      reflectAuth();   // in case the admin opened before the session resolved
+    /* live updates: when admin.html saves the row, reflect it instantly */
+    function subscribeRealtime() {
+      if (!SB) return;
+      try {
+        SB.channel('site_data_public')
+          .on('postgres_changes',
+              { event: '*', schema: 'public', table: 'site_data', filter: 'id=eq.' + SB_ROW_ID },
+              payload => {
+                const content = payload.new && payload.new.content;
+                if (isTree(content)) { DATA = content; saveData(); if (currentKey) renderView(); }
+              })
+          .subscribe();
+      } catch (e) {}
     }
 
-    /* Called by the Supabase module script with the client (or null). */
+    /* ── boot ─────────────────────────────────────────────────────────── */
+    let booted = false;
+    function boot() { if (booted) return; booted = true; loadData(); }
+
+    /* Called by the Supabase module script below with the client (or null). */
     window.__startApp = function (client) {
       SB = client || null;
-      if (SB) initAuth();                    // resolve session + subscribe (non-blocking)
-      if (!booted) { boot(); return; }       // first boot reads from Supabase via loadData()
-      if (!SB) return;                       // booted offline, still no client
-      if (pendingSync) pushToSupabase();     // we made edits offline → push them up
-      else refreshFromSupabase();            // no local edits → load authoritative remote
+      if (SB) subscribeRealtime();
+      if (!booted) { boot(); return; }
+      if (SB) refreshFromSupabase();
     };
 
-    /* Safety net: if the module never reports in (CDN blocked / slow / import
-       hangs), start offline so the admin and lessons still work. */
+    /* Safety net: if the module never reports in (CDN blocked / slow), start
+       offline so lessons still display from the local cache / data.json. */
     setTimeout(() => { if (!booted) boot(); }, 2500);
   </script>
 

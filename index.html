@@ -764,6 +764,140 @@
     .reading-content strong { color: var(--t900); font-weight: 700; }
     .reading-content em { font-style: italic; }
 
+    /* ── Book page: header icon ──────────────────────────────────────── */
+    .sp-book-emoji {
+      font-size: 2.4rem;
+      line-height: 1;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+
+    /* ── Book page: volumes + topics ─────────────────────────────────── */
+    .book-page { max-width: 900px; margin: 0 auto; padding: 0 5% 88px; }
+
+    /* volume selector bar */
+    .vol-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      background: linear-gradient(120deg, var(--mint) 0%, var(--lav) 100%);
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 22px;
+      box-shadow: var(--sh0);
+    }
+    .vol-bar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .vol-bar-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.7);
+      border-radius: 12px;
+      font-size: 1.4rem;
+    }
+    .vol-bar-title { font-size: 1rem; font-weight: 800; color: var(--t900); line-height: 1.2; }
+    .vol-bar-sub   { font-size: 0.78rem; color: var(--t500); margin-top: 3px; }
+
+    .vol-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .vol-pill {
+      padding: 9px 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--g700);
+      background: rgba(255,255,255,0.65);
+      border: 1.5px solid var(--g700);
+      border-radius: var(--pill);
+      cursor: pointer;
+      transition: background var(--ease), color var(--ease), transform var(--ease), box-shadow var(--ease);
+    }
+    .vol-pill:hover { transform: translateY(-1px); }
+    .vol-pill.active {
+      background: var(--g700);
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(20,83,45,0.25);
+    }
+
+    /* search bar */
+    .topic-search-wrap { position: relative; margin-bottom: 22px; }
+    .topic-search-wrap svg {
+      position: absolute;
+      left: 18px; top: 50%;
+      transform: translateY(-50%);
+      width: 17px; height: 17px;
+      stroke: var(--t400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      pointer-events: none;
+    }
+    .topic-search {
+      width: 100%;
+      padding: 15px 86px 15px 46px;
+      background: var(--white);
+      border: 1.5px solid var(--t200);
+      border-radius: var(--pill);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: var(--t700);
+      outline: none;
+      box-shadow: var(--sh0);
+      transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .topic-search::placeholder { color: var(--t400); }
+    .topic-search:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .topic-search-count {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: var(--g100);
+      color: var(--g700);
+      border-radius: var(--pill);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 11px;
+      pointer-events: none;
+    }
+
+    /* topic list */
+    .topic-list { display: flex; flex-direction: column; gap: 12px; }
+    .topic-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--white);
+      border: 1px solid var(--t200);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      box-shadow: var(--sh0);
+      cursor: pointer;
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+    }
+    .topic-row:hover { transform: translateY(-2px); box-shadow: var(--sh1); border-color: var(--g200); }
+    .topic-row.placeholder,
+    .topic-row.locked { cursor: default; }
+    .topic-row.locked { opacity: 0.55; }
+    .topic-row.placeholder { opacity: 0.72; }
+    .topic-row.placeholder:hover,
+    .topic-row.locked:hover { transform: none; box-shadow: var(--sh0); border-color: var(--t200); }
+    .topic-num {
+      flex-shrink: 0;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--mint);
+      color: var(--mint-tx);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .topic-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 600; color: var(--t900); }
+    .topic-empty { text-align: center; color: var(--t400); padding: 54px 0; font-size: 0.92rem; }
+
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
       .subjects-grid { grid-template-columns: repeat(2, 1fr); }
@@ -795,6 +929,11 @@
       .sp-header-row { flex-direction: column; align-items: flex-start; }
       .sp-search { width: 100%; max-width: 360px; }
       .hero-float { display: none; }
+
+      .vol-bar { align-items: flex-start; }
+      .vol-bar-left { width: 100%; }
+      .vol-pills { width: 100%; }
+      .vol-pill { flex: 1; text-align: center; }
     }
     @media (max-width: 480px) {
       .subjects-grid { grid-template-columns: 1fr; }
@@ -864,6 +1003,8 @@
             autocomplete="off"
           />
         </div>
+        <!-- book icon shown top-right on a book's topic page -->
+        <span class="sp-book-emoji" id="spBookIcon" style="display:none" aria-hidden="true">📖</span>
       </div>
       <div class="sp-header-divider"></div>
     </div>
@@ -1054,6 +1195,7 @@
         icon: '🕌',
         books: [
           {
+            id:        'thalathat-al-usool',
             titleMain: 'Thalathat al-Usool',
             titleEn:   'The Three Fundamental Principles',
             author:    'Imam Muhammad ibn Abd al-Wahhab',
@@ -1062,6 +1204,7 @@
             card:      { bg: '#fef9c3', badgeBg: '#fde68a', badgeTx: '#78350f' }
           },
           {
+            id:        'kitab-at-tawhid',
             titleMain: 'Kitaab al-Tawheed',
             titleEn:   'The Book of Monotheism',
             author:    'Imam Muhammad ibn Abd al-Wahhab',
@@ -1070,6 +1213,7 @@
             card:      { bg: '#d1fae5', badgeBg: '#6ee7b7', badgeTx: '#065f46' }
           },
           {
+            id:        'al-aqeedah-al-wasitiyyah',
             titleMain: 'Al-Aqeedah al-Wasitiyyah',
             titleEn:   'The Wasitiyyah Creed',
             author:    'Shaykhul Islam Ibn Taymiyyah',
@@ -1085,6 +1229,7 @@
         icon: '📜',
         books: [
           {
+            id:        'arbaeen-nawawiyyah',
             titleMain: "Al-Arba'een al-Nawawiyyah",
             titleEn:   'The Forty Hadith',
             author:    'Imam al-Nawawi',
@@ -1093,6 +1238,7 @@
             card:      { bg: '#d1fae5', badgeBg: '#6ee7b7', badgeTx: '#065f46' }
           },
           {
+            id:        'riyadh-as-saliheen',
             titleMain: 'Riyaadh al-Saaliheen',
             titleEn:   'Gardens of the Righteous',
             author:    'Imam al-Nawawi',
@@ -1101,6 +1247,7 @@
             card:      { bg: '#e0e7ff', badgeBg: '#a5b4fc', badgeTx: '#3730a3' }
           },
           {
+            id:        'umdah-al-ahkaam',
             titleMain: 'Umdah al-Ahkaam',
             titleEn:   'The Reliance of Rulings',
             author:    'Ibn Qudamah al-Maqdisi',
@@ -1162,11 +1309,16 @@
     const navBack         = document.getElementById('navBack');
     const navBackLabel    = document.getElementById('navBackLabel');
     const spSearchEl      = document.getElementById('spSearch');
+    const spBookIcon      = document.getElementById('spBookIcon');
 
     /* current location within the subject page */
-    let currentKey      = null;
-    let currentView     = 'menu';   // 'menu' | 'learn' | 'books' | 'questions' | 'lesson'
-    let currentLessonId = null;
+    let currentKey         = null;
+    let currentView        = 'menu';   // 'menu' | 'learn' | 'books' | 'book' | 'questions' | 'lesson'
+    let currentLessonId    = null;
+    let currentBookId      = null;     // which book the 'book' view is showing
+    let currentVolumeIndex = 0;        // active volume within that book
+    let lessonReturnView   = 'learn';  // where 'Back' returns from a reading view
+    let bookState          = null;     // { volumes: [...] } for the open book
 
     /* ── shared helpers ─────────────────────────────────────────────── */
     function escHTML(s) {
@@ -1233,7 +1385,7 @@
         const searchable = [b.titleMain, b.titleEn, b.author, b.badge, b.desc].join(' ').toLowerCase();
         const style = `--card-bg:${b.card.bg}; --badge-bg:${b.card.badgeBg}; --badge-tx:${b.card.badgeTx}`;
         return `
-          <article class="book-card" style="${style}" data-search="${searchable.replace(/"/g,'&quot;')}">
+          <article class="book-card" style="${style}" data-search="${searchable.replace(/"/g,'&quot;')}" ${b.id ? `data-book="${escAttrQ(b.id)}"` : ''}>
             <div class="book-card-top">
               <span class="book-badge">${b.badge}</span>
               <span class="book-icon-wrap">📖</span>
@@ -1281,7 +1433,7 @@
       setHeader(breadcrumb(data.name, 'Learn'),
                 'A structured curriculum — work through the lessons in order.', '');
 
-      const folders = (DATA.folders || []).filter(f => f.subject === currentKey);
+      const folders = (DATA.folders || []).filter(f => f.subject === currentKey && !f.book);
       let html = '', num = 0;
 
       folders.forEach(folder => {
@@ -1328,9 +1480,10 @@
     function renderReading(data) {
       spSearchWrap.style.display = 'none';
       const found = findLessonById(currentLessonId);
-      if (!found || !found.lesson.published || found.lesson.locked) { showView('learn'); return; }
+      if (!found || !found.lesson.published || found.lesson.locked) { showView(lessonReturnView || 'learn'); return; }
       const l = found.lesson;
-      setHeader(breadcrumb(data.name, 'Learn'), 'Reading lesson', '');
+      const leafLabel = lessonReturnView === 'book' ? 'Books' : 'Learn';
+      setHeader(breadcrumb(data.name, leafLabel), lessonReturnView === 'book' ? 'Reading topic' : 'Reading lesson', '');
       spContent.innerHTML = `
         <div class="sp-reading">
           <h1 class="reading-title">${escHTML(l.title)}</h1>
@@ -1342,6 +1495,16 @@
       const found = findLessonById(id);
       if (!found || !found.lesson.published || found.lesson.locked) return;
       currentLessonId = id;
+      lessonReturnView = 'learn';
+      showView('lesson');
+    }
+
+    /* open a topic (= a lesson living inside a book-volume folder) */
+    function openTopic(id) {
+      const found = findLessonById(id);
+      if (!found || !found.lesson.published || found.lesson.locked) return;
+      currentLessonId = id;
+      lessonReturnView = 'book';
       showView('lesson');
     }
 
@@ -1361,6 +1524,145 @@
       }
     }
 
+    /* ── Book page: volumes + searchable topic list ─────────────────── */
+    function findBook(bookId) {
+      for (const key in SUBJECTS) {
+        const b = (SUBJECTS[key].books || []).find(x => x.id === bookId);
+        if (b) return b;
+      }
+      return null;
+    }
+
+    /* Build the volumes for the current book from the shared data.
+       A "volume" is a folder tagged with this book id; its lessons are the
+       topics. If nothing has been added in the admin yet, show a couple of
+       placeholder volumes so the design is visible. */
+    function buildBookVolumes(bookId) {
+      const folders = (DATA.folders || []).filter(f => f.book === bookId);
+      if (folders.length) {
+        return folders.map(f => {
+          let n = 0;
+          const topics = (f.lessons || [])
+            .filter(l => l.published)
+            .map(l => ({ id: l.id, title: l.title, locked: l.locked, num: ++n }));
+          return { name: f.name || 'Volume', topics };
+        });
+      }
+      const placeholder = count => Array.from({ length: count }, (_, i) =>
+        ({ title: `Topic ${i + 1}`, placeholder: true, num: i + 1 }));
+      return [
+        { name: 'Volume One', topics: placeholder(6) },
+        { name: 'Volume Two', topics: placeholder(6) }
+      ];
+    }
+
+    function topicRowHTML(t) {
+      if (t.placeholder) {
+        return `<div class="topic-row placeholder">
+                  <span class="topic-num">${t.num}</span>
+                  <span class="topic-title">${escHTML(t.title)}</span>
+                </div>`;
+      }
+      if (t.locked) {
+        return `<div class="topic-row locked" title="This topic is locked">
+                  <span class="topic-num">${t.num}</span>
+                  <span class="topic-title">${escHTML(t.title)}</span>
+                  <span class="lesson-lock">🔒</span>
+                </div>`;
+      }
+      return `<div class="topic-row clickable" data-topic="${escAttrQ(t.id)}">
+                <span class="topic-num">${t.num}</span>
+                <span class="topic-title">${escHTML(t.title)}</span>
+                <span class="lesson-go">→</span>
+              </div>`;
+    }
+
+    /* (re)paint just the topic list + counts for the active volume */
+    function paintTopics(query) {
+      const list = document.getElementById('topicList');
+      if (!list || !bookState) return;
+      const vol = bookState.volumes[currentVolumeIndex] || { topics: [] };
+      const topics = vol.topics;
+      const q = (query || '').trim().toLowerCase();
+      const matched = topics.filter(t => !q || t.title.toLowerCase().includes(q));
+
+      if (!topics.length) {
+        list.innerHTML = '<div class="topic-empty">No topics here yet — add them from the admin panel.</div>';
+      } else if (!matched.length) {
+        list.innerHTML = '<div class="topic-empty">No topics matched your search.</div>';
+      } else {
+        list.innerHTML = matched.map(topicRowHTML).join('');
+      }
+
+      const sub = document.getElementById('volBarSub');
+      if (sub) sub.textContent = `${matched.length}/${topics.length} topics • search and pick a chapter`;
+      const badge = document.getElementById('topicCountBadge');
+      if (badge) badge.textContent = `${matched.length}/${topics.length}`;
+    }
+
+    function wireBook() {
+      document.querySelectorAll('.vol-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          currentVolumeIndex = parseInt(pill.dataset.vol, 10) || 0;
+          document.querySelectorAll('.vol-pill').forEach(p => p.classList.toggle('active', p === pill));
+          const s = document.getElementById('topicSearch');
+          if (s) s.value = '';
+          paintTopics('');
+        });
+      });
+      const search = document.getElementById('topicSearch');
+      if (search) search.addEventListener('input', () => paintTopics(search.value));
+    }
+
+    function renderBook(data) {
+      spSearchWrap.style.display = 'none';
+      if (spBookIcon) { spBookIcon.style.display = ''; spBookIcon.textContent = '📖'; }
+
+      const book = findBook(currentBookId);
+      const title = book ? book.titleMain : 'Book';
+      setHeader(title, 'Choose a volume • Read by topic • Clean & vibrant layout', '');
+
+      const volumes = buildBookVolumes(currentBookId);
+      if (currentVolumeIndex >= volumes.length) currentVolumeIndex = 0;
+      bookState = { volumes };
+
+      const pills = volumes.map((v, i) =>
+        `<button class="vol-pill ${i === currentVolumeIndex ? 'active' : ''}" data-vol="${i}">${escHTML(v.name)}</button>`
+      ).join('');
+
+      spContent.innerHTML = `
+        <div class="book-page">
+          <div class="vol-bar">
+            <div class="vol-bar-left">
+              <span class="vol-bar-icon">📖</span>
+              <div>
+                <div class="vol-bar-title">Select a volume</div>
+                <div class="vol-bar-sub" id="volBarSub"></div>
+              </div>
+            </div>
+            <div class="vol-pills">${pills}</div>
+          </div>
+
+          <div class="topic-search-wrap">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="topic-search" id="topicSearch" placeholder="Search topics (e.g., shirk, amulets, intercession)..." autocomplete="off" />
+            <span class="topic-search-count" id="topicCountBadge"></span>
+          </div>
+
+          <div class="topic-list" id="topicList"></div>
+        </div>`;
+
+      wireBook();
+      paintTopics('');
+    }
+
+    function openBook(bookId) {
+      if (!findBook(bookId)) return;
+      currentBookId = bookId;
+      currentVolumeIndex = 0;
+      showView('book');
+    }
+
     function renderQuestions(data) {
       spSearchWrap.style.display = 'none';
       setHeader(breadcrumb(data.name, 'Questions'),
@@ -1377,9 +1679,11 @@
       navSubjectName.textContent = data.name;
       navBackLabel.textContent   = currentView === 'menu' ? 'Back to home' : 'Back';
       spSearchEl.value = '';
+      if (spBookIcon) spBookIcon.style.display = 'none';
 
       if (currentView === 'learn')          renderLearn(data);
       else if (currentView === 'books')     renderBooks(data);
+      else if (currentView === 'book')      renderBook(data);
       else if (currentView === 'questions') renderQuestions(data);
       else if (currentView === 'lesson')    renderReading(data);
       else                                  renderMenu(data);
@@ -1416,9 +1720,10 @@
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    /* nav back: lesson → learn, sub-view → menu, menu → home */
+    /* nav back: lesson → learn/book, book → books, sub-view → menu, menu → home */
     function goBack() {
-      if (currentView === 'lesson') showView('learn');
+      if (currentView === 'lesson') showView(lessonReturnView || 'learn');
+      else if (currentView === 'book') showView('books');
       else if (currentView !== 'menu') showView('menu');
       else closeSubject();
     }
@@ -1450,6 +1755,12 @@
     spContent.addEventListener('click', e => {
       const card = e.target.closest('.menu-card[data-view]');
       if (card) { showView(card.dataset.view); return; }
+
+      const book = e.target.closest('.book-card[data-book]');
+      if (book) { openBook(book.dataset.book); return; }
+
+      const topic = e.target.closest('.topic-row.clickable[data-topic]');
+      if (topic) { openTopic(topic.dataset.topic); return; }
 
       const lesson = e.target.closest('.lesson-item.clickable[data-lesson]');
       if (lesson) openLesson(lesson.dataset.lesson);

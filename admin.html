@@ -267,13 +267,15 @@
     }
     .icon-btn:hover { background: #fef2f2; color: #b91c1c; }
 
-    .folder-meta { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px; }
-    .folder-subject {
-      flex: 1; min-width: 0;
+    .folder-meta { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px; flex-wrap: wrap; }
+    .folder-subject, .folder-book {
+      flex: 1 1 130px; min-width: 0;
       font-family: 'Inter', sans-serif; font-size: 0.72rem; color: var(--t600, var(--t700));
       padding: 4px 8px; border: 1px solid var(--t200); border-radius: 8px;
       background: var(--white); cursor: pointer; outline: none;
     }
+    .folder-subject:disabled { opacity: 0.45; cursor: not-allowed; }
+    .folder-book { border-color: var(--g200); }
     .mini-btn {
       border: 1px dashed var(--g600); background: var(--g50); color: var(--g700);
       font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600;
@@ -410,10 +412,12 @@
       </div>
 
       <div class="admin-note">
-        <strong>How your data is saved:</strong> you must be <strong>signed in</strong> to edit. Changes sync
-        <strong>live to Supabase</strong> (watch the status pill) and to this browser as an offline backup;
-        if Supabase is unreachable they re-sync automatically once it's back. Edits appear instantly on the
-        public site. <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
+        <strong>Folders &amp; books:</strong> leave a folder as a <strong>Learn module</strong> (pick its subject) to show it
+        on a subject's Learn page, or assign it to a <strong>📖 book</strong> to make it a <strong>volume</strong> — then the
+        folder name is the volume name (e.g. “Volume One”) and its lessons become that book's topics. Add more than one
+        volume folder per book for multiple volumes. &nbsp;<strong>Saving:</strong> you must be <strong>signed in</strong>;
+        changes sync <strong>live to Supabase</strong> and appear instantly on the public site (offline edits re-sync once
+        you're back online). <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
       </div>
 
       <div class="admin-body">
@@ -444,6 +448,23 @@
       history: { name: 'Islamic History' },
       arabic:  { name: 'Arabic' }
     };
+
+    /* ══════════════════════════════════════════════════════════════════
+       BOOKS — registry of the books shown on the public site. ids MUST
+       match the `id:` fields in index.html's SUBJECTS books. Assign a
+       folder to one of these to turn it into a VOLUME of that book; the
+       folder name is the volume name (e.g. "Volume One") and its lessons
+       become the book's topics. Leave a folder's book empty for a normal
+       Learn module.
+    ══════════════════════════════════════════════════════════════════ */
+    const BOOKS = [
+      { id: 'thalathat-al-usool',       subject: 'aqeedah', title: 'Thalathat al-Usool' },
+      { id: 'kitab-at-tawhid',          subject: 'aqeedah', title: 'Kitaab al-Tawheed' },
+      { id: 'al-aqeedah-al-wasitiyyah', subject: 'aqeedah', title: 'Al-Aqeedah al-Wasitiyyah' },
+      { id: 'arbaeen-nawawiyyah',       subject: 'hadith',  title: "Al-Arba'een al-Nawawiyyah" },
+      { id: 'riyadh-as-saliheen',       subject: 'hadith',  title: 'Riyaadh al-Saaliheen' },
+      { id: 'umdah-al-ahkaam',          subject: 'hadith',  title: 'Umdah al-Ahkaam' }
+    ];
 
     /* ── shared helpers (same as the public site) ───────────────────── */
     function escHTML(s) {
@@ -658,16 +679,23 @@
         const opts = SUBJECT_OPTIONS.map(([k, n]) =>
           `<option value="${k}" ${f.subject === k ? 'selected' : ''}>${escHTML(n)}</option>`).join('');
 
+        const bookOpts = '<option value="">— Learn module —</option>' +
+          BOOKS.map(b =>
+            `<option value="${b.id}" ${f.book === b.id ? 'selected' : ''}>📖 ${escHTML(b.title)}</option>`).join('');
+
+        const isVolume = !!f.book;
+
         return `<div class="folder" data-folder="${escAttrQ(f.id)}" draggable="true">
           <div class="folder-head">
             <span class="drag-dots folder-drag" title="Drag to reorder">⠿</span>
-            <input class="folder-name-input" value="${escAttrQ(f.name)}" data-folder="${escAttrQ(f.id)}" />
-            <span class="folder-count" title="Lessons in this folder">${lessons.length}</span>
+            <input class="folder-name-input" value="${escAttrQ(f.name)}" data-folder="${escAttrQ(f.id)}" placeholder="${isVolume ? 'e.g. Volume One' : 'Folder name'}" />
+            <span class="folder-count" title="${isVolume ? 'Topics in this volume' : 'Lessons in this folder'}">${lessons.length}</span>
             <button class="icon-btn" data-act="del-folder" data-folder="${escAttrQ(f.id)}" title="Delete folder">✕</button>
           </div>
           <div class="folder-meta">
-            <select class="folder-subject" data-folder="${escAttrQ(f.id)}" title="Which subject's Learn page shows this folder">${opts}</select>
-            <button class="mini-btn" data-act="new-lesson" data-folder="${escAttrQ(f.id)}">+ Lesson</button>
+            <select class="folder-subject" data-folder="${escAttrQ(f.id)}" title="Which subject's Learn page shows this folder" ${isVolume ? 'disabled' : ''}>${opts}</select>
+            <select class="folder-book" data-folder="${escAttrQ(f.id)}" title="Assign this folder as a volume of a book (or leave as a Learn module)">${bookOpts}</select>
+            <button class="mini-btn" data-act="new-lesson" data-folder="${escAttrQ(f.id)}">+ ${isVolume ? 'Topic' : 'Lesson'}</button>
           </div>
           <div class="folder-lessons" data-folder="${escAttrQ(f.id)}">${rows}</div>
         </div>`;
@@ -736,6 +764,14 @@
       });
       list.querySelectorAll('.folder-subject').forEach(sel => {
         sel.addEventListener('change', () => { const f = DATA.folders.find(x => x.id === sel.dataset.folder); if (f) { f.subject = sel.value; commit(); } });
+      });
+      list.querySelectorAll('.folder-book').forEach(sel => {
+        sel.addEventListener('change', () => {
+          const f = DATA.folders.find(x => x.id === sel.dataset.folder);
+          if (!f) return;
+          if (sel.value) f.book = sel.value; else delete f.book;
+          commit(); renderSidebar();   // re-render to reflect Learn-module ↔ volume change
+        });
       });
       list.querySelectorAll('[data-act="del-folder"]').forEach(btn => {
         btn.addEventListener('click', () => {

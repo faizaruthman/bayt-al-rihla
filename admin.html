@@ -342,16 +342,132 @@
     .preview-box {
       background: var(--cream); border: 1px solid var(--t200);
       border-radius: var(--radius-sm); padding: 22px 24px; min-height: 360px;
+      overflow: auto;
     }
+    .preview-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--g900); margin-bottom: 14px; }
+
+    /* ── Rich contenteditable editor ─────────────────────────────────── */
+    .editor-rich {
+      width: 100%; min-height: 360px; max-height: 60vh; overflow-y: auto;
+      padding: 16px 18px;
+      border: 1.5px solid var(--t200); border-radius: 12px;
+      background: var(--white); color: var(--t900);
+      outline: none; cursor: text;
+      transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .editor-rich:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .editor-rich:empty::before { content: attr(data-placeholder); color: var(--t400); }
+    .editor-rich p:last-child, .editor-rich ul:last-child { margin-bottom: 0; }
+
+    /* ── per-lesson design picker + preview tabs (segmented control) ──── */
+    .design-pick { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
+    .design-pick-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t500); }
+    .seg { display: inline-flex; background: var(--cream); border: 1px solid var(--t200); border-radius: var(--pill); padding: 3px; gap: 2px; }
+    .seg button {
+      border: none; background: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 600;
+      color: var(--t500); padding: 6px 14px; border-radius: var(--pill);
+      transition: background var(--ease), color var(--ease);
+    }
+    .seg button:hover { color: var(--t900); }
+    .seg button.active { background: var(--g700); color: #fff; }
+
+    .preview-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .preview-seg button { padding: 5px 12px; font-size: 0.74rem; }
+
+    /* ── block-format toolbar (above the editor) ─────────────────────── */
+    .rich-toolbar { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .rt-btn {
+      min-width: 34px; height: 32px; padding: 0 10px;
+      border: 1.5px solid var(--t200); background: var(--white); color: var(--t700);
+      border-radius: 9px; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 700;
+      transition: background var(--ease), color var(--ease), border-color var(--ease);
+    }
+    .rt-btn:hover { background: var(--g50); border-color: var(--g200); color: var(--g700); }
+    .rt-hint { font-size: 0.72rem; color: var(--t400); margin-left: 4px; }
+    .rt-hint b, .rt-hint i { color: var(--t500); }
+
+    /* ── global default design control (topbar) ──────────────────────── */
+    .global-design {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--t500);
+    }
+    .global-design select {
+      font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 600; color: var(--t700);
+      padding: 6px 8px; border: 1.5px solid var(--t200); border-radius: var(--pill);
+      background: var(--white); cursor: pointer; outline: none; text-transform: none; letter-spacing: 0;
+    }
+
+    /* ── floating format toolbar (Bold / Italic / Highlight) ─────────── */
+    .fmt-toolbar {
+      position: absolute; z-index: 500;
+      display: flex; align-items: center; gap: 2px;
+      background: var(--white);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: var(--pill);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08);
+      padding: 4px;
+    }
+    .fmt-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 32px; height: 30px; padding: 0 10px;
+      border: none; background: none; cursor: pointer;
+      border-radius: var(--pill);
+      font-family: 'Inter', sans-serif; font-size: 0.84rem; color: var(--t700);
+      transition: background var(--ease), color var(--ease);
+    }
+    .fmt-btn:hover { background: var(--t100); color: var(--t900); }
+    .fmt-btn.active { background: var(--g100); color: var(--g700); }
+    .fmt-btn b { font-weight: 800; }
+    .fmt-btn i { font-style: italic; font-family: Georgia, serif; }
+    .fmt-hl-btn { font-size: 0.76rem; font-weight: 700; }
+    .fmt-hl { background: #dbeafe; border-radius: 5px; padding: 1px 7px; }
+
+    /* ── Highlight pill (shared with public site) ────────────────────── */
+    mark.hl, .reading-content mark, .hl {
+      background: #dbeafe; color: inherit;
+      border-radius: 6px; padding: 0.05em 0.32em;
+      box-decoration-break: clone; -webkit-box-decoration-break: clone;
+    }
+
+    /* ── Focus design — preview pane only ────────────────────────────── */
+    .preview-focus { background: #fbf8f1; }
+    .focus-article-mini { max-width: 600px; margin: 0 auto; }
+    .focus-kicker {
+      font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase; color: var(--g700); margin-bottom: 12px;
+    }
+    .focus-title {
+      font-family: 'Cinzel', serif; font-size: 1.7rem; font-weight: 700;
+      line-height: 1.2; letter-spacing: -0.5px; color: #1f2430; margin-bottom: 16px;
+    }
+    .focus-rule { width: 48px; height: 3px; border-radius: 2px; background: var(--g600); opacity: 0.85; margin-bottom: 26px; }
+    .focus-body {
+      font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+      font-size: 1.08rem; line-height: 1.9; color: #2c2a26;
+    }
+    .focus-body p  { margin-bottom: 18px; }
+    .focus-body ul { margin: 0 0 18px 22px; }
+    .focus-body li { margin-bottom: 8px; }
+    .focus-body strong { color: #1f2430; font-weight: 700; }
+    .focus-body em { font-style: italic; }
+    .focus-body h2, .focus-body h3, .focus-body h4 { font-family: 'Inter', sans-serif; color: #1f2430; line-height: 1.3; }
+    .focus-body h2 { font-size: 1.35rem; font-weight: 800; margin: 30px 0 12px; }
+    .focus-body h3 { font-size: 1.12rem; font-weight: 800; margin: 24px 0 8px; }
+    .focus-body h4 { font-size: 1rem;    font-weight: 700; margin: 20px 0 6px; }
 
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 768px) {
       .admin-body { flex-direction: column; }
       .admin-sidebar { width: 100%; max-height: 42vh; border-right: none; border-bottom: 1px solid var(--t200); }
       .editor-grid { grid-template-columns: 1fr; }
-      .editor-textarea, .preview-box { min-height: 220px; }
+      .editor-textarea, .editor-rich, .preview-box { min-height: 220px; }
       .admin-topbar { padding: 10px 14px; }
       .admin-search-wrap { order: 3; flex-basis: 100%; max-width: none; }
+      .design-pick { margin-left: 0; }
+      .global-design { display: none; }
     }
   </style>
 </head>
@@ -397,6 +513,13 @@
         <div class="admin-actions">
           <span class="sync-indicator sync-saved" id="syncIndicator" title="Live sync with Supabase">Saved</span>
           <span class="admin-user" id="adminUser" hidden></span>
+          <label class="global-design" title="Default reading design for lessons set to “Default”">
+            Default design
+            <select id="globalDesign">
+              <option value="classic">Classic</option>
+              <option value="focus">Focus</option>
+            </select>
+          </label>
           <button class="admin-btn" id="btnExport" title="Download a data.json backup">⬇ Export</button>
           <button class="admin-btn" id="btnImport" title="Load a data.json backup">⬆ Import</button>
           <input type="file" id="importFile" accept="application/json,.json" hidden />
@@ -505,6 +628,55 @@
       return out || '<p style="color:var(--t400)">Nothing to preview yet.</p>';
     }
 
+    /* ── rich-text lesson content (HTML) — mirrors the public site ─────── */
+    function looksLikeHTML(s) {
+      return /<(\/?)(p|br|strong|em|mark|h[1-6]|ul|ol|li|b|i|div|span|a|blockquote)\b/i.test(s || '');
+    }
+
+    const HTML_ALLOWED = { P:1, BR:1, STRONG:1, EM:1, MARK:1, H2:1, H3:1, H4:1, UL:1, OL:1, LI:1, BLOCKQUOTE:1 };
+    const HTML_RENAME  = { B:'STRONG', I:'EM', DIV:'P', H1:'H2', H5:'H4', H6:'H4' };
+
+    function cleanNodes(node) {
+      const frag = document.createDocumentFragment();
+      node.childNodes.forEach(child => {
+        if (child.nodeType === 3) {
+          frag.appendChild(document.createTextNode(child.nodeValue));
+        } else if (child.nodeType === 1) {
+          let tag = HTML_RENAME[child.tagName] || child.tagName;
+          const inner = cleanNodes(child);
+          if (HTML_ALLOWED[tag]) {
+            const el = document.createElement(tag);
+            if (tag === 'MARK') el.className = 'hl';
+            el.appendChild(inner);
+            frag.appendChild(el);
+          } else {
+            frag.appendChild(inner);
+          }
+        }
+      });
+      return frag;
+    }
+
+    function sanitizeHTML(html) {
+      const holder = document.createElement('div');
+      holder.innerHTML = html || '';
+      const out = document.createElement('div');
+      out.appendChild(cleanNodes(holder));
+      return out.innerHTML;
+    }
+
+    /* stored content → safe HTML for the editor / preview */
+    function renderLessonHTML(content) {
+      if (looksLikeHTML(content)) return sanitizeHTML(content);
+      return renderMarkdown(content);                     // legacy Markdown
+    }
+
+    function effectiveDesign(lesson) {
+      const d = (lesson && lesson.design) ||
+                (DATA.settings && DATA.settings.defaultDesign) || 'classic';
+      return d === 'focus' ? 'focus' : 'classic';
+    }
+
     /* ══════════════════════════════════════════════════════════════════
        LESSON DATA + SYNC
        ------------------------------------------------------------------
@@ -519,6 +691,8 @@
     let selectedLessonId = null;
     let dragData = null;
     let authSession = null;      // current Supabase Auth session (or null)
+    let activeRich = null;       // the contenteditable element being edited
+    let activeRichSync = null;   // () => persist editor HTML + refresh preview
 
     let SB = null;               // Supabase client (or null when offline)
     const SB_ROW_ID = 1;         // row in site_data that holds the whole tree
@@ -649,7 +823,12 @@
     function commit() { scheduleSave(); }   // persist + sync (after structural changes)
 
     /* ── admin rendering ────────────────────────────────────────────── */
-    function renderAdmin() { renderSidebar(); renderEditor(); }
+    function renderAdmin() {
+      const gd = document.getElementById('globalDesign');
+      if (gd) gd.value = (DATA.settings && DATA.settings.defaultDesign === 'focus') ? 'focus' : 'classic';
+      renderSidebar();
+      renderEditor();
+    }
 
     function renderSidebar() {
       if (!isTree(DATA)) DATA = { folders: [] };
@@ -827,6 +1006,7 @@
         return;
       }
       const l = found.lesson;
+      const curDesign = l.design || '';                  // '' = use global default
       main.innerHTML = `
         <div class="editor-head">
           <input id="edTitle" class="editor-title-input" value="${escAttrQ(l.title)}" placeholder="Lesson title" />
@@ -835,16 +1015,36 @@
         <div class="editor-toggles">
           <label class="switch"><input type="checkbox" id="edPublished" ${l.published ? 'checked' : ''}><span class="track"></span> Published</label>
           <label class="switch"><input type="checkbox" id="edLocked" ${l.locked ? 'checked' : ''}><span class="track"></span> Locked</label>
-          <span class="editor-hint"># heading&nbsp;·&nbsp;**bold**&nbsp;·&nbsp;*italic*&nbsp;·&nbsp;- list</span>
+          <div class="design-pick">
+            <span class="design-pick-label">Design</span>
+            <div class="seg" id="designSeg">
+              <button type="button" data-design=""        class="${curDesign === '' ? 'active' : ''}">Default</button>
+              <button type="button" data-design="classic" class="${curDesign === 'classic' ? 'active' : ''}">Classic</button>
+              <button type="button" data-design="focus"   class="${curDesign === 'focus' ? 'active' : ''}">Focus</button>
+            </div>
+          </div>
+        </div>
+        <div class="rich-toolbar" id="blockToolbar">
+          <button type="button" class="rt-btn" data-block="p"  title="Paragraph">¶</button>
+          <button type="button" class="rt-btn" data-block="h2" title="Heading">H2</button>
+          <button type="button" class="rt-btn" data-block="h3" title="Subheading">H3</button>
+          <button type="button" class="rt-btn" data-block="ul" title="Bullet list">• List</button>
+          <span class="rt-hint">Select text to <b>B</b> <i>i</i> or highlight</span>
         </div>
         <div class="editor-grid">
           <div>
-            <label class="editor-label">Content (Markdown)</label>
-            <textarea id="edContent" class="editor-textarea" placeholder="Write the lesson…">${escHTML(l.content)}</textarea>
+            <label class="editor-label">Content</label>
+            <div id="edContent" class="editor-rich reading-content" contenteditable="true" spellcheck="true" data-placeholder="Write the lesson…"></div>
           </div>
           <div>
-            <label class="editor-label">Live preview</label>
-            <div class="preview-box reading-content" id="edPreview">${renderMarkdown(l.content)}</div>
+            <div class="preview-head">
+              <label class="editor-label" style="margin:0">Preview</label>
+              <div class="seg preview-seg" id="previewSeg">
+                <button type="button" data-pv="classic">Classic</button>
+                <button type="button" data-pv="focus">Focus</button>
+              </div>
+            </div>
+            <div class="preview-box" id="edPreview"></div>
           </div>
         </div>`;
 
@@ -852,21 +1052,93 @@
       const elContent = document.getElementById('edContent');
       const elPreview = document.getElementById('edPreview');
 
+      // load existing content as HTML (legacy Markdown is converted on the fly);
+      // keep a brand-new lesson truly empty so the placeholder shows
+      elContent.innerHTML = (l.content && l.content.trim()) ? renderLessonHTML(l.content) : '';
+
+      // which design the PREVIEW pane shows (starts on the lesson's effective design)
+      let previewDesign = effectiveDesign(l);
+      document.querySelectorAll('#previewSeg button').forEach(b =>
+        b.classList.toggle('active', b.dataset.pv === previewDesign));
+
+      function updatePreview() {
+        const html = renderLessonHTML(l.content);
+        const title = escHTML(l.title || 'Untitled lesson');
+        if (previewDesign === 'focus') {
+          elPreview.className = 'preview-box preview-focus';
+          elPreview.innerHTML = `
+            <div class="focus-article-mini">
+              <div class="focus-kicker">Lesson</div>
+              <h1 class="focus-title">${title}</h1>
+              <div class="focus-rule"></div>
+              <div class="focus-body reading-content">${html}</div>
+            </div>`;
+        } else {
+          elPreview.className = 'preview-box reading-content preview-classic';
+          elPreview.innerHTML = `<h1 class="reading-title preview-title">${title}</h1>${html}`;
+        }
+      }
+      updatePreview();
+
+      // make this the editor the floating toolbar acts on
+      activeRich = elContent;
+      activeRichSync = () => { l.content = elContent.innerHTML; scheduleSave(); updatePreview(); };
+
       elTitle.addEventListener('input', () => {
         l.title = elTitle.value; scheduleSave();
         const lbl = document.querySelector('.admin-lesson[data-lesson="' + l.id + '"] .admin-lesson-title');
         if (lbl) lbl.textContent = l.title;
+        updatePreview();
       });
-      elContent.addEventListener('input', () => {
-        l.content = elContent.value; scheduleSave();
-        elPreview.innerHTML = renderMarkdown(l.content);
+
+      elContent.addEventListener('input', () => { l.content = elContent.innerHTML; scheduleSave(); updatePreview(); });
+      elContent.addEventListener('blur', () => {
+        const clean = sanitizeHTML(elContent.innerHTML);
+        if (clean !== elContent.innerHTML) elContent.innerHTML = clean;
+        l.content = clean; scheduleSave(); updatePreview();
       });
+
+      // block-format toolbar (headings / list / paragraph)
+      document.querySelectorAll('#blockToolbar .rt-btn').forEach(btn => {
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        btn.addEventListener('click', () => {
+          elContent.focus();
+          const b = btn.dataset.block;
+          if (b === 'ul') document.execCommand('insertUnorderedList', false, null);
+          else document.execCommand('formatBlock', false, '<' + b + '>');
+          l.content = elContent.innerHTML; scheduleSave(); updatePreview();
+        });
+      });
+
+      // per-lesson design picker
+      document.querySelectorAll('#designSeg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.dataset.design;
+          if (val) l.design = val; else delete l.design;
+          document.querySelectorAll('#designSeg button').forEach(b => b.classList.toggle('active', b === btn));
+          previewDesign = effectiveDesign(l);
+          document.querySelectorAll('#previewSeg button').forEach(b => b.classList.toggle('active', b.dataset.pv === previewDesign));
+          updatePreview();
+          commit();
+        });
+      });
+
+      // preview-design compare tabs
+      document.querySelectorAll('#previewSeg button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          previewDesign = btn.dataset.pv;
+          document.querySelectorAll('#previewSeg button').forEach(b => b.classList.toggle('active', b === btn));
+          updatePreview();
+        });
+      });
+
       document.getElementById('edPublished').addEventListener('change', e => { l.published = e.target.checked; commit(); renderSidebar(); });
       document.getElementById('edLocked').addEventListener('change',   e => { l.locked = e.target.checked; commit(); renderSidebar(); });
       document.getElementById('edDelete').addEventListener('click', () => {
         if (!confirm(`Delete lesson "${l.title}"?`)) return;
         found.folder.lessons.splice(found.index, 1);
         selectedLessonId = null; commit(); renderAdmin();
+        activeRich = null; activeRichSync = null;
       });
     }
 
@@ -911,6 +1183,122 @@
     document.addEventListener('dragend', () => {
       dragData = null;
       document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+
+    /* ── global default design picker (topbar) ──────────────────────── */
+    document.getElementById('globalDesign').addEventListener('change', e => {
+      DATA.settings = DATA.settings || {};
+      DATA.settings.defaultDesign = e.target.value === 'focus' ? 'focus' : 'classic';
+      commit();
+      if (selectedLessonId) renderEditor();   // refresh preview if a lesson is open
+    });
+
+    /* ══════════════════════════════════════════════════════════════════
+       FLOATING FORMAT TOOLBAR  (Bold / Italic / Highlight)
+       ------------------------------------------------------------------
+       Pops up above any text you select inside a rich content editor.
+       Bold/Italic use execCommand; Highlight wraps the selection in a
+       <mark class="hl"> (toggled off if already highlighted). Output is
+       sanitised on blur and rendered identically on the public site.
+    ══════════════════════════════════════════════════════════════════ */
+    try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
+
+    const fmtBar = document.createElement('div');
+    fmtBar.className = 'fmt-toolbar';
+    fmtBar.style.display = 'none';
+    fmtBar.innerHTML =
+      '<button type="button" class="fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>' +
+      '<button type="button" class="fmt-btn" data-cmd="italic" title="Italic"><i>i</i></button>' +
+      '<button type="button" class="fmt-btn fmt-hl-btn" data-cmd="highlight" title="Highlight"><span class="fmt-hl">Highlight</span></button>';
+    document.body.appendChild(fmtBar);
+
+    fmtBar.addEventListener('mousedown', e => e.preventDefault());   // keep the text selection
+    fmtBar.querySelectorAll('.fmt-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cmd = btn.dataset.cmd;
+        if (cmd === 'bold' || cmd === 'italic') document.execCommand(cmd, false, null);
+        else if (cmd === 'highlight') toggleHighlight();
+        if (activeRich) activeRich.focus();
+        if (activeRichSync) activeRichSync();
+        positionFmtBar();
+      });
+    });
+
+    function selectionInRich() {
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return null;
+      const range = sel.getRangeAt(0);
+      let node = range.commonAncestorContainer;
+      if (node.nodeType === 3) node = node.parentNode;
+      const rich = node && node.closest ? node.closest('.editor-rich') : null;
+      return rich ? { sel, range } : null;
+    }
+
+    function isHighlighted() {
+      const ctx = selectionInRich(); if (!ctx) return false;
+      let node = ctx.range.commonAncestorContainer;
+      if (node.nodeType === 3) node = node.parentNode;
+      return !!(node.closest && node.closest('mark'));
+    }
+    function wrapHighlight() {
+      const ctx = selectionInRich(); if (!ctx || ctx.sel.isCollapsed) return;
+      const range = ctx.range;
+      const mark = document.createElement('mark'); mark.className = 'hl';
+      try { range.surroundContents(mark); }
+      catch (e) { const frag = range.extractContents(); mark.appendChild(frag); range.insertNode(mark); }
+      const sel = window.getSelection(); sel.removeAllRanges();
+      const r = document.createRange(); r.selectNodeContents(mark); sel.addRange(r);
+    }
+    function removeHighlight() {
+      const ctx = selectionInRich(); if (!ctx) return;
+      let node = ctx.range.commonAncestorContainer;
+      if (node.nodeType === 3) node = node.parentNode;
+      const mark = node.closest ? node.closest('mark') : null;
+      if (!mark) return;
+      const parent = mark.parentNode;
+      while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+      parent.removeChild(mark); parent.normalize();
+    }
+    function toggleHighlight() { isHighlighted() ? removeHighlight() : wrapHighlight(); }
+
+    function updateFmtState() {
+      let b = false, i = false;
+      try { b = document.queryCommandState('bold'); i = document.queryCommandState('italic'); } catch (e) {}
+      const bb = fmtBar.querySelector('[data-cmd="bold"]');
+      const ib = fmtBar.querySelector('[data-cmd="italic"]');
+      const hb = fmtBar.querySelector('[data-cmd="highlight"]');
+      if (bb) bb.classList.toggle('active', b);
+      if (ib) ib.classList.toggle('active', i);
+      if (hb) hb.classList.toggle('active', isHighlighted());
+    }
+
+    function positionFmtBar() {
+      const ctx = selectionInRich();
+      if (!ctx || ctx.sel.isCollapsed) { fmtBar.style.display = 'none'; return; }
+      const rect = ctx.range.getBoundingClientRect();
+      if (!rect || (rect.width === 0 && rect.height === 0)) { fmtBar.style.display = 'none'; return; }
+      fmtBar.style.display = 'flex';
+      const bb = fmtBar.getBoundingClientRect();
+      let top  = rect.top + window.scrollY - bb.height - 8;
+      let left = rect.left + window.scrollX + rect.width / 2 - bb.width / 2;
+      const maxLeft = window.scrollX + document.documentElement.clientWidth - bb.width - 8;
+      left = Math.max(window.scrollX + 8, Math.min(left, maxLeft));
+      if (top < window.scrollY + 4) top = rect.bottom + window.scrollY + 8;   // flip below if no room above
+      fmtBar.style.top = top + 'px';
+      fmtBar.style.left = left + 'px';
+      updateFmtState();
+    }
+
+    let fmtRAF = null;
+    document.addEventListener('selectionchange', () => {
+      if (fmtRAF) cancelAnimationFrame(fmtRAF);
+      fmtRAF = requestAnimationFrame(positionFmtBar);
+    });
+    window.addEventListener('scroll', () => { if (fmtBar.style.display !== 'none') positionFmtBar(); }, true);
+    window.addEventListener('resize', () => { if (fmtBar.style.display !== 'none') positionFmtBar(); });
+    document.addEventListener('mousedown', e => {
+      if (e.target.closest('.fmt-toolbar') || e.target.closest('.editor-rich')) return;
+      fmtBar.style.display = 'none';
     });
 
     /* ══════════════════════════════════════════════════════════════════

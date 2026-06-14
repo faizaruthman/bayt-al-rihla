@@ -764,6 +764,82 @@
     .reading-content strong { color: var(--t900); font-weight: 700; }
     .reading-content em { font-style: italic; }
 
+    /* ── Highlight pill (rich-text) — renders in both designs ────────── */
+    mark.hl, .reading-content mark, .hl {
+      background: #dbeafe;
+      color: inherit;
+      border-radius: 6px;
+      padding: 0.05em 0.32em;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    /* ══ Design 2: FOCUS / READER ════════════════════════════════════════ */
+    .focus-page {
+      background: #fbf8f1;                      /* warm paper */
+      min-height: calc(100vh - 68px);
+    }
+    /* reading-progress bar pinned just under the nav */
+    .reading-progress {
+      position: fixed;
+      top: 68px; left: 0; right: 0;
+      height: 3px;
+      background: rgba(20,83,45,0.08);
+      z-index: 150;
+    }
+    .reading-progress-fill {
+      height: 100%; width: 0;
+      background: var(--g600);
+      transition: width 0.08s linear;
+    }
+    .focus-article {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 54px 28px 130px;
+    }
+    .focus-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.82rem; font-weight: 600;
+      color: var(--t500); padding: 6px 0; margin-bottom: 30px;
+      transition: color var(--ease);
+    }
+    .focus-back:hover { color: var(--g700); }
+    .focus-kicker {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--g700); margin-bottom: 16px;
+    }
+    .focus-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.9rem, 4.6vw, 2.8rem);
+      font-weight: 700; line-height: 1.18;
+      letter-spacing: -0.5px; color: #1f2430;
+      margin-bottom: 22px;
+    }
+    .focus-rule { width: 54px; height: 3px; border-radius: 2px; background: var(--g600); opacity: 0.85; margin-bottom: 36px; }
+
+    /* comfortable, serif reading body */
+    .focus-body {
+      font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif;
+      font-size: 1.16rem;
+      line-height: 1.95;
+      color: #2c2a26;
+    }
+    .focus-body p  { margin-bottom: 22px; }
+    .focus-body ul { margin: 0 0 22px 24px; }
+    .focus-body li { margin-bottom: 10px; }
+    .focus-body strong { color: #1f2430; font-weight: 700; }
+    .focus-body em { font-style: italic; }
+    .focus-body h2, .focus-body h3, .focus-body h4 {
+      font-family: 'Inter', sans-serif; color: #1f2430; line-height: 1.3;
+    }
+    .focus-body h2 { font-size: 1.5rem;  font-weight: 800; margin: 40px 0 14px; letter-spacing: -0.3px; }
+    .focus-body h3 { font-size: 1.22rem; font-weight: 800; margin: 32px 0 10px; }
+    .focus-body h4 { font-size: 1.05rem; font-weight: 700; margin: 26px 0 8px; }
+    .focus-body mark.hl, .focus-body .hl { background: #dbeafe; }
+
     /* ── Book page: header icon ──────────────────────────────────────── */
     .sp-book-emoji {
       font-size: 2.4rem;
@@ -934,6 +1010,9 @@
       .vol-bar-left { width: 100%; }
       .vol-pills { width: 100%; }
       .vol-pill { flex: 1; text-align: center; }
+
+      .focus-article { padding: 40px 20px 100px; }
+      .focus-body { font-size: 1.08rem; line-height: 1.9; }
     }
     @media (max-width: 480px) {
       .subjects-grid { grid-template-columns: 1fr; }
@@ -1359,6 +1438,73 @@
       return out || '<p style="color:var(--t400)">Nothing to preview yet.</p>';
     }
 
+    /* ── rich-text lesson content (HTML) ─────────────────────────────────
+       Lessons authored in the admin's rich editor are stored as HTML.
+       Older lessons are plain Markdown — we detect that and render it the
+       legacy way. Either path is sanitised to a small safe tag whitelist. */
+    function looksLikeHTML(s) {
+      return /<(\/?)(p|br|strong|em|mark|h[1-6]|ul|ol|li|b|i|div|span|a|blockquote)\b/i.test(s || '');
+    }
+
+    const HTML_ALLOWED = { P:1, BR:1, STRONG:1, EM:1, MARK:1, H2:1, H3:1, H4:1, UL:1, OL:1, LI:1, BLOCKQUOTE:1 };
+    const HTML_RENAME  = { B:'STRONG', I:'EM', DIV:'P', H1:'H2', H5:'H4', H6:'H4' };
+
+    function cleanNodes(node) {
+      const frag = document.createDocumentFragment();
+      node.childNodes.forEach(child => {
+        if (child.nodeType === 3) {                       // text
+          frag.appendChild(document.createTextNode(child.nodeValue));
+        } else if (child.nodeType === 1) {                // element
+          let tag = HTML_RENAME[child.tagName] || child.tagName;
+          const inner = cleanNodes(child);
+          if (HTML_ALLOWED[tag]) {
+            const el = document.createElement(tag);
+            if (tag === 'MARK') el.className = 'hl';
+            el.appendChild(inner);
+            frag.appendChild(el);
+          } else {
+            frag.appendChild(inner);                      // unwrap unknown tags
+          }
+        }
+      });
+      return frag;
+    }
+
+    function sanitizeHTML(html) {
+      const holder = document.createElement('div');
+      holder.innerHTML = html || '';
+      const out = document.createElement('div');
+      out.appendChild(cleanNodes(holder));
+      return out.innerHTML;
+    }
+
+    /* turn stored lesson content into safe HTML for display */
+    function renderLessonHTML(content) {
+      if (looksLikeHTML(content)) return sanitizeHTML(content);
+      return renderMarkdown(content);                     // legacy Markdown
+    }
+
+    /* which reading design a lesson uses (per-lesson, else global default) */
+    function effectiveDesign(lesson) {
+      const d = (lesson && lesson.design) ||
+                (DATA.settings && DATA.settings.defaultDesign) || 'classic';
+      return d === 'focus' ? 'focus' : 'classic';
+    }
+
+    /* reading-progress bar (Focus design) — updates as the article scrolls */
+    function updateReadingProgress() {
+      const fill = document.getElementById('rpFill');
+      const art  = document.getElementById('focusArticle');
+      if (!fill || !art) return;
+      const rect  = art.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      let p = total > 0 ? (-rect.top) / total : (rect.top <= 0 ? 1 : 0);
+      p = Math.max(0, Math.min(1, p));
+      fill.style.width = (p * 100).toFixed(1) + '%';
+    }
+    window.addEventListener('scroll', updateReadingProgress, { passive: true });
+    window.addEventListener('resize', updateReadingProgress);
+
     /* ── small builders ─────────────────────────────────────────────── */
     function setHeader(titleHTML, subtitle, count) {
       spPageTitle.innerHTML       = titleHTML;
@@ -1482,13 +1628,36 @@
       const found = findLessonById(currentLessonId);
       if (!found || !found.lesson.published || found.lesson.locked) { showView(lessonReturnView || 'learn'); return; }
       const l = found.lesson;
-      const leafLabel = lessonReturnView === 'book' ? 'Books' : 'Learn';
-      setHeader(breadcrumb(data.name, leafLabel), lessonReturnView === 'book' ? 'Reading topic' : 'Reading lesson', '');
-      spContent.innerHTML = `
-        <div class="sp-reading">
-          <h1 class="reading-title">${escHTML(l.title)}</h1>
-          <div class="reading-content">${renderMarkdown(l.content)}</div>
-        </div>`;
+      const bodyHTML = renderLessonHTML(l.content);
+      const spHeader = document.querySelector('.sp-header');
+
+      if (effectiveDesign(l) === 'focus') {
+        // ── Design 2: Focus / Reader (distraction-free) ──
+        if (spHeader) spHeader.style.display = 'none';
+        const kicker = `${escHTML(data.name)} · ${lessonReturnView === 'book' ? 'Topic' : 'Lesson'}`;
+        spContent.innerHTML = `
+          <div class="focus-page">
+            <div class="reading-progress"><div class="reading-progress-fill" id="rpFill"></div></div>
+            <article class="focus-article" id="focusArticle">
+              <button class="focus-back" id="focusBack">← Back</button>
+              <div class="focus-kicker">${kicker}</div>
+              <h1 class="focus-title">${escHTML(l.title)}</h1>
+              <div class="focus-rule"></div>
+              <div class="focus-body reading-content">${bodyHTML}</div>
+            </article>
+          </div>`;
+        requestAnimationFrame(updateReadingProgress);
+      } else {
+        // ── Design 1: Classic (current site look) ──
+        if (spHeader) spHeader.style.display = '';
+        const leafLabel = lessonReturnView === 'book' ? 'Books' : 'Learn';
+        setHeader(breadcrumb(data.name, leafLabel), lessonReturnView === 'book' ? 'Reading topic' : 'Reading lesson', '');
+        spContent.innerHTML = `
+          <div class="sp-reading">
+            <h1 class="reading-title">${escHTML(l.title)}</h1>
+            <div class="reading-content">${bodyHTML}</div>
+          </div>`;
+      }
     }
 
     function openLesson(id) {
@@ -1680,6 +1849,8 @@
       navBackLabel.textContent   = currentView === 'menu' ? 'Back to home' : 'Back';
       spSearchEl.value = '';
       if (spBookIcon) spBookIcon.style.display = 'none';
+      // Focus reading hides the header; make sure it's visible for every other view
+      const _h = document.querySelector('.sp-header'); if (_h) _h.style.display = '';
 
       if (currentView === 'learn')          renderLearn(data);
       else if (currentView === 'books')     renderBooks(data);
@@ -1753,6 +1924,8 @@
 
     // Delegate clicks inside the subject page (cards rendered dynamically)
     spContent.addEventListener('click', e => {
+      if (e.target.closest('#focusBack')) { goBack(); return; }
+
       const card = e.target.closest('.menu-card[data-view]');
       if (card) { showView(card.dataset.view); return; }
 

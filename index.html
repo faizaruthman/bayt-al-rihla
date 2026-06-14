@@ -779,6 +779,30 @@
     .section-back:hover { color: var(--g700); }
     .folder-open-name { margin-top: 4px; }
 
+    /* ── Dedicated Questions page ────────────────────────────────────── */
+    .qpage { display: flex; gap: 26px; max-width: 1140px; margin: 0 auto; padding: 0 5% 88px; align-items: flex-start; }
+    .qpage-sidebar { width: 240px; flex-shrink: 0; position: sticky; top: 88px; }
+    .qcat-head { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--g700); margin-bottom: 12px; padding-left: 4px; }
+    .qcat-list { display: flex; flex-direction: column; gap: 7px; }
+    .qcat-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;
+      border: 1px solid var(--t200); background: var(--white); border-radius: var(--radius-sm);
+      padding: 12px 14px; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
+    }
+    .qcat-item:hover { border-color: var(--g200); box-shadow: var(--sh0); }
+    .qcat-name { font-size: 0.9rem; font-weight: 600; color: var(--t900); }
+    .qcat-count { background: var(--g100); color: var(--g700); border-radius: var(--pill); font-size: 0.7rem; font-weight: 700; padding: 2px 9px; flex-shrink: 0; }
+    .qcat-item.selected { background: var(--g700); border-color: var(--g700); }
+    .qcat-item.selected .qcat-name { color: #fff; }
+    .qcat-item.selected .qcat-count { background: rgba(255,255,255,0.22); color: #fff; }
+
+    .qpage-main { flex: 1; min-width: 0; }
+    .qpage-crumbs { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--t500); margin: 2px 0 18px; flex-wrap: wrap; }
+    .qcrumb-cat { font-weight: 700; color: var(--t700); }
+    .qcrumb-link { border: none; background: none; cursor: pointer; font: inherit; color: var(--g700); font-weight: 600; padding: 0; }
+    .qcrumb-link:hover { text-decoration: underline; }
+
     /* ── Lesson reading view ─────────────────────────────────────────── */
     .sp-reading { max-width: 1140px; margin: 0 auto; padding: 0 5% 96px; }
     .reading-title {
@@ -1089,6 +1113,12 @@
       .books-grid { grid-template-columns: 1fr; }
       .menu-grid  { grid-template-columns: 1fr; }
       .folder-grid { grid-template-columns: 1fr; }
+
+      /* Questions page: sidebar becomes a horizontal chip row above content */
+      .qpage { flex-direction: column; gap: 16px; }
+      .qpage-sidebar { width: 100%; position: static; }
+      .qcat-list { flex-direction: row; overflow-x: auto; gap: 8px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+      .qcat-item { flex-shrink: 0; }
 
       .sp-header-row { flex-direction: column; align-items: flex-start; }
       .sp-search { width: 100%; max-width: 360px; }
@@ -1444,6 +1474,21 @@
     let lessonReturnView   = 'learn';  // where 'Back' returns from a reading view
     let bookState          = null;     // { volumes: [...] } for the open book
     let currentFolderId    = null;     // open folder within a folder-view section
+    let currentQCat        = null;     // selected category on the dedicated Questions page
+    let currentQFolder     = null;     // open folder within that category
+
+    /* the "Questions" subject card routes via this key but uses its own page */
+    const QSUBJECT = 'ethics';
+
+    /* Questions data (Categories → Folders → Lessons). Falls back to any
+       legacy ethics/questions folders so nothing is lost before migration. */
+    function getQuestionsCategories() {
+      const cats = (DATA.questions && DATA.questions.categories) || [];
+      if (cats.length) return cats;
+      const legacy = (DATA.folders || []).filter(f => f.subject === 'ethics' && f.section === 'questions');
+      if (legacy.length) return [{ id: 'legacy', name: 'Questions', folders: legacy.map(f => ({ id: f.id, name: f.name, lessons: f.lessons || [] })) }];
+      return [];
+    }
 
     /* public layout for a section: 'flat' (ordered list) or 'folders' (cards) */
     function getLayout(subject, section) {
@@ -1464,6 +1509,11 @@
       for (const f of (DATA.folders || [])) {
         const i = (f.lessons || []).findIndex(l => l.id === id);
         if (i >= 0) return { folder: f, lesson: f.lessons[i], index: i };
+      }
+      const cats = (DATA.questions && DATA.questions.categories) || [];
+      for (const cat of cats) for (const f of (cat.folders || [])) {
+        const i = (f.lessons || []).findIndex(l => l.id === id);
+        if (i >= 0) return { folder: f, lesson: f.lessons[i], index: i, category: cat };
       }
       return null;
     }
@@ -1791,7 +1841,7 @@
       if (effectiveDesign(l) === 'focus') {
         // ── Design 2: Focus / Reader (distraction-free) ──
         if (spHeader) spHeader.style.display = 'none';
-        const kicker = `${escHTML(data.name)} · ${lessonReturnView === 'book' ? 'Topic' : 'Lesson'}`;
+        const kicker = `${escHTML(data.name)} · ${lessonReturnView === 'book' ? 'Topic' : lessonReturnView === 'qpage' ? 'Question' : 'Lesson'}`;
         spContent.innerHTML = `
           <div class="focus-page">
             <div class="reading-progress"><div class="reading-progress-fill" id="rpFill"></div></div>
@@ -1807,8 +1857,9 @@
       } else {
         // ── Design 1: Classic (current site look) ──
         if (spHeader) spHeader.style.display = '';
-        const leafLabel = lessonReturnView === 'book' ? 'Books' : lessonReturnView === 'questions' ? 'Questions' : 'Learn';
-        setHeader(breadcrumb(data.name, leafLabel), lessonReturnView === 'book' ? 'Reading topic' : 'Reading lesson', '');
+        const leafLabel = lessonReturnView === 'book' ? 'Books' : (lessonReturnView === 'questions' || lessonReturnView === 'qpage') ? 'Questions' : 'Learn';
+        setHeader(breadcrumb(data.name, leafLabel),
+          lessonReturnView === 'book' ? 'Reading topic' : lessonReturnView === 'qpage' ? 'Reading answer' : 'Reading lesson', '');
         spContent.innerHTML = `
           <div class="sp-reading">
             <h1 class="reading-title">${escHTML(l.title)}</h1>
@@ -1821,7 +1872,8 @@
       const found = findLessonById(id);
       if (!found || !found.lesson.published || found.lesson.locked) return;
       currentLessonId = id;
-      lessonReturnView = (currentView === 'questions') ? 'questions' : 'learn';
+      lessonReturnView = (currentView === 'qpage') ? 'qpage'
+        : (currentView === 'questions') ? 'questions' : 'learn';
       showView('lesson');
     }
 
@@ -1991,6 +2043,97 @@
 
     function renderQuestions(data) { renderSectionLessons(data, 'questions'); }
 
+    /* ══ Dedicated QUESTIONS page (Categories → Folders → Lessons) ════════ */
+    function renderQuestionsPage(data) {
+      spSearchWrap.style.display = 'none';
+      if (spBookIcon) spBookIcon.style.display = 'none';
+      setHeader('Questions', 'Browse questions by category, or search across them all.', '');
+
+      const cats = getQuestionsCategories();
+      if (!cats.length) {
+        spContent.innerHTML = comingSoonHTML(data, `Questions are being prepared. Check back soon, in shā’ Allāh.`);
+        return;
+      }
+      if (!currentQCat || !cats.find(c => c.id === currentQCat)) { currentQCat = cats[0].id; currentQFolder = null; }
+      const cat = cats.find(c => c.id === currentQCat);
+      if (currentQFolder && !(cat.folders || []).find(f => f.id === currentQFolder)) currentQFolder = null;
+
+      // flatten every published question for search
+      const flat = [];
+      cats.forEach(c => (c.folders || []).forEach(f => (f.lessons || []).forEach(l => { if (l.published) flat.push({ lesson: l }); })));
+
+      const catCount = c => (c.folders || []).reduce((n, f) => n + (f.lessons || []).filter(l => l.published).length, 0);
+
+      const sidebar = `<aside class="qpage-sidebar">
+          <div class="qcat-head">Categories</div>
+          <div class="qcat-list">${cats.map(c => `
+            <button class="qcat-item ${c.id === currentQCat ? 'selected' : ''}" data-qcat="${escAttrQ(c.id)}">
+              <span class="qcat-name">${escHTML(c.name)}</span><span class="qcat-count">${catCount(c)}</span>
+            </button>`).join('')}</div>
+        </aside>`;
+      const main = `<div class="qpage-main">
+          <div class="topic-search-wrap">
+            <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="topic-search" id="qSearch" placeholder="Search questions…" autocomplete="off" />
+            <span class="topic-search-count" id="qCount"></span>
+          </div>
+          <div class="qpage-crumbs" id="qCrumbs"></div>
+          <div class="qpage-body" id="qBody"></div>
+        </div>`;
+      spContent.innerHTML = `<div class="qpage">${sidebar}${main}</div>`;
+
+      const qBody = document.getElementById('qBody');
+      const qCrumbs = document.getElementById('qCrumbs');
+
+      function lessonRow(l, num) {
+        if (l.locked) {
+          return `<div class="lesson-item locked" title="This question is locked"><div class="lesson-num">${num}</div>
+            <div class="lesson-body"><p class="lesson-title">${escHTML(l.title)}</p><p class="lesson-status">Locked</p></div><span class="lesson-lock">🔒</span></div>`;
+        }
+        return `<div class="lesson-item clickable" data-lesson="${escAttrQ(l.id)}"><div class="lesson-num">${num}</div>
+          <div class="lesson-body"><p class="lesson-title">${escHTML(l.title)}</p><p class="lesson-status">Read answer</p></div><span class="lesson-go">→</span></div>`;
+      }
+      function listHTML(items) { let n = 0; return `<div class="lesson-list">${items.map(l => lessonRow(l, ++n)).join('')}</div>`; }
+      function folderCardsHTML() {
+        const folders = (cat.folders || []).filter(f => (f.lessons || []).some(l => l.published));
+        if (!folders.length) return `<div class="topic-empty">No questions in this category yet.</div>`;
+        return `<div class="folder-grid">${folders.map((f, i) => {
+          const cnt = (f.lessons || []).filter(l => l.published).length;
+          const pal = FOLDER_PASTELS[i % FOLDER_PASTELS.length];
+          return `<button class="folder-card" style="background:var(--${pal})" data-qfolder="${escAttrQ(f.id)}">
+            <span class="folder-card-main"><span class="folder-card-name">${escHTML(f.name)}</span>
+            <span class="folder-card-sub">${cnt} question${cnt !== 1 ? 's' : ''}</span></span>
+            <span class="folder-card-go">→</span></button>`;
+        }).join('')}</div>`;
+      }
+
+      function paint(query) {
+        const q = (query || '').trim();
+        if (q) {
+          const ql = q.toLowerCase();
+          const matched = flat.filter(it => (it.lesson.title + ' ' + stripHTML(it.lesson.content || '')).toLowerCase().includes(ql));
+          qCrumbs.innerHTML = `<span class="qcrumb-cat">Search results</span>`;
+          qBody.innerHTML = matched.length ? listHTML(matched.map(it => it.lesson)) : `<div class="topic-empty">No questions matched your search.</div>`;
+          const c = document.getElementById('qCount'); if (c) c.textContent = `${matched.length}/${flat.length}`;
+          return;
+        }
+        if (currentQFolder) {
+          const f = (cat.folders || []).find(x => x.id === currentQFolder);
+          qCrumbs.innerHTML = `<button class="qcrumb-link" data-qnav="cat">${escHTML(cat.name)}</button><span class="bc-sep">→</span><span class="qcrumb-cat">${escHTML(f ? f.name : '')}</span>`;
+          qBody.innerHTML = `<button class="section-back" id="qBack">← ${escHTML(cat.name)}</button>` +
+            listHTML((f.lessons || []).filter(l => l.published));
+        } else {
+          qCrumbs.innerHTML = `<span class="qcrumb-cat">${escHTML(cat.name)}</span>`;
+          qBody.innerHTML = folderCardsHTML();
+        }
+        const c = document.getElementById('qCount'); if (c) c.textContent = `${flat.length}/${flat.length}`;
+      }
+
+      paint('');
+      const qs = document.getElementById('qSearch');
+      if (qs) qs.addEventListener('input', () => paint(qs.value));
+    }
+
     /* ── render whatever the current state points at ────────────────── */
     function renderView() {
       const data = SUBJECTS[currentKey];
@@ -2007,10 +2150,12 @@
       else if (currentView === 'books')     renderBooks(data);
       else if (currentView === 'book')      renderBook(data);
       else if (currentView === 'questions') renderQuestions(data);
+      else if (currentView === 'qpage')     renderQuestionsPage(data);
       else if (currentView === 'lesson')    renderReading(data);
       else                                  renderMenu(data);
 
       const leaf = currentView === 'menu' ? '' :
+        currentView === 'qpage' ? ' — Questions' :
         ' — ' + currentView.charAt(0).toUpperCase() + currentView.slice(1);
       document.title = `${data.name}${leaf} — Bayt Al-Rihla`;
     }
@@ -2020,8 +2165,10 @@
       if (!data) return;
 
       currentKey  = key;
-      currentView = 'menu';
+      currentView = (key === QSUBJECT) ? 'qpage' : 'menu';
       currentFolderId = null;
+      currentQCat = null;
+      currentQFolder = null;
       renderView();
 
       // Transition: fade out main → show subject page → fade in
@@ -2046,6 +2193,10 @@
     /* nav back: lesson → learn/book, open folder → folder list, book → books, sub-view → menu, menu → home */
     function goBack() {
       if (currentView === 'lesson') showView(lessonReturnView || 'learn');
+      else if (currentView === 'qpage') {
+        if (currentQFolder) { currentQFolder = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); }
+        else closeSubject();
+      }
       else if ((currentView === 'learn' || currentView === 'questions') && currentFolderId) {
         currentFolderId = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' });
       }
@@ -2065,6 +2216,8 @@
         currentKey  = null;
         currentView = 'menu';
         currentFolderId = null;
+        currentQCat = null;
+        currentQFolder = null;
         window.scrollTo({ top: 0, behavior: 'instant' });
         document.title = 'Bayt Al-Rihla — Islamic Knowledge Hub';
       }, 350);
@@ -2082,6 +2235,13 @@
     spContent.addEventListener('click', e => {
       if (e.target.closest('#focusBack')) { goBack(); return; }
       if (e.target.closest('#secBack')) { currentFolderId = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
+
+      // dedicated Questions page navigation
+      const qcat = e.target.closest('.qcat-item[data-qcat]');
+      if (qcat) { currentQCat = qcat.dataset.qcat; currentQFolder = null; renderView(); return; }
+      const qfolder = e.target.closest('.folder-card[data-qfolder]');
+      if (qfolder) { currentQFolder = qfolder.dataset.qfolder; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
+      if (e.target.closest('#qBack') || e.target.closest('.qcrumb-link[data-qnav="cat"]')) { currentQFolder = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
 
       const card = e.target.closest('.menu-card[data-view]');
       if (card) { currentFolderId = null; showView(card.dataset.view); return; }

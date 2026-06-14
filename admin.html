@@ -733,6 +733,11 @@
         const i = (f.lessons || []).findIndex(l => l.id === id);
         if (i >= 0) return { folder: f, lesson: f.lessons[i], index: i };
       }
+      const cats = (DATA.questions && DATA.questions.categories) || [];
+      for (const cat of cats) for (const f of (cat.folders || [])) {
+        const i = (f.lessons || []).findIndex(l => l.id === id);
+        if (i >= 0) return { folder: f, lesson: f.lessons[i], index: i, category: cat };
+      }
       return null;
     }
 
@@ -1022,8 +1027,29 @@
     ];
 
     let navArea   = null;   // subject key or 'scholars'
-    let navSub    = null;   // 'learn' | 'books' | 'questions' | 'scholars'
+    let navSub    = null;   // 'learn' | 'books' | 'questions' | 'scholars' | 'qmanage'
     let navBookId = null;   // a specific book while managing its volumes
+    let adminQCat = null;   // selected Questions category (3-level manager)
+    let adminQFolder = null;// selected folder within that category
+
+    /* the "Questions" subject is keyed 'ethics' but uses its own 3-level model */
+    const QSUBJECT = 'ethics';
+
+    /* ensure DATA.questions exists; migrate any legacy ethics/questions folders.
+       returns true if the tree changed (so the caller can persist). */
+    function ensureQuestions() {
+      let changed = false;
+      if (!DATA.questions || !Array.isArray(DATA.questions.categories)) { DATA.questions = { categories: [] }; }
+      const legacy = (DATA.folders || []).filter(f => f.subject === 'ethics' && f.section === 'questions');
+      if (legacy.length) {
+        let cat = DATA.questions.categories[0];
+        if (!cat) { cat = { id: uid(), name: 'General', folders: [] }; DATA.questions.categories.push(cat); }
+        legacy.forEach(f => cat.folders.push({ id: f.id, name: f.name, lessons: f.lessons || [] }));
+        DATA.folders = DATA.folders.filter(f => !(f.subject === 'ethics' && f.section === 'questions'));
+        changed = true;
+      }
+      return changed;
+    }
 
     function subLabel(s) {
       return s === 'learn' ? 'Learn' : s === 'books' ? 'Books'
@@ -1036,7 +1062,7 @@
       const gd = document.getElementById('globalDesign');
       if (gd) gd.value = (DATA.settings && DATA.settings.defaultDesign === 'focus') ? 'focus' : 'classic';
       const searchWrap = document.getElementById('adminSearchWrap');
-      if (searchWrap) searchWrap.style.visibility = (navArea && navSub && navArea !== 'scholars') ? 'visible' : 'hidden';
+      if (searchWrap) searchWrap.style.visibility = (navArea && navSub && navArea !== 'scholars' && navArea !== QSUBJECT) ? 'visible' : 'hidden';
 
       renderNav();
 
@@ -1053,6 +1079,9 @@
       const panel = document.getElementById('navPanel');
       if (!navArea) {
         panel.innerHTML = renderAreas();
+      } else if (navArea === QSUBJECT) {            // Questions: dedicated 3-level manager
+        renderQuestionsManager(panel);
+        return;
       } else if (!navSub) {
         panel.innerHTML = renderSubs();
       } else if (navArea === 'scholars') {
@@ -1062,7 +1091,10 @@
         return;
       }
       panel.querySelectorAll('[data-area]').forEach(b => b.addEventListener('click', () => {
-        navArea = b.dataset.area; navSub = (navArea === 'scholars' ? 'scholars' : null); navBookId = null; selectedLessonId = null; renderAdmin();
+        navArea = b.dataset.area;
+        navSub = navArea === 'scholars' ? 'scholars' : navArea === QSUBJECT ? 'qmanage' : null;
+        navBookId = null; adminQCat = null; adminQFolder = null; selectedLessonId = null;
+        renderAdmin();
       }));
       panel.querySelectorAll('[data-sub]').forEach(b => b.addEventListener('click', () => {
         navSub = b.dataset.sub; navBookId = null; selectedLessonId = null; renderAdmin();
@@ -1075,32 +1107,53 @@
       const parts = [`<button class="crumb ${!navArea ? 'current' : ''}" data-nav="root">Areas</button>`];
       if (navArea) {
         const a = AREAS.find(x => x.key === navArea);
+        const areaCurrent = navArea === QSUBJECT ? !adminQCat : !navSub;
         parts.push('<span class="crumb-sep">›</span>',
-          `<button class="crumb ${!navSub ? 'current' : ''}" data-nav="area">${escHTML(a ? a.name : navArea)}</button>`);
+          `<button class="crumb ${areaCurrent ? 'current' : ''}" data-nav="area">${escHTML(a ? a.name : navArea)}</button>`);
       }
-      if (navArea && navSub && navArea !== 'scholars') {
-        parts.push('<span class="crumb-sep">›</span>',
-          `<button class="crumb ${!navBookId ? 'current' : ''}" data-nav="sub">${escHTML(subLabel(navSub))}</button>`);
-      }
-      if (navBookId) {
-        const b = BOOKS.find(x => x.id === navBookId);
-        parts.push('<span class="crumb-sep">›</span>',
-          `<button class="crumb current" data-nav="book">${escHTML(b ? b.title : 'Book')}</button>`);
+      if (navArea === QSUBJECT) {
+        if (adminQCat) {
+          const cat = (DATA.questions.categories || []).find(c => c.id === adminQCat);
+          parts.push('<span class="crumb-sep">›</span>',
+            `<button class="crumb ${!adminQFolder ? 'current' : ''}" data-nav="qcat">${escHTML(cat ? cat.name : 'Category')}</button>`);
+        }
+        if (adminQFolder) {
+          const cat = (DATA.questions.categories || []).find(c => c.id === adminQCat);
+          const f = cat && (cat.folders || []).find(x => x.id === adminQFolder);
+          parts.push('<span class="crumb-sep">›</span>',
+            `<button class="crumb current" data-nav="qfolder">${escHTML(f ? f.name : 'Folder')}</button>`);
+        }
+      } else {
+        if (navArea && navSub && navArea !== 'scholars') {
+          parts.push('<span class="crumb-sep">›</span>',
+            `<button class="crumb ${!navBookId ? 'current' : ''}" data-nav="sub">${escHTML(subLabel(navSub))}</button>`);
+        }
+        if (navBookId) {
+          const b = BOOKS.find(x => x.id === navBookId);
+          parts.push('<span class="crumb-sep">›</span>',
+            `<button class="crumb current" data-nav="book">${escHTML(b ? b.title : 'Book')}</button>`);
+        }
       }
       el.innerHTML = `<div class="crumb-row">${parts.join('')}</div>` +
                      (navArea ? '<button class="nav-back-btn" id="navUp">← Back</button>' : '');
       el.querySelectorAll('.crumb').forEach(c => c.addEventListener('click', () => {
         const t = c.dataset.nav;
-        if (t === 'root') { navArea = null; navSub = null; navBookId = null; }
-        else if (t === 'area') { navSub = (navArea === 'scholars' ? 'scholars' : null); navBookId = null; }
+        if (t === 'root') { navArea = null; navSub = null; navBookId = null; adminQCat = null; adminQFolder = null; }
+        else if (t === 'area') { navSub = (navArea === 'scholars' ? 'scholars' : navArea === QSUBJECT ? 'qmanage' : null); navBookId = null; adminQCat = null; adminQFolder = null; }
         else if (t === 'sub') { navBookId = null; }
+        else if (t === 'qcat') { adminQFolder = null; }
         selectedLessonId = null; renderAdmin();
       }));
       const up = document.getElementById('navUp');
       if (up) up.addEventListener('click', () => {
-        if (navBookId) navBookId = null;
+        if (navArea === QSUBJECT) {
+          if (adminQFolder) adminQFolder = null;
+          else if (adminQCat) adminQCat = null;
+          else { navArea = null; navSub = null; }
+        }
+        else if (navBookId) navBookId = null;
         else if (navSub && navArea !== 'scholars') navSub = null;
-        else navArea = null, navSub = null;
+        else { navArea = null; navSub = null; }
         selectedLessonId = null; renderAdmin();
       });
     }
@@ -1356,6 +1409,127 @@
       if (beforeFolderId) { const bi = DATA.folders.findIndex(f => f.id === beforeFolderId); if (bi >= 0) idx = bi; }
       DATA.folders.splice(idx, 0, folder);
       commit(); renderNav();
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       QUESTIONS MANAGER — Categories → Folders → Lessons
+    ══════════════════════════════════════════════════════════════════ */
+    function arrMove(arr, id, beforeId) {
+      if (id === beforeId) return;
+      const i = arr.findIndex(x => x.id === id); if (i < 0) return;
+      const [item] = arr.splice(i, 1);
+      let idx = arr.length;
+      if (beforeId) { const bi = arr.findIndex(x => x.id === beforeId); if (bi >= 0) idx = bi; }
+      arr.splice(idx, 0, item);
+    }
+
+    function renderQuestionsManager(panel) {
+      if (ensureQuestions()) commit();
+      const cats = DATA.questions.categories;
+
+      // ── Level 3: lessons inside a folder ──
+      if (adminQCat && adminQFolder) {
+        const cat = cats.find(c => c.id === adminQCat);
+        const folder = cat && (cat.folders || []).find(f => f.id === adminQFolder);
+        if (!folder) { adminQFolder = null; return renderQuestionsManager(panel); }
+        const rows = (folder.lessons || []).map(l => {
+          const tags = (l.published ? '' : '<span class="tag tag-draft">Draft</span>') + (l.locked ? '<span class="tag tag-locked">🔒</span>' : '');
+          return `<div class="admin-lesson ${l.id === selectedLessonId ? 'selected' : ''}" draggable="true" data-qlesson="${escAttrQ(l.id)}">
+                    <span class="drag-dots">⠿</span><span class="admin-lesson-title">${escHTML(l.title)}</span>${tags}</div>`;
+        }).join('') || '<p class="folder-empty">No questions yet</p>';
+        panel.innerHTML = `<button class="admin-btn primary block" id="btnNewQLesson">+ New Question</button>
+          <div class="folder-lessons" id="qLessonZone">${rows}</div>`;
+        panel.querySelector('#btnNewQLesson').addEventListener('click', () => {
+          const lesson = { id: uid(), title: 'Untitled question', content: '', published: false, locked: false };
+          (folder.lessons = folder.lessons || []).push(lesson);
+          selectedLessonId = lesson.id; commit(); renderAdmin();
+        });
+        panel.querySelectorAll('.admin-lesson').forEach(el => {
+          el.addEventListener('click', () => { selectedLessonId = el.dataset.qlesson; renderAdmin(); });
+          el.addEventListener('dragstart', e => { dragData = { type: 'qlesson', id: el.dataset.qlesson }; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', el.dataset.qlesson); });
+          el.addEventListener('dragover', e => { if (dragData && dragData.type === 'qlesson') { e.preventDefault(); el.classList.add('drag-over'); } });
+          el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+          el.addEventListener('drop', e => { el.classList.remove('drag-over'); if (dragData && dragData.type === 'qlesson') { e.preventDefault(); arrMove(folder.lessons, dragData.id, el.dataset.qlesson); commit(); renderNav(); } });
+        });
+        return;
+      }
+
+      // ── Level 2: folders inside a category ──
+      if (adminQCat) {
+        const cat = cats.find(c => c.id === adminQCat);
+        if (!cat) { adminQCat = null; return renderQuestionsManager(panel); }
+        let html = `<button class="admin-btn primary block" id="btnNewQFolder">+ New Folder</button>`;
+        html += (cat.folders || []).length ? (cat.folders.map(f => `
+          <div class="folder qf-row" data-qfolder="${escAttrQ(f.id)}" draggable="true">
+            <div class="folder-head">
+              <span class="drag-dots qf-drag" title="Drag to reorder">⠿</span>
+              <input class="folder-name-input qf-name" value="${escAttrQ(f.name)}" data-qfolder="${escAttrQ(f.id)}" placeholder="Folder name" />
+              <span class="folder-count">${(f.lessons || []).length}</span>
+              <button class="icon-btn" data-act="del-qfolder" data-qfolder="${escAttrQ(f.id)}" title="Delete folder">✕</button>
+            </div>
+            <div class="folder-meta"><button class="mini-btn" data-act="open-qfolder" data-qfolder="${escAttrQ(f.id)}">Open →</button></div>
+          </div>`).join('')) : '<p class="sidebar-empty">No folders yet.</p>';
+        panel.innerHTML = html;
+        panel.querySelector('#btnNewQFolder').addEventListener('click', () => {
+          const f = { id: uid(), name: 'New Folder', lessons: [] };
+          (cat.folders = cat.folders || []).push(f); commit(); renderNav();
+          const inp = panel.querySelector('.qf-row[data-qfolder="' + f.id + '"] .qf-name');
+          if (inp) { inp.focus(); inp.select(); }
+        });
+        panel.querySelectorAll('.qf-name').forEach(inp => {
+          inp.addEventListener('input', () => { const f = cat.folders.find(x => x.id === inp.dataset.qfolder); if (f) { f.name = inp.value; commit(); } });
+          inp.addEventListener('mousedown', e => e.stopPropagation());
+        });
+        panel.querySelectorAll('[data-act="open-qfolder"]').forEach(b => b.addEventListener('click', () => { adminQFolder = b.dataset.qfolder; selectedLessonId = null; renderAdmin(); }));
+        panel.querySelectorAll('[data-act="del-qfolder"]').forEach(b => b.addEventListener('click', () => {
+          const f = cat.folders.find(x => x.id === b.dataset.qfolder);
+          if (!f || !confirm(`Delete folder "${f.name}" and all its questions?`)) return;
+          cat.folders = cat.folders.filter(x => x.id !== f.id); commit(); renderAdmin();
+        }));
+        panel.querySelectorAll('.qf-row').forEach(row => {
+          row.addEventListener('dragstart', e => { if (e.target.closest('input,button')) { e.preventDefault(); return; } dragData = { type: 'qfolder', id: row.dataset.qfolder }; e.dataTransfer.effectAllowed = 'move'; });
+          row.addEventListener('dragover', e => { if (dragData && dragData.type === 'qfolder' && dragData.id !== row.dataset.qfolder) { e.preventDefault(); row.classList.add('drag-over'); } });
+          row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+          row.addEventListener('drop', e => { row.classList.remove('drag-over'); if (dragData && dragData.type === 'qfolder') { e.preventDefault(); arrMove(cat.folders, dragData.id, row.dataset.qfolder); commit(); renderNav(); } });
+        });
+        return;
+      }
+
+      // ── Level 1: categories ──
+      let html = `<button class="admin-btn primary block" id="btnNewQCat">+ New Category</button>`;
+      html += cats.length ? cats.map(c => `
+        <div class="folder qc-row" data-qcat="${escAttrQ(c.id)}" draggable="true">
+          <div class="folder-head">
+            <span class="drag-dots qc-drag" title="Drag to reorder">⠿</span>
+            <input class="folder-name-input qc-name" value="${escAttrQ(c.name)}" data-qcat="${escAttrQ(c.id)}" placeholder="Category name" />
+            <span class="folder-count">${(c.folders || []).length}</span>
+            <button class="icon-btn" data-act="del-qcat" data-qcat="${escAttrQ(c.id)}" title="Delete category">✕</button>
+          </div>
+          <div class="folder-meta"><button class="mini-btn" data-act="open-qcat" data-qcat="${escAttrQ(c.id)}">Open →</button></div>
+        </div>`).join('') : '<p class="sidebar-empty">No categories yet.<br>Create one to begin.</p>';
+      panel.innerHTML = html;
+      panel.querySelector('#btnNewQCat').addEventListener('click', () => {
+        const c = { id: uid(), name: 'New Category', folders: [] };
+        cats.push(c); commit(); renderNav();
+        const inp = panel.querySelector('.qc-row[data-qcat="' + c.id + '"] .qc-name');
+        if (inp) { inp.focus(); inp.select(); }
+      });
+      panel.querySelectorAll('.qc-name').forEach(inp => {
+        inp.addEventListener('input', () => { const c = cats.find(x => x.id === inp.dataset.qcat); if (c) { c.name = inp.value; commit(); } });
+        inp.addEventListener('mousedown', e => e.stopPropagation());
+      });
+      panel.querySelectorAll('[data-act="open-qcat"]').forEach(b => b.addEventListener('click', () => { adminQCat = b.dataset.qcat; adminQFolder = null; selectedLessonId = null; renderAdmin(); }));
+      panel.querySelectorAll('[data-act="del-qcat"]').forEach(b => b.addEventListener('click', () => {
+        const c = cats.find(x => x.id === b.dataset.qcat);
+        if (!c || !confirm(`Delete category "${c.name}" and everything in it?`)) return;
+        DATA.questions.categories = cats.filter(x => x.id !== c.id); commit(); renderAdmin();
+      }));
+      panel.querySelectorAll('.qc-row').forEach(row => {
+        row.addEventListener('dragstart', e => { if (e.target.closest('input,button')) { e.preventDefault(); return; } dragData = { type: 'qcat', id: row.dataset.qcat }; e.dataTransfer.effectAllowed = 'move'; });
+        row.addEventListener('dragover', e => { if (dragData && dragData.type === 'qcat' && dragData.id !== row.dataset.qcat) { e.preventDefault(); row.classList.add('drag-over'); } });
+        row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+        row.addEventListener('drop', e => { row.classList.remove('drag-over'); if (dragData && dragData.type === 'qcat') { e.preventDefault(); arrMove(cats, dragData.id, row.dataset.qcat); commit(); renderNav(); } });
+      });
     }
 
     function renderEditor() {

@@ -370,7 +370,13 @@
     .preview-seg button { padding: 5px 12px; font-size: 0.74rem; }
 
     /* ── block-format toolbar (above the editor) ─────────────────────── */
-    .rich-toolbar { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .rich-toolbar {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      position: sticky; top: 0; z-index: 5;
+      background: var(--white);
+      border-bottom: 1px solid var(--t200);
+      padding: 10px 0; margin-bottom: 12px;
+    }
     .rt-btn {
       min-width: 34px; height: 32px; padding: 0 10px;
       border: 1.5px solid var(--t200); background: var(--white); color: var(--t700);
@@ -661,13 +667,6 @@
       <div class="auth-msg" id="authMsg" hidden>
         ⚠ Your changes aren't saving — your session ended. Please
         <button type="button" class="linklike" id="authMsgSignIn">sign in again</button>.
-      </div>
-
-      <div class="admin-note">
-        <strong>Pick an area, then a section, then manage its lessons.</strong> e.g. Aqeedah → Learn.
-        For Books, pick a book to manage its volumes &amp; topics. Scholars are edited on the right.
-        You must be <strong>signed in</strong>; changes sync <strong>live to Supabase</strong> and appear instantly
-        on the public site. <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
       </div>
 
       <div class="admin-body">

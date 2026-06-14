@@ -328,36 +328,30 @@
     .switch input:checked + .track::after { transform: translateX(18px); }
     .editor-hint { font-size: 0.74rem; color: var(--t400); margin-left: auto; }
 
-    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
     .editor-label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t500); margin-bottom: 8px; }
-    .editor-textarea {
-      width: 100%; min-height: 360px; padding: 14px;
-      border: 1.5px solid var(--t200); border-radius: 12px;
-      font-family: ui-monospace, 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.86rem; line-height: 1.7; color: var(--t900);
-      outline: none; resize: vertical;
-      transition: border-color var(--ease), box-shadow var(--ease);
-    }
-    .editor-textarea:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
-    .preview-box {
-      background: var(--cream); border: 1px solid var(--t200);
-      border-radius: var(--radius-sm); padding: 22px 24px; min-height: 360px;
-      overflow: auto;
-    }
     .preview-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--g900); margin-bottom: 14px; }
 
-    /* ── Rich contenteditable editor ─────────────────────────────────── */
-    .editor-rich {
-      width: 100%; min-height: 360px; max-height: 60vh; overflow-y: auto;
-      padding: 16px 18px;
-      border: 1.5px solid var(--t200); border-radius: 12px;
-      background: var(--white); color: var(--t900);
-      outline: none; cursor: text;
-      transition: border-color var(--ease), box-shadow var(--ease);
+    /* ── Editable surface (edit inside the real reading layout) ──────── */
+    .editor-surface {
+      border: 1px solid var(--t200);
+      border-radius: var(--radius-sm);
+      min-height: 440px;
+      overflow: auto;
     }
-    .editor-rich:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .surface-classic {
+      background: var(--cream);
+      background-image: radial-gradient(circle, rgba(0,0,0,0.035) 1px, transparent 1px);
+      background-size: 22px 22px;
+      padding: 30px 34px;
+    }
+    .surface-focus { background: #fbf8f1; padding: 38px 28px; }
+
+    /* the contenteditable body itself — design styles come from
+       .reading-content / .focus-body, so this stays visually clean */
+    .editor-rich { outline: none; min-height: 240px; cursor: text; border-radius: 8px; }
+    .editor-rich:focus { box-shadow: 0 0 0 2px rgba(22,163,74,0.14); }
     .editor-rich:empty::before { content: attr(data-placeholder); color: var(--t400); }
-    .editor-rich p:last-child, .editor-rich ul:last-child { margin-bottom: 0; }
+    .editor-rich > :last-child { margin-bottom: 0; }
 
     /* ── per-lesson design picker + preview tabs (segmented control) ──── */
     .design-pick { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
@@ -422,15 +416,37 @@
     .fmt-btn.active { background: var(--g100); color: var(--g700); }
     .fmt-btn b { font-weight: 800; }
     .fmt-btn i { font-style: italic; font-family: Georgia, serif; }
-    .fmt-hl-btn { font-size: 0.76rem; font-weight: 700; }
-    .fmt-hl { background: #dbeafe; border-radius: 5px; padding: 1px 7px; }
+    .fmt-sep { width: 1px; height: 20px; background: var(--t200); margin: 0 4px; flex-shrink: 0; }
 
-    /* ── Highlight pill (shared with public site) ────────────────────── */
-    mark.hl, .reading-content mark, .hl {
+    /* ── Highlight colour swatches (both toolbars) ───────────────────── */
+    .rt-sep { width: 1px; height: 22px; background: var(--t200); margin: 0 4px; }
+    .rt-hl-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--t500); }
+    .hl-swatches { display: inline-flex; align-items: center; gap: 5px; }
+    .hl-swatch {
+      width: 19px; height: 19px; padding: 0;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      border-radius: 50%; cursor: pointer;
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .hl-swatch:hover { transform: scale(1.15); }
+    .hl-swatch.active { box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--g600); }
+    .hl-swatch.hl-none {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--white); color: var(--t400); font-size: 0.7rem; line-height: 1;
+    }
+    .hl-swatch.hl-none:hover { color: var(--t700); }
+
+    /* ── Highlight pills (shared with public site) ───────────────────── */
+    .hl, mark.hl {
       background: #dbeafe; color: inherit;
       border-radius: 6px; padding: 0.05em 0.32em;
       box-decoration-break: clone; -webkit-box-decoration-break: clone;
     }
+    .hl-yellow { background: #fef08a; }
+    .hl-green  { background: #bbf7d0; }
+    .hl-blue   { background: #dbeafe; }
+    .hl-pink   { background: #fbcfe8; }
+    .hl-orange { background: #fed7aa; }
 
     /* ── Focus design — preview pane only ────────────────────────────── */
     .preview-focus { background: #fbf8f1; }
@@ -462,12 +478,13 @@
     @media (max-width: 768px) {
       .admin-body { flex-direction: column; }
       .admin-sidebar { width: 100%; max-height: 42vh; border-right: none; border-bottom: 1px solid var(--t200); }
-      .editor-grid { grid-template-columns: 1fr; }
-      .editor-textarea, .editor-rich, .preview-box { min-height: 220px; }
+      .editor-surface { min-height: 320px; }
+      .surface-classic, .surface-focus { padding: 22px 18px; }
       .admin-topbar { padding: 10px 14px; }
       .admin-search-wrap { order: 3; flex-basis: 100%; max-width: none; }
       .design-pick { margin-left: 0; }
       .global-design { display: none; }
+      .rt-hint { display: none; }
     }
   </style>
 </head>
@@ -635,6 +652,29 @@
 
     const HTML_ALLOWED = { P:1, BR:1, STRONG:1, EM:1, MARK:1, H2:1, H3:1, H4:1, UL:1, OL:1, LI:1, BLOCKQUOTE:1 };
     const HTML_RENAME  = { B:'STRONG', I:'EM', DIV:'P', H1:'H2', H5:'H4', H6:'H4' };
+    const HL_CLASSES   = { 'hl':1, 'hl-yellow':1, 'hl-green':1, 'hl-blue':1, 'hl-pink':1, 'hl-orange':1 };
+
+    /* keep only whitelisted highlight classes on a <mark>; always include base 'hl' */
+    function markClass(el) {
+      const classes = (el.className || '').split(/\s+/).filter(c => HL_CLASSES[c]);
+      if (classes.indexOf('hl') === -1) classes.unshift('hl');
+      return classes.join(' ');
+    }
+
+    /* highlight palette — soft pastels matching the site */
+    const HL_COLORS = [
+      { key: 'yellow', css: '#fef08a' },
+      { key: 'green',  css: '#bbf7d0' },
+      { key: 'blue',   css: '#dbeafe' },
+      { key: 'pink',   css: '#fbcfe8' },
+      { key: 'orange', css: '#fed7aa' }
+    ];
+    function hlSwatchHTML() {
+      return HL_COLORS.map(c =>
+        `<button type="button" class="hl-swatch" data-hl="${c.key}" title="${c.key[0].toUpperCase() + c.key.slice(1)} highlight" style="background:${c.css}"></button>`
+      ).join('') +
+      '<button type="button" class="hl-swatch hl-none" data-hl="none" title="Remove highlight">⌀</button>';
+    }
 
     function cleanNodes(node) {
       const frag = document.createDocumentFragment();
@@ -646,7 +686,7 @@
           const inner = cleanNodes(child);
           if (HTML_ALLOWED[tag]) {
             const el = document.createElement(tag);
-            if (tag === 'MARK') el.className = 'hl';
+            if (tag === 'MARK') el.className = markClass(child);
             el.appendChild(inner);
             frag.appendChild(el);
           } else {
@@ -1029,106 +1069,94 @@
           <button type="button" class="rt-btn" data-block="h2" title="Heading">H2</button>
           <button type="button" class="rt-btn" data-block="h3" title="Subheading">H3</button>
           <button type="button" class="rt-btn" data-block="ul" title="Bullet list">• List</button>
-          <span class="rt-hint">Select text to <b>B</b> <i>i</i> or highlight</span>
+          <span class="rt-sep"></span>
+          <span class="rt-hl-label">Highlight</span>
+          <span class="hl-swatches" id="topSwatches">${hlSwatchHTML()}</span>
+          <span class="rt-hint">Editing live in <b id="designHint"></b> — type right here</span>
         </div>
-        <div class="editor-grid">
-          <div>
-            <label class="editor-label">Content</label>
-            <div id="edContent" class="editor-rich reading-content" contenteditable="true" spellcheck="true" data-placeholder="Write the lesson…"></div>
-          </div>
-          <div>
-            <div class="preview-head">
-              <label class="editor-label" style="margin:0">Preview</label>
-              <div class="seg preview-seg" id="previewSeg">
-                <button type="button" data-pv="classic">Classic</button>
-                <button type="button" data-pv="focus">Focus</button>
-              </div>
-            </div>
-            <div class="preview-box" id="edPreview"></div>
-          </div>
-        </div>`;
+        <label class="editor-label">Content — what you type is what visitors see</label>
+        <div class="editor-surface" id="editorSurface"></div>`;
 
-      const elTitle = document.getElementById('edTitle');
-      const elContent = document.getElementById('edContent');
-      const elPreview = document.getElementById('edPreview');
+      const elTitle  = document.getElementById('edTitle');
+      const surface  = document.getElementById('editorSurface');
+      const hintEl   = document.getElementById('designHint');
 
-      // load existing content as HTML (legacy Markdown is converted on the fly);
-      // keep a brand-new lesson truly empty so the placeholder shows
-      elContent.innerHTML = (l.content && l.content.trim()) ? renderLessonHTML(l.content) : '';
-
-      // which design the PREVIEW pane shows (starts on the lesson's effective design)
-      let previewDesign = effectiveDesign(l);
-      document.querySelectorAll('#previewSeg button').forEach(b =>
-        b.classList.toggle('active', b.dataset.pv === previewDesign));
-
-      function updatePreview() {
-        const html = renderLessonHTML(l.content);
+      /* (re)build the editable surface in the lesson's active design.
+         The body itself is contenteditable, so you edit inside the real
+         reading layout (WYSIWYG). */
+      function buildSurface() {
+        const design = effectiveDesign(l);
+        if (hintEl) hintEl.textContent = design === 'focus' ? 'Focus / Reader' : 'Classic';
         const title = escHTML(l.title || 'Untitled lesson');
-        if (previewDesign === 'focus') {
-          elPreview.className = 'preview-box preview-focus';
-          elPreview.innerHTML = `
+        if (design === 'focus') {
+          surface.className = 'editor-surface surface-focus';
+          surface.innerHTML = `
             <div class="focus-article-mini">
               <div class="focus-kicker">Lesson</div>
-              <h1 class="focus-title">${title}</h1>
+              <h1 class="focus-title" id="edTitleEcho">${title}</h1>
               <div class="focus-rule"></div>
-              <div class="focus-body reading-content">${html}</div>
+              <div class="focus-body reading-content editor-rich" id="edContent" contenteditable="true" spellcheck="true" data-placeholder="Write the lesson…"></div>
             </div>`;
         } else {
-          elPreview.className = 'preview-box reading-content preview-classic';
-          elPreview.innerHTML = `<h1 class="reading-title preview-title">${title}</h1>${html}`;
+          surface.className = 'editor-surface surface-classic';
+          surface.innerHTML = `
+            <h1 class="reading-title preview-title" id="edTitleEcho">${title}</h1>
+            <div class="reading-content editor-rich" id="edContent" contenteditable="true" spellcheck="true" data-placeholder="Write the lesson…"></div>`;
         }
+        const ec = document.getElementById('edContent');
+        // legacy Markdown converts on the fly; keep a brand-new lesson empty for the placeholder
+        ec.innerHTML = (l.content && l.content.trim()) ? renderLessonHTML(l.content) : '';
+        wireEditable(ec);
+        activeRich = ec;
+        activeRichSync = () => { l.content = ec.innerHTML; scheduleSave(); };
       }
-      updatePreview();
 
-      // make this the editor the floating toolbar acts on
-      activeRich = elContent;
-      activeRichSync = () => { l.content = elContent.innerHTML; scheduleSave(); updatePreview(); };
+      function wireEditable(ec) {
+        ec.addEventListener('input', () => { l.content = ec.innerHTML; scheduleSave(); });
+        ec.addEventListener('blur', () => {
+          const clean = sanitizeHTML(ec.innerHTML);
+          if (clean !== ec.innerHTML) ec.innerHTML = clean;
+          l.content = clean; scheduleSave();
+        });
+      }
+
+      buildSurface();
 
       elTitle.addEventListener('input', () => {
         l.title = elTitle.value; scheduleSave();
         const lbl = document.querySelector('.admin-lesson[data-lesson="' + l.id + '"] .admin-lesson-title');
         if (lbl) lbl.textContent = l.title;
-        updatePreview();
-      });
-
-      elContent.addEventListener('input', () => { l.content = elContent.innerHTML; scheduleSave(); updatePreview(); });
-      elContent.addEventListener('blur', () => {
-        const clean = sanitizeHTML(elContent.innerHTML);
-        if (clean !== elContent.innerHTML) elContent.innerHTML = clean;
-        l.content = clean; scheduleSave(); updatePreview();
+        const echo = document.getElementById('edTitleEcho');
+        if (echo) echo.textContent = l.title || 'Untitled lesson';
       });
 
       // block-format toolbar (headings / list / paragraph)
       document.querySelectorAll('#blockToolbar .rt-btn').forEach(btn => {
         btn.addEventListener('mousedown', e => e.preventDefault());
         btn.addEventListener('click', () => {
-          elContent.focus();
+          const ec = activeRich; if (!ec) return;
+          ec.focus();
           const b = btn.dataset.block;
           if (b === 'ul') document.execCommand('insertUnorderedList', false, null);
           else document.execCommand('formatBlock', false, '<' + b + '>');
-          l.content = elContent.innerHTML; scheduleSave(); updatePreview();
+          l.content = ec.innerHTML; scheduleSave();
         });
       });
 
-      // per-lesson design picker
+      // top-toolbar highlight swatches
+      document.querySelectorAll('#topSwatches .hl-swatch').forEach(sw => {
+        sw.addEventListener('mousedown', e => e.preventDefault());
+        sw.addEventListener('click', () => applyHL(sw.dataset.hl));
+      });
+
+      // per-lesson design picker — rebuilds the editing surface in that design
       document.querySelectorAll('#designSeg button').forEach(btn => {
         btn.addEventListener('click', () => {
           const val = btn.dataset.design;
           if (val) l.design = val; else delete l.design;
           document.querySelectorAll('#designSeg button').forEach(b => b.classList.toggle('active', b === btn));
-          previewDesign = effectiveDesign(l);
-          document.querySelectorAll('#previewSeg button').forEach(b => b.classList.toggle('active', b.dataset.pv === previewDesign));
-          updatePreview();
+          buildSurface();
           commit();
-        });
-      });
-
-      // preview-design compare tabs
-      document.querySelectorAll('#previewSeg button').forEach(btn => {
-        btn.addEventListener('click', () => {
-          previewDesign = btn.dataset.pv;
-          document.querySelectorAll('#previewSeg button').forEach(b => b.classList.toggle('active', b === btn));
-          updatePreview();
         });
       });
 
@@ -1194,12 +1222,12 @@
     });
 
     /* ══════════════════════════════════════════════════════════════════
-       FLOATING FORMAT TOOLBAR  (Bold / Italic / Highlight)
+       FLOATING FORMAT TOOLBAR  (Bold / Italic / Highlight colours)
        ------------------------------------------------------------------
        Pops up above any text you select inside a rich content editor.
-       Bold/Italic use execCommand; Highlight wraps the selection in a
-       <mark class="hl"> (toggled off if already highlighted). Output is
-       sanitised on blur and rendered identically on the public site.
+       Bold/Italic use execCommand; the colour swatches wrap the selection
+       in <mark class="hl hl-COLOUR"> (or clear it). Output is sanitised on
+       blur and rendered identically on the public reading page.
     ══════════════════════════════════════════════════════════════════ */
     try { document.execCommand('styleWithCSS', false, false); } catch (e) {}
 
@@ -1209,7 +1237,8 @@
     fmtBar.innerHTML =
       '<button type="button" class="fmt-btn" data-cmd="bold" title="Bold"><b>B</b></button>' +
       '<button type="button" class="fmt-btn" data-cmd="italic" title="Italic"><i>i</i></button>' +
-      '<button type="button" class="fmt-btn fmt-hl-btn" data-cmd="highlight" title="Highlight"><span class="fmt-hl">Highlight</span></button>';
+      '<span class="fmt-sep"></span>' +
+      '<span class="hl-swatches">' + hlSwatchHTML() + '</span>';
     document.body.appendChild(fmtBar);
 
     fmtBar.addEventListener('mousedown', e => e.preventDefault());   // keep the text selection
@@ -1217,11 +1246,13 @@
       btn.addEventListener('click', () => {
         const cmd = btn.dataset.cmd;
         if (cmd === 'bold' || cmd === 'italic') document.execCommand(cmd, false, null);
-        else if (cmd === 'highlight') toggleHighlight();
         if (activeRich) activeRich.focus();
         if (activeRichSync) activeRichSync();
         positionFmtBar();
       });
+    });
+    fmtBar.querySelectorAll('.hl-swatch').forEach(sw => {
+      sw.addEventListener('click', () => applyHL(sw.dataset.hl));
     });
 
     function selectionInRich() {
@@ -1234,22 +1265,19 @@
       return rich ? { sel, range } : null;
     }
 
-    function isHighlighted() {
-      const ctx = selectionInRich(); if (!ctx) return false;
+    /* the highlight colour at the current selection, or null */
+    function currentHLColor() {
+      const ctx = selectionInRich(); if (!ctx) return null;
       let node = ctx.range.commonAncestorContainer;
       if (node.nodeType === 3) node = node.parentNode;
-      return !!(node.closest && node.closest('mark'));
+      const mark = node.closest ? node.closest('mark') : null;
+      if (!mark) return null;
+      const m = (mark.className || '').match(/hl-(\w+)/);
+      return m ? m[1] : 'blue';
     }
-    function wrapHighlight() {
-      const ctx = selectionInRich(); if (!ctx || ctx.sel.isCollapsed) return;
-      const range = ctx.range;
-      const mark = document.createElement('mark'); mark.className = 'hl';
-      try { range.surroundContents(mark); }
-      catch (e) { const frag = range.extractContents(); mark.appendChild(frag); range.insertNode(mark); }
-      const sel = window.getSelection(); sel.removeAllRanges();
-      const r = document.createRange(); r.selectNodeContents(mark); sel.addRange(r);
-    }
-    function removeHighlight() {
+
+    /* unwrap the <mark> sitting at a collapsed caret (clear w/o a selection) */
+    function clearHighlightAtCaret() {
       const ctx = selectionInRich(); if (!ctx) return;
       let node = ctx.range.commonAncestorContainer;
       if (node.nodeType === 3) node = node.parentNode;
@@ -1259,17 +1287,56 @@
       while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
       parent.removeChild(mark); parent.normalize();
     }
-    function toggleHighlight() { isHighlighted() ? removeHighlight() : wrapHighlight(); }
+
+    /* set (or clear) the highlight colour on the current selection */
+    function setHighlight(colorKey) {
+      const ctx = selectionInRich(); if (!ctx) return;
+      const sel = ctx.sel, range = ctx.range;
+      if (sel.isCollapsed) { if (colorKey === 'none') clearHighlightAtCaret(); return; }
+
+      // 1) clear any highlight that overlaps the selection. Unwrapping moves the
+      //    existing text nodes up (identity preserved), so the live range stays
+      //    valid — don't normalise yet or the offsets would shift.
+      Array.from(activeRich.querySelectorAll('mark'))
+        .filter(m => range.intersectsNode(m))
+        .forEach(m => m.replaceWith(...m.childNodes));
+
+      if (colorKey === 'none') { activeRich.normalize(); return; }
+
+      // 2) wrap the (now unhighlighted) selection in a single fresh mark
+      const frag = range.extractContents();
+      const mark = document.createElement('mark');
+      mark.className = 'hl hl-' + colorKey;
+      mark.appendChild(frag);
+      range.insertNode(mark);
+
+      // 3) reselect the new highlight and tidy up
+      sel.removeAllRanges();
+      const r = document.createRange();
+      r.selectNodeContents(mark);
+      sel.addRange(r);
+      activeRich.normalize();
+    }
+
+    /* apply a highlight colour from either toolbar */
+    function applyHL(colorKey) {
+      if (!activeRich) return;
+      setHighlight(colorKey);
+      activeRich.focus();
+      if (activeRichSync) activeRichSync();
+      positionFmtBar();
+    }
 
     function updateFmtState() {
       let b = false, i = false;
       try { b = document.queryCommandState('bold'); i = document.queryCommandState('italic'); } catch (e) {}
       const bb = fmtBar.querySelector('[data-cmd="bold"]');
       const ib = fmtBar.querySelector('[data-cmd="italic"]');
-      const hb = fmtBar.querySelector('[data-cmd="highlight"]');
       if (bb) bb.classList.toggle('active', b);
       if (ib) ib.classList.toggle('active', i);
-      if (hb) hb.classList.toggle('active', isHighlighted());
+      const color = currentHLColor();
+      document.querySelectorAll('.hl-swatch').forEach(sw =>
+        sw.classList.toggle('active', sw.dataset.hl === color));
     }
 
     function positionFmtBar() {

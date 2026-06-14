@@ -764,15 +764,20 @@
     .reading-content strong { color: var(--t900); font-weight: 700; }
     .reading-content em { font-style: italic; }
 
-    /* ── Highlight pill (rich-text) — renders in both designs ────────── */
-    mark.hl, .reading-content mark, .hl {
-      background: #dbeafe;
+    /* ── Highlight pills (rich-text) — render in both designs ────────── */
+    .hl, mark.hl {
+      background: #dbeafe;            /* default / legacy highlight (blue) */
       color: inherit;
       border-radius: 6px;
       padding: 0.05em 0.32em;
       box-decoration-break: clone;
       -webkit-box-decoration-break: clone;
     }
+    .hl-yellow { background: #fef08a; }
+    .hl-green  { background: #bbf7d0; }
+    .hl-blue   { background: #dbeafe; }
+    .hl-pink   { background: #fbcfe8; }
+    .hl-orange { background: #fed7aa; }
 
     /* ══ Design 2: FOCUS / READER ════════════════════════════════════════ */
     .focus-page {
@@ -838,7 +843,6 @@
     .focus-body h2 { font-size: 1.5rem;  font-weight: 800; margin: 40px 0 14px; letter-spacing: -0.3px; }
     .focus-body h3 { font-size: 1.22rem; font-weight: 800; margin: 32px 0 10px; }
     .focus-body h4 { font-size: 1.05rem; font-weight: 700; margin: 26px 0 8px; }
-    .focus-body mark.hl, .focus-body .hl { background: #dbeafe; }
 
     /* ── Book page: header icon ──────────────────────────────────────── */
     .sp-book-emoji {
@@ -1448,6 +1452,14 @@
 
     const HTML_ALLOWED = { P:1, BR:1, STRONG:1, EM:1, MARK:1, H2:1, H3:1, H4:1, UL:1, OL:1, LI:1, BLOCKQUOTE:1 };
     const HTML_RENAME  = { B:'STRONG', I:'EM', DIV:'P', H1:'H2', H5:'H4', H6:'H4' };
+    const HL_CLASSES   = { 'hl':1, 'hl-yellow':1, 'hl-green':1, 'hl-blue':1, 'hl-pink':1, 'hl-orange':1 };
+
+    /* keep only whitelisted highlight classes on a <mark>; always include base 'hl' */
+    function markClass(el) {
+      const classes = (el.className || '').split(/\s+/).filter(c => HL_CLASSES[c]);
+      if (classes.indexOf('hl') === -1) classes.unshift('hl');
+      return classes.join(' ');
+    }
 
     function cleanNodes(node) {
       const frag = document.createDocumentFragment();
@@ -1459,7 +1471,7 @@
           const inner = cleanNodes(child);
           if (HTML_ALLOWED[tag]) {
             const el = document.createElement(tag);
-            if (tag === 'MARK') el.className = 'hl';
+            if (tag === 'MARK') el.className = markClass(child);
             el.appendChild(inner);
             frag.appendChild(el);
           } else {

@@ -356,6 +356,12 @@
     /* ── per-lesson design picker + preview tabs (segmented control) ──── */
     .design-pick { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
     .design-pick-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t500); }
+    .layout-pick {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 12px; padding: 10px 12px; background: var(--cream);
+      border: 1px solid var(--t200); border-radius: var(--radius-sm);
+    }
+    .layout-pick-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t500); }
     .seg { display: inline-flex; background: var(--cream); border: 1px solid var(--t200); border-radius: var(--pill); padding: 3px; gap: 2px; }
     .seg button {
       border: none; background: none; cursor: pointer;
@@ -1154,7 +1160,19 @@
       const folders = DATA.folders.filter(folderFilter());
       const q = (document.getElementById('adminSearch').value || '').trim().toLowerCase();
 
-      let html = `<button class="admin-btn primary block" id="btnNewFolder">${newLabel}</button>`;
+      // public layout toggle (Learn / Questions sections only — not book volumes)
+      let html = '';
+      if (!vol) {
+        const cur = (DATA.layouts && DATA.layouts[navArea + ':' + navSub]) === 'folders' ? 'folders' : 'flat';
+        html += `<div class="layout-pick">
+          <span class="layout-pick-label">Public layout</span>
+          <div class="seg" id="layoutSeg">
+            <button type="button" data-layout="flat" class="${cur === 'flat' ? 'active' : ''}">Flat list</button>
+            <button type="button" data-layout="folders" class="${cur === 'folders' ? 'active' : ''}">Folder view</button>
+          </div>
+        </div>`;
+      }
+      html += `<button class="admin-btn primary block" id="btnNewFolder">${newLabel}</button>`;
       if (!folders.length) {
         html += `<p class="sidebar-empty">Nothing here yet.<br>Use “${newLabel}” to begin.</p>`;
       } else {
@@ -1186,6 +1204,13 @@
     }
 
     function wireFolderManager(list) {
+      list.querySelectorAll('#layoutSeg button').forEach(btn => btn.addEventListener('click', () => {
+        DATA.layouts = DATA.layouts || {};
+        DATA.layouts[navArea + ':' + navSub] = btn.dataset.layout;
+        list.querySelectorAll('#layoutSeg button').forEach(b => b.classList.toggle('active', b === btn));
+        commit();
+      }));
+
       const nf = list.querySelector('#btnNewFolder');
       if (nf) nf.addEventListener('click', () => {
         const folder = newFolderTemplate();

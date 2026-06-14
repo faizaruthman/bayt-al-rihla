@@ -747,6 +747,31 @@
     .lesson-go { font-size: 0.95rem; color: var(--t400); flex-shrink: 0; transition: transform var(--ease), color var(--ease); }
     .lesson-item.clickable:hover .lesson-go { transform: translateX(3px); color: var(--t700); }
 
+    /* ── Folder view (public) ────────────────────────────────────────── */
+    .folder-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .folder-card {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      text-align: left; font-family: 'Inter', sans-serif; border: none;
+      border-radius: var(--radius); padding: 24px 26px; cursor: pointer;
+      box-shadow: var(--sh0); transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .folder-card:hover { transform: translateY(-4px); box-shadow: var(--sh2); }
+    .folder-card-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .folder-card-name { font-size: 1.08rem; font-weight: 700; color: var(--t900); }
+    .folder-card-sub  {
+      align-self: flex-start; font-size: 0.74rem; font-weight: 700; color: var(--t700);
+      background: rgba(255,255,255,0.6); border-radius: var(--pill); padding: 3px 11px;
+    }
+    .folder-card-go { font-size: 1.15rem; color: rgba(0,0,0,0.28); flex-shrink: 0; transition: transform var(--ease), color var(--ease); }
+    .folder-card:hover .folder-card-go { transform: translateX(3px); color: rgba(0,0,0,0.5); }
+    .section-back {
+      display: inline-flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.84rem; font-weight: 600; color: var(--t500);
+      padding: 6px 0; margin-bottom: 14px; transition: color var(--ease);
+    }
+    .section-back:hover { color: var(--g700); }
+    .folder-open-name { margin-top: 4px; }
+
     /* ── Lesson reading view ─────────────────────────────────────────── */
     .sp-reading { max-width: 1140px; margin: 0 auto; padding: 0 5% 96px; }
     .reading-title {
@@ -1056,6 +1081,7 @@
       section { padding: 72px 4%; }
       .books-grid { grid-template-columns: 1fr; }
       .menu-grid  { grid-template-columns: 1fr; }
+      .folder-grid { grid-template-columns: 1fr; }
 
       .sp-header-row { flex-direction: column; align-items: flex-start; }
       .sp-search { width: 100%; max-width: 360px; }
@@ -1410,6 +1436,15 @@
     let currentVolumeIndex = 0;        // active volume within that book
     let lessonReturnView   = 'learn';  // where 'Back' returns from a reading view
     let bookState          = null;     // { volumes: [...] } for the open book
+    let currentFolderId    = null;     // open folder within a folder-view section
+
+    /* public layout for a section: 'flat' (ordered list) or 'folders' (cards) */
+    function getLayout(subject, section) {
+      const v = DATA.layouts && DATA.layouts[subject + ':' + section];
+      return v === 'folders' ? 'folders' : 'flat';
+    }
+    /* plain text from (possibly HTML) lesson content, for searching */
+    function stripHTML(s) { const d = document.createElement('div'); d.innerHTML = s || ''; return d.textContent || ''; }
 
     /* ── shared helpers ─────────────────────────────────────────────── */
     function escHTML(s) {
@@ -1626,8 +1661,11 @@
     }
 
     /* shared renderer for the Learn and Questions sub-sections */
+    const FOLDER_PASTELS = ['mint', 'lav', 'yell', 'pink', 'sky', 'amber', 'violet', 'orange'];
+
     function renderSectionLessons(data, section) {
       spSearchWrap.style.display = 'none';
+      if (spBookIcon) spBookIcon.style.display = 'none';
       const isQ = section === 'questions';
       setHeader(breadcrumb(data.name, isQ ? 'Questions' : 'Learn'),
                 isQ ? 'Common questions and answers on this subject.'
@@ -1636,48 +1674,101 @@
       const folders = (DATA.folders || []).filter(f =>
         f.subject === currentKey && !f.book &&
         ((f.section || 'learn') === (isQ ? 'questions' : 'learn')));
-      let html = '', num = 0;
 
-      folders.forEach(folder => {
-        const lessons = (folder.lessons || []).filter(l => l.published);
-        if (!lessons.length) return;
+      // every published lesson, flattened (with its folder), for flat/search views
+      const flat = [];
+      folders.forEach(folder => (folder.lessons || []).forEach(l => { if (l.published) flat.push({ lesson: l, folder }); }));
 
-        const rows = lessons.map(l => {
-          num++;
-          if (l.locked) {
-            return `
-              <div class="lesson-item locked" title="This lesson is locked">
-                <div class="lesson-num">${num}</div>
-                <div class="lesson-body">
-                  <p class="lesson-title">${escHTML(l.title)}</p>
-                  <p class="lesson-status">Locked</p>
-                </div>
-                <span class="lesson-lock">🔒</span>
-              </div>`;
-          }
-          return `
-            <div class="lesson-item clickable" data-lesson="${escAttrQ(l.id)}">
-              <div class="lesson-num">${num}</div>
-              <div class="lesson-body">
-                <p class="lesson-title">${escHTML(l.title)}</p>
-                <p class="lesson-status">Read lesson</p>
-              </div>
-              <span class="lesson-go">→</span>
-            </div>`;
-        }).join('');
-
-        const moduleName = folders.length > 1
-          ? `<div class="learn-module-name">${escHTML(folder.name)}</div>` : '';
-        html += `<div class="learn-module">${moduleName}<div class="lesson-list">${rows}</div></div>`;
-      });
-
-      if (!num) {
+      if (!flat.length) {
         spContent.innerHTML = comingSoonHTML(data, isQ
           ? `A collection of common questions and answers for <strong>${data.name}</strong> is being prepared.`
           : `Lessons for <strong>${data.name}</strong> are being prepared. Check back soon.`);
         return;
       }
-      spContent.innerHTML = `<div class="sp-curriculum">${html}</div>`;
+
+      const layout = getLayout(currentKey, isQ ? 'questions' : 'learn');
+
+      function lessonRow(l, num) {
+        if (l.locked) {
+          return `<div class="lesson-item locked" title="This lesson is locked"><div class="lesson-num">${num}</div>
+            <div class="lesson-body"><p class="lesson-title">${escHTML(l.title)}</p><p class="lesson-status">Locked</p></div>
+            <span class="lesson-lock">🔒</span></div>`;
+        }
+        return `<div class="lesson-item clickable" data-lesson="${escAttrQ(l.id)}"><div class="lesson-num">${num}</div>
+          <div class="lesson-body"><p class="lesson-title">${escHTML(l.title)}</p><p class="lesson-status">${isQ ? 'Read answer' : 'Read lesson'}</p></div>
+          <span class="lesson-go">→</span></div>`;
+      }
+      function flatListHTML(items) {
+        let n = 0;
+        return `<div class="lesson-list">${items.map(it => lessonRow(it.lesson, ++n)).join('')}</div>`;
+      }
+      function groupedHTML() {            // flat layout: keep folder sub-headers when >1 folder
+        let n = 0, out = '';
+        folders.forEach(folder => {
+          const items = (folder.lessons || []).filter(l => l.published);
+          if (!items.length) return;
+          const rows = items.map(l => lessonRow(l, ++n)).join('');
+          const name = folders.length > 1 ? `<div class="learn-module-name">${escHTML(folder.name)}</div>` : '';
+          out += `<div class="learn-module">${name}<div class="lesson-list">${rows}</div></div>`;
+        });
+        return out;
+      }
+      function foldersHTML() {
+        return `<div class="folder-grid">` + folders.map((folder, i) => {
+          const cnt = (folder.lessons || []).filter(l => l.published).length;
+          if (!cnt) return '';
+          const pal = FOLDER_PASTELS[i % FOLDER_PASTELS.length];
+          return `<button class="folder-card" style="background:var(--${pal})" data-folder="${escAttrQ(folder.id)}">
+            <span class="folder-card-main">
+              <span class="folder-card-name">${escHTML(folder.name)}</span>
+              <span class="folder-card-sub">${cnt} lesson${cnt !== 1 ? 's' : ''}</span>
+            </span>
+            <span class="folder-card-go">→</span></button>`;
+        }).join('') + `</div>`;
+      }
+      function folderOpenHTML(folder) {
+        const items = (folder.lessons || []).filter(l => l.published).map(l => ({ lesson: l }));
+        return `<button class="section-back" id="secBack">← All folders</button>
+          <div class="learn-module-name folder-open-name">${escHTML(folder.name)}</div>${flatListHTML(items)}`;
+      }
+      function searchMatches(q) {
+        const ql = q.toLowerCase();
+        return flat.filter(it => (it.lesson.title + ' ' + stripHTML(it.lesson.content || '')).toLowerCase().includes(ql));
+      }
+
+      // build the shell (search bar for Questions) + body
+      const searchBar = isQ ? `
+        <div class="topic-search-wrap">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="topic-search" id="qSearch" placeholder="Search questions…" autocomplete="off" />
+          <span class="topic-search-count" id="qCount"></span>
+        </div>` : '';
+      spContent.innerHTML = `<div class="sp-curriculum">${searchBar}<div id="secBody"></div></div>`;
+      const secBody = document.getElementById('secBody');
+
+      function paint(query) {
+        const q = (query || '').trim();
+        if (isQ && q) {
+          const matched = searchMatches(q);
+          secBody.innerHTML = matched.length ? flatListHTML(matched)
+            : `<div class="topic-empty">No questions matched your search.</div>`;
+          const c = document.getElementById('qCount'); if (c) c.textContent = `${matched.length}/${flat.length}`;
+          return;
+        }
+        if (layout === 'folders') {
+          const folder = currentFolderId ? folders.find(f => f.id === currentFolderId) : null;
+          secBody.innerHTML = folder ? folderOpenHTML(folder) : foldersHTML();
+        } else {
+          secBody.innerHTML = groupedHTML();
+        }
+        if (isQ) { const c = document.getElementById('qCount'); if (c) c.textContent = `${flat.length}/${flat.length}`; }
+      }
+
+      paint('');
+      if (isQ) {
+        const qs = document.getElementById('qSearch');
+        if (qs) qs.addEventListener('input', () => paint(qs.value));
+      }
     }
 
     function renderLearn(data)     { renderSectionLessons(data, 'learn'); }
@@ -1923,6 +2014,7 @@
 
       currentKey  = key;
       currentView = 'menu';
+      currentFolderId = null;
       renderView();
 
       // Transition: fade out main → show subject page → fade in
@@ -1944,9 +2036,12 @@
       window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
-    /* nav back: lesson → learn/book, book → books, sub-view → menu, menu → home */
+    /* nav back: lesson → learn/book, open folder → folder list, book → books, sub-view → menu, menu → home */
     function goBack() {
       if (currentView === 'lesson') showView(lessonReturnView || 'learn');
+      else if ((currentView === 'learn' || currentView === 'questions') && currentFolderId) {
+        currentFolderId = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' });
+      }
       else if (currentView === 'book') showView('books');
       else if (currentView !== 'menu') showView('menu');
       else closeSubject();
@@ -1962,6 +2057,7 @@
         document.body.classList.remove('subject-open');
         currentKey  = null;
         currentView = 'menu';
+        currentFolderId = null;
         window.scrollTo({ top: 0, behavior: 'instant' });
         document.title = 'Bayt Al-Rihla — Islamic Knowledge Hub';
       }, 350);
@@ -1978,9 +2074,13 @@
     // Delegate clicks inside the subject page (cards rendered dynamically)
     spContent.addEventListener('click', e => {
       if (e.target.closest('#focusBack')) { goBack(); return; }
+      if (e.target.closest('#secBack')) { currentFolderId = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
 
       const card = e.target.closest('.menu-card[data-view]');
-      if (card) { showView(card.dataset.view); return; }
+      if (card) { currentFolderId = null; showView(card.dataset.view); return; }
+
+      const fcard = e.target.closest('.folder-card[data-folder]');
+      if (fcard) { currentFolderId = fcard.dataset.folder; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
 
       const book = e.target.closest('.book-card[data-book]');
       if (book) { openBook(book.dataset.book); return; }

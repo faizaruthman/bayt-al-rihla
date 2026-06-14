@@ -457,33 +457,47 @@
     }
     .sec-swatch:hover { transform: scale(1.15); }
 
-    /* ── Quranic ayah box ────────────────────────────────────────────── */
+    /* ── Quranic ayah box (compact) ──────────────────────────────────── */
     .ayah-box {
       position: relative; background: #ffffff;
       border: 1px solid var(--t200); border-left: 4px solid #0d9488;
-      border-radius: var(--radius-sm); padding: 22px 26px 20px 62px; margin: 24px 0;
+      border-radius: var(--radius-sm); padding: 12px 26px 12px 60px; margin: 20px 0;
       box-shadow: var(--sh0);
     }
     .ayah-box::before {
-      content: '۞'; position: absolute; left: 16px; top: 18px;
-      width: 32px; height: 32px; border-radius: 9px;
+      content: '۞'; position: absolute; left: 16px; top: 12px;
+      width: 30px; height: 30px; border-radius: 9px;
       background: #ccfbf1; color: #0d9488;
-      display: flex; align-items: center; justify-content: center; font-size: 1.05rem; line-height: 1;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem; line-height: 1;
     }
     .ayah-arabic {
       direction: rtl; text-align: right;
       font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
-      font-size: 1.9rem; line-height: 2.15; color: var(--t900); margin-bottom: 10px; outline: none;
+      font-size: 1.85rem; line-height: 1.5; color: var(--t900); margin-bottom: 4px; outline: none;
     }
-    .ayah-trans { font-size: 0.96rem; font-style: italic; color: var(--t500); line-height: 1.75; outline: none; }
+    .ayah-trans { font-size: 0.94rem; font-style: italic; color: var(--t500); line-height: 1.5; outline: none; }
     .ayah-arabic:empty::before { content: 'اكتب الآية هنا'; color: var(--t400); }
     .ayah-trans:empty::before  { content: 'Translation…';  color: var(--t400); font-style: italic; }
 
     /* ── Section box (titled, tinted) ────────────────────────────────── */
     .section-box {
+      position: relative;
       border: 1px solid rgba(0,0,0,0.06); border-radius: var(--radius-sm);
       background: #ffffff; padding: 18px 22px 4px; margin: 24px 0;
     }
+
+    /* ── In-editor delete button on components ───────────────────────── */
+    .comp-del {
+      position: absolute; top: 8px; right: 8px;
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 1px solid var(--t200); background: var(--white); color: var(--t500);
+      font-size: 0.74rem; line-height: 1; cursor: pointer; z-index: 3;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity var(--ease), background var(--ease), color var(--ease), border-color var(--ease);
+    }
+    .ayah-box:hover .comp-del, .section-box:hover .comp-del,
+    .ayah-box:focus-within .comp-del, .section-box:focus-within .comp-del { opacity: 1; }
+    .comp-del:hover { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
     .section-bg-yellow { background: #fef9c3; }
     .section-bg-mint   { background: #d1fae5; }
     .section-bg-blue   { background: #e0f2fe; }
@@ -785,6 +799,7 @@
       node.childNodes.forEach(child => {
         if (child.nodeType === 3) { frag.appendChild(document.createTextNode(child.nodeValue)); return; }
         if (child.nodeType !== 1) return;
+        if (child.tagName === 'BUTTON') return;      // drop editor-only controls (e.g. delete buttons)
 
         if (child.tagName === 'DIV') {
           const classes = filterClasses(child, DIV_CLASSES);
@@ -1393,8 +1408,20 @@
         const ec = document.getElementById('edContent');
         // legacy Markdown converts on the fly; keep a brand-new lesson empty for the placeholder
         ec.innerHTML = (l.content && l.content.trim()) ? renderLessonHTML(l.content) : '';
-        enhanceComponents(ec);                 // make ayah/section parts editable
+        enhanceComponents(ec);                 // make ayah/section parts editable + add delete buttons
         ec.addEventListener('input', syncContent);
+        // delete a section / ayah box via its corner button
+        ec.addEventListener('click', e => {
+          const del = e.target.closest('.comp-del');
+          if (!del) return;
+          e.preventDefault(); e.stopPropagation();
+          const box = del.closest('.ayah-box, .section-box');
+          if (!box) return;
+          const isAyah = box.classList.contains('ayah-box');
+          if (!confirm(isAyah ? 'Delete this ayah box?' : 'Delete this section?')) return;
+          box.remove();
+          syncContent();
+        });
         activeRich = ec;
         activeRichSync = syncContent;
       }
@@ -1483,9 +1510,20 @@
       return '<div class="section-box section-bg-yellow"><div class="section-pill">Section title</div>' +
              '<div class="section-body"><p><br></p></div></div>';
     }
-    /* contenteditable=false frame, contenteditable=true editable parts */
+    /* contenteditable=false frame, contenteditable=true editable parts, + delete button */
     function enhanceComponents(root) {
-      root.querySelectorAll('.ayah-box, .section-box').forEach(b => b.setAttribute('contenteditable', 'false'));
+      root.querySelectorAll('.ayah-box, .section-box').forEach(b => {
+        b.setAttribute('contenteditable', 'false');
+        if (!b.querySelector(':scope > .comp-del')) {
+          const del = document.createElement('button');
+          del.type = 'button';
+          del.className = 'comp-del';
+          del.setAttribute('contenteditable', 'false');
+          del.title = b.classList.contains('ayah-box') ? 'Delete ayah box' : 'Delete section';
+          del.textContent = '✕';
+          b.appendChild(del);
+        }
+      });
       root.querySelectorAll('.ayah-arabic, .ayah-trans, .section-pill, .section-body').forEach(p => p.setAttribute('contenteditable', 'true'));
     }
     function insertComponent(html) {

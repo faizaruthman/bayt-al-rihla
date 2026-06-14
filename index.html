@@ -6,7 +6,7 @@
   <title>Bayt Al-Rihla — Islamic Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
 
   <style>
     /* ── Reset ──────────────────────────────────────────────────────── */
@@ -748,7 +748,7 @@
     .lesson-item.clickable:hover .lesson-go { transform: translateX(3px); color: var(--t700); }
 
     /* ── Lesson reading view ─────────────────────────────────────────── */
-    .sp-reading { max-width: 760px; margin: 0 auto; padding: 0 5% 96px; }
+    .sp-reading { max-width: 1140px; margin: 0 auto; padding: 0 5% 96px; }
     .reading-title {
       font-family: 'Cinzel', serif; font-size: clamp(1.7rem, 4vw, 2.4rem);
       font-weight: 700; color: var(--g900); letter-spacing: -0.5px;
@@ -779,6 +779,57 @@
     .hl-pink   { background: #fbcfe8; }
     .hl-orange { background: #fed7aa; }
 
+    /* ── Quranic ayah box ────────────────────────────────────────────── */
+    .ayah-box {
+      position: relative;
+      background: #ffffff;
+      border: 1px solid var(--t200);
+      border-left: 4px solid #0d9488;          /* teal accent */
+      border-radius: var(--radius-sm);
+      padding: 22px 26px 20px 62px;
+      margin: 24px 0;
+      box-shadow: var(--sh0);
+    }
+    .ayah-box::before {
+      content: '۞';
+      position: absolute;
+      left: 16px; top: 18px;
+      width: 32px; height: 32px;
+      border-radius: 9px;
+      background: #ccfbf1; color: #0d9488;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem; line-height: 1;
+    }
+    .ayah-arabic {
+      direction: rtl; text-align: right;
+      font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', 'Traditional Arabic', serif;
+      font-size: 1.9rem; line-height: 2.15; color: var(--t900);
+      margin-bottom: 10px;
+    }
+    .ayah-trans { font-size: 0.96rem; font-style: italic; color: var(--t500); line-height: 1.75; }
+
+    /* ── Section box (titled, tinted) ────────────────────────────────── */
+    .section-box {
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: var(--radius-sm);
+      background: #ffffff;
+      padding: 18px 22px 4px;
+      margin: 24px 0;
+    }
+    .section-bg-yellow { background: #fef9c3; }
+    .section-bg-mint   { background: #d1fae5; }
+    .section-bg-blue   { background: #e0f2fe; }
+    .section-bg-pink   { background: #fce7f3; }
+    .section-bg-peach  { background: #ffedd5; }
+    .section-pill {
+      display: inline-block;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(0,0,0,0.07);
+      color: var(--t900); font-weight: 700; font-size: 0.82rem;
+      padding: 5px 14px; border-radius: var(--pill); margin-bottom: 12px;
+    }
+    .section-body > :last-child { margin-bottom: 0; }
+
     /* ══ Design 2: FOCUS / READER ════════════════════════════════════════ */
     .focus-page {
       background: #fbf8f1;                      /* warm paper */
@@ -798,9 +849,9 @@
       transition: width 0.08s linear;
     }
     .focus-article {
-      max-width: 680px;
+      max-width: 1140px;
       margin: 0 auto;
-      padding: 54px 28px 130px;
+      padding: 54px 40px 130px;
     }
     .focus-back {
       display: inline-flex; align-items: center; gap: 6px;
@@ -1186,50 +1237,7 @@
       <p class="section-subtitle">"Those who inherited the knowledge of the Prophets"</p>
     </div>
 
-    <div class="scholars-grid">
-      <div class="scholar-card fade-in d1">
-        <div class="scholar-avatar">IT</div>
-        <p class="scholar-name">Ibn Taymiyyah</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">Shaykhul Islam<br/>661–728 AH</p>
-      </div>
-      <div class="scholar-card fade-in d2">
-        <div class="scholar-avatar">IQ</div>
-        <p class="scholar-name">Ibn al-Qayyim</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">Student of Ibn Taymiyyah<br/>691–751 AH</p>
-      </div>
-      <div class="scholar-card fade-in d3">
-        <div class="scholar-avatar">MW</div>
-        <p class="scholar-name">Muhammad ibn Abd al-Wahhab</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">Reviver of Tawheed<br/>1115–1206 AH</p>
-      </div>
-      <div class="scholar-card fade-in d4">
-        <div class="scholar-avatar">AL</div>
-        <p class="scholar-name">Al-Albani</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">Scholar of Hadith<br/>1914–1999 CE</p>
-      </div>
-      <div class="scholar-card fade-in d1">
-        <div class="scholar-avatar">IB</div>
-        <p class="scholar-name">Ibn Baz</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">Grand Mufti of Saudi Arabia<br/>1910–1999 CE</p>
-      </div>
-      <div class="scholar-card fade-in d2">
-        <div class="scholar-avatar">IU</div>
-        <p class="scholar-name">Ibn Uthaymeen</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">The Beloved Scholar<br/>1925–2001 CE</p>
-      </div>
-      <div class="scholar-card fade-in d3">
-        <div class="scholar-avatar">SF</div>
-        <p class="scholar-name">Salih al-Fawzan</p>
-        <div class="scholar-divider"></div>
-        <p class="scholar-desc">Senior Scholar of our time</p>
-      </div>
-    </div>
+    <div class="scholars-grid" id="scholarsGrid"></div>
   </section>
 
   <!-- ── ABOUT ──────────────────────────────────────────────────────────── -->
@@ -1451,12 +1459,21 @@
     }
 
     const HTML_ALLOWED = { P:1, BR:1, STRONG:1, EM:1, MARK:1, H2:1, H3:1, H4:1, UL:1, OL:1, LI:1, BLOCKQUOTE:1 };
-    const HTML_RENAME  = { B:'STRONG', I:'EM', DIV:'P', H1:'H2', H5:'H4', H6:'H4' };
+    const HTML_RENAME  = { B:'STRONG', I:'EM', H1:'H2', H5:'H4', H6:'H4' };
     const HL_CLASSES   = { 'hl':1, 'hl-yellow':1, 'hl-green':1, 'hl-blue':1, 'hl-pink':1, 'hl-orange':1 };
+    /* component blocks (ayah box / section box) preserved by <div> class */
+    const DIV_CLASSES  = {
+      'ayah-box':1, 'ayah-content':1, 'ayah-arabic':1, 'ayah-trans':1,
+      'section-box':1, 'section-pill':1, 'section-body':1,
+      'section-bg-yellow':1, 'section-bg-mint':1, 'section-bg-blue':1, 'section-bg-pink':1, 'section-bg-peach':1
+    };
 
+    function filterClasses(el, allow) {
+      return (el.className || '').split(/\s+/).filter(c => allow[c]);
+    }
     /* keep only whitelisted highlight classes on a <mark>; always include base 'hl' */
     function markClass(el) {
-      const classes = (el.className || '').split(/\s+/).filter(c => HL_CLASSES[c]);
+      const classes = filterClasses(el, HL_CLASSES);
       if (classes.indexOf('hl') === -1) classes.unshift('hl');
       return classes.join(' ');
     }
@@ -1466,17 +1483,38 @@
       node.childNodes.forEach(child => {
         if (child.nodeType === 3) {                       // text
           frag.appendChild(document.createTextNode(child.nodeValue));
-        } else if (child.nodeType === 1) {                // element
-          let tag = HTML_RENAME[child.tagName] || child.tagName;
-          const inner = cleanNodes(child);
-          if (HTML_ALLOWED[tag]) {
-            const el = document.createElement(tag);
-            if (tag === 'MARK') el.className = markClass(child);
-            el.appendChild(inner);
+          return;
+        }
+        if (child.nodeType !== 1) return;
+
+        // <div>: keep as a component block if it carries a known class, else
+        // treat as a plain paragraph (contenteditable line wrapper)
+        if (child.tagName === 'DIV') {
+          const classes = filterClasses(child, DIV_CLASSES);
+          if (classes.length) {
+            const el = document.createElement('div');
+            el.className = classes.join(' ');
+            const dir = child.getAttribute && child.getAttribute('dir');
+            if (dir) el.setAttribute('dir', dir === 'rtl' ? 'rtl' : 'ltr');
+            el.appendChild(cleanNodes(child));
             frag.appendChild(el);
           } else {
-            frag.appendChild(inner);                      // unwrap unknown tags
+            const p = document.createElement('p');
+            p.appendChild(cleanNodes(child));
+            frag.appendChild(p);
           }
+          return;
+        }
+
+        const tag = HTML_RENAME[child.tagName] || child.tagName;
+        const inner = cleanNodes(child);
+        if (HTML_ALLOWED[tag]) {
+          const el = document.createElement(tag);
+          if (tag === 'MARK') el.className = markClass(child);
+          el.appendChild(inner);
+          frag.appendChild(el);
+        } else {
+          frag.appendChild(inner);                        // unwrap unknown tags
         }
       });
       return frag;
@@ -1586,12 +1624,17 @@
         </div>`;
     }
 
-    function renderLearn(data) {
+    /* shared renderer for the Learn and Questions sub-sections */
+    function renderSectionLessons(data, section) {
       spSearchWrap.style.display = 'none';
-      setHeader(breadcrumb(data.name, 'Learn'),
-                'A structured curriculum — work through the lessons in order.', '');
+      const isQ = section === 'questions';
+      setHeader(breadcrumb(data.name, isQ ? 'Questions' : 'Learn'),
+                isQ ? 'Common questions and answers on this subject.'
+                    : 'A structured curriculum — work through the lessons in order.', '');
 
-      const folders = (DATA.folders || []).filter(f => f.subject === currentKey && !f.book);
+      const folders = (DATA.folders || []).filter(f =>
+        f.subject === currentKey && !f.book &&
+        ((f.section || 'learn') === (isQ ? 'questions' : 'learn')));
       let html = '', num = 0;
 
       folders.forEach(folder => {
@@ -1628,12 +1671,15 @@
       });
 
       if (!num) {
-        spContent.innerHTML = comingSoonHTML(data,
-          `Lessons for <strong>${data.name}</strong> are being prepared. Check back soon.`);
+        spContent.innerHTML = comingSoonHTML(data, isQ
+          ? `A collection of common questions and answers for <strong>${data.name}</strong> is being prepared.`
+          : `Lessons for <strong>${data.name}</strong> are being prepared. Check back soon.`);
         return;
       }
       spContent.innerHTML = `<div class="sp-curriculum">${html}</div>`;
     }
+
+    function renderLearn(data)     { renderSectionLessons(data, 'learn'); }
 
     function renderReading(data) {
       spSearchWrap.style.display = 'none';
@@ -1662,7 +1708,7 @@
       } else {
         // ── Design 1: Classic (current site look) ──
         if (spHeader) spHeader.style.display = '';
-        const leafLabel = lessonReturnView === 'book' ? 'Books' : 'Learn';
+        const leafLabel = lessonReturnView === 'book' ? 'Books' : lessonReturnView === 'questions' ? 'Questions' : 'Learn';
         setHeader(breadcrumb(data.name, leafLabel), lessonReturnView === 'book' ? 'Reading topic' : 'Reading lesson', '');
         spContent.innerHTML = `
           <div class="sp-reading">
@@ -1676,7 +1722,7 @@
       const found = findLessonById(id);
       if (!found || !found.lesson.published || found.lesson.locked) return;
       currentLessonId = id;
-      lessonReturnView = 'learn';
+      lessonReturnView = (currentView === 'questions') ? 'questions' : 'learn';
       showView('lesson');
     }
 
@@ -1844,13 +1890,7 @@
       showView('book');
     }
 
-    function renderQuestions(data) {
-      spSearchWrap.style.display = 'none';
-      setHeader(breadcrumb(data.name, 'Questions'),
-                'Common questions and answers on this subject.', '');
-      spContent.innerHTML = comingSoonHTML(data,
-        `A collection of common questions and answers for <strong>${data.name}</strong> is being prepared.`);
-    }
+    function renderQuestions(data) { renderSectionLessons(data, 'questions'); }
 
     /* ── render whatever the current state points at ────────────────── */
     function renderView() {
@@ -2048,6 +2088,7 @@
         const { data, error } = await SB.from('site_data').select('content').eq('id', SB_ROW_ID).single();
         if (!error && data && isTree(data.content)) {
           DATA = data.content; saveData();
+          renderScholars();
           if (currentKey) renderView();
         }
       } catch (e) {}
@@ -2062,15 +2103,43 @@
               { event: '*', schema: 'public', table: 'site_data', filter: 'id=eq.' + SB_ROW_ID },
               payload => {
                 const content = payload.new && payload.new.content;
-                if (isTree(content)) { DATA = content; saveData(); if (currentKey) renderView(); }
+                if (isTree(content)) { DATA = content; saveData(); renderScholars(); if (currentKey) renderView(); }
               })
           .subscribe();
       } catch (e) {}
     }
 
+    /* ── Scholars (data-driven; falls back to the built-in list) ──────── */
+    const DEFAULT_SCHOLARS = [
+      { id: 'sch-1', name: 'Ibn Taymiyyah',              initials: 'IT', desc: 'Shaykhul Islam\n661–728 AH' },
+      { id: 'sch-2', name: 'Ibn al-Qayyim',              initials: 'IQ', desc: 'Student of Ibn Taymiyyah\n691–751 AH' },
+      { id: 'sch-3', name: 'Muhammad ibn Abd al-Wahhab', initials: 'MW', desc: 'Reviver of Tawheed\n1115–1206 AH' },
+      { id: 'sch-4', name: 'Al-Albani',                  initials: 'AL', desc: 'Scholar of Hadith\n1914–1999 CE' },
+      { id: 'sch-5', name: 'Ibn Baz',                    initials: 'IB', desc: 'Grand Mufti of Saudi Arabia\n1910–1999 CE' },
+      { id: 'sch-6', name: 'Ibn Uthaymeen',              initials: 'IU', desc: 'The Beloved Scholar\n1925–2001 CE' },
+      { id: 'sch-7', name: 'Salih al-Fawzan',            initials: 'SF', desc: 'Senior Scholar of our time' }
+    ];
+    function getScholars() { return (DATA.scholars && DATA.scholars.length) ? DATA.scholars : DEFAULT_SCHOLARS; }
+    function scholarInitials(s) {
+      if (s.initials) return s.initials;
+      const w = (s.name || '').trim().split(/\s+/);
+      return (((w[0] || '')[0] || '') + ((w[1] || '')[0] || '')).toUpperCase();
+    }
+    function renderScholars() {
+      const grid = document.getElementById('scholarsGrid');
+      if (!grid) return;
+      grid.innerHTML = getScholars().map((s, i) => `
+        <div class="scholar-card fade-in d${(i % 4) + 1} visible">
+          <div class="scholar-avatar">${escHTML(scholarInitials(s))}</div>
+          <p class="scholar-name">${escHTML(s.name)}</p>
+          <div class="scholar-divider"></div>
+          <p class="scholar-desc">${escHTML(s.desc || '').replace(/\n/g, '<br>')}</p>
+        </div>`).join('');
+    }
+
     /* ── boot ─────────────────────────────────────────────────────────── */
     let booted = false;
-    function boot() { if (booted) return; booted = true; loadData(); }
+    function boot() { if (booted) return; booted = true; loadData().then(renderScholars); }
 
     /* Called by the Supabase module script below with the client (or null). */
     window.__startApp = function (client) {

@@ -7,7 +7,7 @@
   <title>Lesson Admin — Bayt Al-Rihla</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
 
   <style>
     /* ── Reset ──────────────────────────────────────────────────────── */
@@ -448,6 +448,104 @@
     .hl-pink   { background: #fbcfe8; }
     .hl-orange { background: #fed7aa; }
 
+    /* ── Section colour swatches (toolbar) ───────────────────────────── */
+    .rt-sec-swatches { display: inline-flex; align-items: center; gap: 5px; }
+    .sec-swatch {
+      width: 18px; height: 18px; padding: 0;
+      border: 1.5px solid rgba(0,0,0,0.12); border-radius: 5px; cursor: pointer;
+      transition: transform var(--ease);
+    }
+    .sec-swatch:hover { transform: scale(1.15); }
+
+    /* ── Quranic ayah box ────────────────────────────────────────────── */
+    .ayah-box {
+      position: relative; background: #ffffff;
+      border: 1px solid var(--t200); border-left: 4px solid #0d9488;
+      border-radius: var(--radius-sm); padding: 22px 26px 20px 62px; margin: 24px 0;
+      box-shadow: var(--sh0);
+    }
+    .ayah-box::before {
+      content: '۞'; position: absolute; left: 16px; top: 18px;
+      width: 32px; height: 32px; border-radius: 9px;
+      background: #ccfbf1; color: #0d9488;
+      display: flex; align-items: center; justify-content: center; font-size: 1.05rem; line-height: 1;
+    }
+    .ayah-arabic {
+      direction: rtl; text-align: right;
+      font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+      font-size: 1.9rem; line-height: 2.15; color: var(--t900); margin-bottom: 10px; outline: none;
+    }
+    .ayah-trans { font-size: 0.96rem; font-style: italic; color: var(--t500); line-height: 1.75; outline: none; }
+    .ayah-arabic:empty::before { content: 'اكتب الآية هنا'; color: var(--t400); }
+    .ayah-trans:empty::before  { content: 'Translation…';  color: var(--t400); font-style: italic; }
+
+    /* ── Section box (titled, tinted) ────────────────────────────────── */
+    .section-box {
+      border: 1px solid rgba(0,0,0,0.06); border-radius: var(--radius-sm);
+      background: #ffffff; padding: 18px 22px 4px; margin: 24px 0;
+    }
+    .section-bg-yellow { background: #fef9c3; }
+    .section-bg-mint   { background: #d1fae5; }
+    .section-bg-blue   { background: #e0f2fe; }
+    .section-bg-pink   { background: #fce7f3; }
+    .section-bg-peach  { background: #ffedd5; }
+    .section-pill {
+      display: inline-block; background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(0,0,0,0.07); color: var(--t900); font-weight: 700; font-size: 0.82rem;
+      padding: 5px 14px; border-radius: var(--pill); margin-bottom: 12px; outline: none;
+    }
+    .section-body { outline: none; }
+    .section-body > :last-child { margin-bottom: 0; }
+    .section-body:empty::before { content: 'Section content…'; color: var(--t400); }
+
+    /* ── 3-step navigation (left sidebar) ────────────────────────────── */
+    .nav-crumbs { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+    .crumb-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; min-width: 0; }
+    .crumb {
+      border: none; background: none; cursor: pointer; padding: 2px 4px; border-radius: 6px;
+      font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--t500);
+    }
+    .crumb:hover { color: var(--g700); background: var(--g50); }
+    .crumb.current { color: var(--g900); font-weight: 800; }
+    .crumb-sep { color: var(--t400); font-size: 0.8rem; }
+    .nav-back-btn {
+      border: 1px solid var(--t200); background: var(--white); cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.74rem; font-weight: 600; color: var(--t700);
+      padding: 5px 10px; border-radius: var(--pill); flex-shrink: 0;
+    }
+    .nav-back-btn:hover { background: var(--t100); color: var(--t900); }
+    .nav-heading { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--t500); margin: 4px 4px 12px; }
+    .nav-list { display: flex; flex-direction: column; gap: 8px; }
+    .nav-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;
+      background: var(--white); border: 1px solid var(--t200); border-radius: var(--radius-sm);
+      padding: 13px 16px; cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color var(--ease), box-shadow var(--ease), transform var(--ease);
+    }
+    .nav-item:hover { border-color: var(--g200); box-shadow: var(--sh0); transform: translateX(2px); }
+    .nav-item > span:first-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .nav-item-title { font-size: 0.9rem; font-weight: 700; color: var(--t900); }
+    .nav-item-desc  { font-size: 0.74rem; color: var(--t500); }
+    .nav-arrow { color: var(--t400); flex-shrink: 0; transition: transform var(--ease), color var(--ease); }
+    .nav-item:hover .nav-arrow { transform: translateX(3px); color: var(--g700); }
+
+    /* ── Scholars manager (main pane) ────────────────────────────────── */
+    .sc-mgr-title { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--g900); }
+    .sc-list { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+    .sc-card { display: flex; gap: 14px; align-items: flex-start; background: var(--white); border: 1px solid var(--t200); border-radius: var(--radius-sm); padding: 14px 16px; }
+    .sc-avatar {
+      width: 46px; height: 46px; flex-shrink: 0; border-radius: 50%;
+      background: var(--mint); color: var(--mint-tx);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.95rem;
+    }
+    .sc-fields { flex: 1; min-width: 0; }
+    .sc-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .sc-name { flex: 1; min-width: 0; padding: 8px 10px; border: 1.5px solid var(--t200); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.86rem; font-weight: 600; color: var(--t900); outline: none; }
+    .sc-init { width: 56px; text-align: center; padding: 8px 6px; border: 1.5px solid var(--t200); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.82rem; outline: none; }
+    .sc-name:focus, .sc-init:focus, .sc-desc:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .sc-desc { width: 100%; padding: 8px 10px; border: 1.5px solid var(--t200); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.82rem; color: var(--t700); outline: none; resize: vertical; }
+
     /* ── Focus design — preview pane only ────────────────────────────── */
     .preview-focus { background: #fbf8f1; }
     .focus-article-mini { max-width: 600px; margin: 0 auto; }
@@ -523,7 +621,7 @@
           </div>
         </div>
 
-        <div class="admin-search-wrap">
+        <div class="admin-search-wrap" id="adminSearchWrap" style="visibility:hidden">
           <input type="text" id="adminSearch" class="admin-search" placeholder="Search lessons…" autocomplete="off" />
         </div>
 
@@ -552,21 +650,19 @@
       </div>
 
       <div class="admin-note">
-        <strong>Folders &amp; books:</strong> leave a folder as a <strong>Learn module</strong> (pick its subject) to show it
-        on a subject's Learn page, or assign it to a <strong>📖 book</strong> to make it a <strong>volume</strong> — then the
-        folder name is the volume name (e.g. “Volume One”) and its lessons become that book's topics. Add more than one
-        volume folder per book for multiple volumes. &nbsp;<strong>Saving:</strong> you must be <strong>signed in</strong>;
-        changes sync <strong>live to Supabase</strong> and appear instantly on the public site (offline edits re-sync once
-        you're back online). <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
+        <strong>Pick an area, then a section, then manage its lessons.</strong> e.g. Aqeedah → Learn.
+        For Books, pick a book to manage its volumes &amp; topics. Scholars are edited on the right.
+        You must be <strong>signed in</strong>; changes sync <strong>live to Supabase</strong> and appear instantly
+        on the public site. <strong>Export / Import</strong> remain available for manual <strong>data.json</strong> backups.
       </div>
 
       <div class="admin-body">
         <aside class="admin-sidebar">
-          <button class="admin-btn primary block" id="btnNewFolder">+ New Folder</button>
-          <div id="folderList"></div>
+          <div class="nav-crumbs" id="navCrumbs"></div>
+          <div id="navPanel"></div>
         </aside>
         <main class="admin-main" id="adminMain">
-          <div class="editor-empty">Select a lesson to edit, or create one inside a folder.</div>
+          <div class="editor-empty">Pick an area on the left to begin.</div>
         </main>
       </div>
     </div>
@@ -651,12 +747,20 @@
     }
 
     const HTML_ALLOWED = { P:1, BR:1, STRONG:1, EM:1, MARK:1, H2:1, H3:1, H4:1, UL:1, OL:1, LI:1, BLOCKQUOTE:1 };
-    const HTML_RENAME  = { B:'STRONG', I:'EM', DIV:'P', H1:'H2', H5:'H4', H6:'H4' };
+    const HTML_RENAME  = { B:'STRONG', I:'EM', H1:'H2', H5:'H4', H6:'H4' };
     const HL_CLASSES   = { 'hl':1, 'hl-yellow':1, 'hl-green':1, 'hl-blue':1, 'hl-pink':1, 'hl-orange':1 };
+    const DIV_CLASSES  = {
+      'ayah-box':1, 'ayah-content':1, 'ayah-arabic':1, 'ayah-trans':1,
+      'section-box':1, 'section-pill':1, 'section-body':1,
+      'section-bg-yellow':1, 'section-bg-mint':1, 'section-bg-blue':1, 'section-bg-pink':1, 'section-bg-peach':1
+    };
 
+    function filterClasses(el, allow) {
+      return (el.className || '').split(/\s+/).filter(c => allow[c]);
+    }
     /* keep only whitelisted highlight classes on a <mark>; always include base 'hl' */
     function markClass(el) {
-      const classes = (el.className || '').split(/\s+/).filter(c => HL_CLASSES[c]);
+      const classes = filterClasses(el, HL_CLASSES);
       if (classes.indexOf('hl') === -1) classes.unshift('hl');
       return classes.join(' ');
     }
@@ -679,19 +783,35 @@
     function cleanNodes(node) {
       const frag = document.createDocumentFragment();
       node.childNodes.forEach(child => {
-        if (child.nodeType === 3) {
-          frag.appendChild(document.createTextNode(child.nodeValue));
-        } else if (child.nodeType === 1) {
-          let tag = HTML_RENAME[child.tagName] || child.tagName;
-          const inner = cleanNodes(child);
-          if (HTML_ALLOWED[tag]) {
-            const el = document.createElement(tag);
-            if (tag === 'MARK') el.className = markClass(child);
-            el.appendChild(inner);
+        if (child.nodeType === 3) { frag.appendChild(document.createTextNode(child.nodeValue)); return; }
+        if (child.nodeType !== 1) return;
+
+        if (child.tagName === 'DIV') {
+          const classes = filterClasses(child, DIV_CLASSES);
+          if (classes.length) {
+            const el = document.createElement('div');
+            el.className = classes.join(' ');
+            const dir = child.getAttribute && child.getAttribute('dir');
+            if (dir) el.setAttribute('dir', dir === 'rtl' ? 'rtl' : 'ltr');
+            el.appendChild(cleanNodes(child));
             frag.appendChild(el);
           } else {
-            frag.appendChild(inner);
+            const p = document.createElement('p');
+            p.appendChild(cleanNodes(child));
+            frag.appendChild(p);
           }
+          return;
+        }
+
+        const tag = HTML_RENAME[child.tagName] || child.tagName;
+        const inner = cleanNodes(child);
+        if (HTML_ALLOWED[tag]) {
+          const el = document.createElement(tag);
+          if (tag === 'MARK') el.className = markClass(child);
+          el.appendChild(inner);
+          frag.appendChild(el);
+        } else {
+          frag.appendChild(inner);
         }
       });
       return frag;
@@ -862,82 +982,211 @@
 
     function commit() { scheduleSave(); }   // persist + sync (after structural changes)
 
-    /* ── admin rendering ────────────────────────────────────────────── */
+    /* ══════════════════════════════════════════════════════════════════
+       3-STEP NAVIGATION  (Area → Sub-section → Management)
+       ------------------------------------------------------------------
+       Everything still reads/writes the same folders/lessons; the nav
+       just filters them so each lesson sits under its area + sub-section.
+    ══════════════════════════════════════════════════════════════════ */
+    const AREAS = Object.entries(SUBJECTS).map(([k, v]) => ({ key: k, name: v.name }))
+                        .concat([{ key: 'scholars', name: 'Scholars' }]);
+
+    const DEFAULT_SCHOLARS = [
+      { id: 'sch-1', name: 'Ibn Taymiyyah',              initials: 'IT', desc: 'Shaykhul Islam\n661–728 AH' },
+      { id: 'sch-2', name: 'Ibn al-Qayyim',              initials: 'IQ', desc: 'Student of Ibn Taymiyyah\n691–751 AH' },
+      { id: 'sch-3', name: 'Muhammad ibn Abd al-Wahhab', initials: 'MW', desc: 'Reviver of Tawheed\n1115–1206 AH' },
+      { id: 'sch-4', name: 'Al-Albani',                  initials: 'AL', desc: 'Scholar of Hadith\n1914–1999 CE' },
+      { id: 'sch-5', name: 'Ibn Baz',                    initials: 'IB', desc: 'Grand Mufti of Saudi Arabia\n1910–1999 CE' },
+      { id: 'sch-6', name: 'Ibn Uthaymeen',              initials: 'IU', desc: 'The Beloved Scholar\n1925–2001 CE' },
+      { id: 'sch-7', name: 'Salih al-Fawzan',            initials: 'SF', desc: 'Senior Scholar of our time' }
+    ];
+
+    let navArea   = null;   // subject key or 'scholars'
+    let navSub    = null;   // 'learn' | 'books' | 'questions' | 'scholars'
+    let navBookId = null;   // a specific book while managing its volumes
+
+    function subLabel(s) {
+      return s === 'learn' ? 'Learn' : s === 'books' ? 'Books'
+           : s === 'questions' ? 'Questions' : s === 'scholars' ? 'Scholars' : s;
+    }
+
+    /* ── orchestrator ───────────────────────────────────────────────── */
     function renderAdmin() {
+      if (!isTree(DATA)) DATA = { folders: [] };
       const gd = document.getElementById('globalDesign');
       if (gd) gd.value = (DATA.settings && DATA.settings.defaultDesign === 'focus') ? 'focus' : 'classic';
-      renderSidebar();
-      renderEditor();
+      const searchWrap = document.getElementById('adminSearchWrap');
+      if (searchWrap) searchWrap.style.visibility = (navArea && navSub && navArea !== 'scholars') ? 'visible' : 'hidden';
+
+      renderNav();
+
+      // Scholars are edited in the main pane; everything else uses the lesson editor
+      if (navArea === 'scholars' && navSub === 'scholars') {
+        renderScholarsManager(document.getElementById('adminMain'));
+      } else {
+        renderEditor();
+      }
     }
 
-    function renderSidebar() {
-      if (!isTree(DATA)) DATA = { folders: [] };
-      const list = document.getElementById('folderList');
-      const q = (document.getElementById('adminSearch').value || '').trim().toLowerCase();
-
-      if (!DATA.folders.length) {
-        list.innerHTML = '<p class="sidebar-empty">No folders yet.<br>Create one to begin.</p>';
+    function renderNav() {
+      renderCrumbs();
+      const panel = document.getElementById('navPanel');
+      if (!navArea) {
+        panel.innerHTML = renderAreas();
+      } else if (!navSub) {
+        panel.innerHTML = renderSubs();
+      } else if (navArea === 'scholars') {
+        panel.innerHTML = '<p class="sidebar-empty">Editing the scholars list →<br>use the panel on the right.</p>';
+      } else {
+        renderManagement(panel);
         return;
       }
-
-      list.innerHTML = DATA.folders.map(f => {
-        const lessons = f.lessons || [];
-        const visible = q ? lessons.filter(l => l.title.toLowerCase().includes(q)) : lessons;
-        const rows = visible.map(l => {
-          const tags =
-            (l.published ? '' : '<span class="tag tag-draft">Draft</span>') +
-            (l.locked ? '<span class="tag tag-locked">🔒</span>' : '');
-          return `<div class="admin-lesson ${l.id === selectedLessonId ? 'selected' : ''}"
-                       draggable="true" data-lesson="${escAttrQ(l.id)}" data-folder="${escAttrQ(f.id)}">
-                    <span class="drag-dots">⠿</span>
-                    <span class="admin-lesson-title">${escHTML(l.title)}</span>
-                    ${tags}
-                  </div>`;
-        }).join('') || '<p class="folder-empty">No lessons</p>';
-
-        const opts = SUBJECT_OPTIONS.map(([k, n]) =>
-          `<option value="${k}" ${f.subject === k ? 'selected' : ''}>${escHTML(n)}</option>`).join('');
-
-        const bookOpts = '<option value="">— Learn module —</option>' +
-          BOOKS.map(b =>
-            `<option value="${b.id}" ${f.book === b.id ? 'selected' : ''}>📖 ${escHTML(b.title)}</option>`).join('');
-
-        const isVolume = !!f.book;
-
-        return `<div class="folder" data-folder="${escAttrQ(f.id)}" draggable="true">
-          <div class="folder-head">
-            <span class="drag-dots folder-drag" title="Drag to reorder">⠿</span>
-            <input class="folder-name-input" value="${escAttrQ(f.name)}" data-folder="${escAttrQ(f.id)}" placeholder="${isVolume ? 'e.g. Volume One' : 'Folder name'}" />
-            <span class="folder-count" title="${isVolume ? 'Topics in this volume' : 'Lessons in this folder'}">${lessons.length}</span>
-            <button class="icon-btn" data-act="del-folder" data-folder="${escAttrQ(f.id)}" title="Delete folder">✕</button>
-          </div>
-          <div class="folder-meta">
-            <select class="folder-subject" data-folder="${escAttrQ(f.id)}" title="Which subject's Learn page shows this folder" ${isVolume ? 'disabled' : ''}>${opts}</select>
-            <select class="folder-book" data-folder="${escAttrQ(f.id)}" title="Assign this folder as a volume of a book (or leave as a Learn module)">${bookOpts}</select>
-            <button class="mini-btn" data-act="new-lesson" data-folder="${escAttrQ(f.id)}">+ ${isVolume ? 'Topic' : 'Lesson'}</button>
-          </div>
-          <div class="folder-lessons" data-folder="${escAttrQ(f.id)}">${rows}</div>
-        </div>`;
-      }).join('');
-
-      wireSidebar();
+      panel.querySelectorAll('[data-area]').forEach(b => b.addEventListener('click', () => {
+        navArea = b.dataset.area; navSub = (navArea === 'scholars' ? 'scholars' : null); navBookId = null; selectedLessonId = null; renderAdmin();
+      }));
+      panel.querySelectorAll('[data-sub]').forEach(b => b.addEventListener('click', () => {
+        navSub = b.dataset.sub; navBookId = null; selectedLessonId = null; renderAdmin();
+      }));
     }
 
-    function wireSidebar() {
-      const list = document.getElementById('folderList');
+    /* ── breadcrumbs + back ─────────────────────────────────────────── */
+    function renderCrumbs() {
+      const el = document.getElementById('navCrumbs');
+      const parts = [`<button class="crumb ${!navArea ? 'current' : ''}" data-nav="root">Areas</button>`];
+      if (navArea) {
+        const a = AREAS.find(x => x.key === navArea);
+        parts.push('<span class="crumb-sep">›</span>',
+          `<button class="crumb ${!navSub ? 'current' : ''}" data-nav="area">${escHTML(a ? a.name : navArea)}</button>`);
+      }
+      if (navArea && navSub && navArea !== 'scholars') {
+        parts.push('<span class="crumb-sep">›</span>',
+          `<button class="crumb ${!navBookId ? 'current' : ''}" data-nav="sub">${escHTML(subLabel(navSub))}</button>`);
+      }
+      if (navBookId) {
+        const b = BOOKS.find(x => x.id === navBookId);
+        parts.push('<span class="crumb-sep">›</span>',
+          `<button class="crumb current" data-nav="book">${escHTML(b ? b.title : 'Book')}</button>`);
+      }
+      el.innerHTML = `<div class="crumb-row">${parts.join('')}</div>` +
+                     (navArea ? '<button class="nav-back-btn" id="navUp">← Back</button>' : '');
+      el.querySelectorAll('.crumb').forEach(c => c.addEventListener('click', () => {
+        const t = c.dataset.nav;
+        if (t === 'root') { navArea = null; navSub = null; navBookId = null; }
+        else if (t === 'area') { navSub = (navArea === 'scholars' ? 'scholars' : null); navBookId = null; }
+        else if (t === 'sub') { navBookId = null; }
+        selectedLessonId = null; renderAdmin();
+      }));
+      const up = document.getElementById('navUp');
+      if (up) up.addEventListener('click', () => {
+        if (navBookId) navBookId = null;
+        else if (navSub && navArea !== 'scholars') navSub = null;
+        else navArea = null, navSub = null;
+        selectedLessonId = null; renderAdmin();
+      });
+    }
 
-      // lessons: select + drag
+    /* ── STEP 1: areas ──────────────────────────────────────────────── */
+    function renderAreas() {
+      return '<div class="nav-heading">Choose an area to edit</div><div class="nav-list">' +
+        AREAS.map(a => `<button class="nav-item" data-area="${a.key}"><span class="nav-item-title">${escHTML(a.name)}</span><span class="nav-arrow">→</span></button>`).join('') +
+        '</div>';
+    }
+
+    /* ── STEP 2: sub-sections ───────────────────────────────────────── */
+    function renderSubs() {
+      const a = AREAS.find(x => x.key === navArea);
+      const subs = [
+        { key: 'learn',     title: 'Learn',     desc: 'Structured curriculum lessons' },
+        { key: 'books',     title: 'Books',     desc: 'Books, volumes and topics' },
+        { key: 'questions', title: 'Questions', desc: 'Common questions & answers' }
+      ];
+      return `<div class="nav-heading">${escHTML(a ? a.name : '')} — choose a section</div><div class="nav-list">` +
+        subs.map(s => `<button class="nav-item" data-sub="${s.key}"><span><span class="nav-item-title">${escHTML(s.title)}</span><span class="nav-item-desc">${escHTML(s.desc)}</span></span><span class="nav-arrow">→</span></button>`).join('') +
+        '</div>';
+    }
+
+    /* ── STEP 3: management ─────────────────────────────────────────── */
+    function renderManagement(panel) {
+      if (navSub === 'books' && !navBookId) { renderBooksList(panel); return; }
+      renderFolderManager(panel);
+    }
+
+    function renderBooksList(panel) {
+      const books = BOOKS.filter(b => b.subject === navArea);
+      panel.innerHTML = '<div class="nav-heading">Choose a book to manage its volumes</div>' +
+        (books.length
+          ? '<div class="nav-list">' + books.map(b => `<button class="nav-item" data-book="${b.id}"><span class="nav-item-title">📖 ${escHTML(b.title)}</span><span class="nav-arrow">→</span></button>`).join('') + '</div>'
+          : '<p class="sidebar-empty">No books are defined for this area.</p>');
+      panel.querySelectorAll('[data-book]').forEach(b => b.addEventListener('click', () => {
+        navBookId = b.dataset.book; selectedLessonId = null; renderAdmin();
+      }));
+    }
+
+    function folderFilter() {
+      if (navBookId) return f => f.book === navBookId;
+      if (navSub === 'questions') return f => f.subject === navArea && !f.book && f.section === 'questions';
+      return f => f.subject === navArea && !f.book && (f.section || 'learn') === 'learn';
+    }
+    function newFolderTemplate() {
+      if (navBookId)            return { id: uid(), name: 'Volume One', subject: navArea, book: navBookId, lessons: [] };
+      if (navSub === 'questions') return { id: uid(), name: 'New group', subject: navArea, section: 'questions', lessons: [] };
+      return { id: uid(), name: 'New Folder', subject: navArea, lessons: [] };
+    }
+
+    function renderFolderManager(panel) {
+      const vol = !!navBookId;
+      const itemWord = vol ? 'Topic' : 'Lesson';
+      const newLabel = vol ? '+ New Volume' : '+ New Folder';
+      const folders = DATA.folders.filter(folderFilter());
+      const q = (document.getElementById('adminSearch').value || '').trim().toLowerCase();
+
+      let html = `<button class="admin-btn primary block" id="btnNewFolder">${newLabel}</button>`;
+      if (!folders.length) {
+        html += `<p class="sidebar-empty">Nothing here yet.<br>Use “${newLabel}” to begin.</p>`;
+      } else {
+        html += folders.map(f => {
+          const lessons = f.lessons || [];
+          const visible = q ? lessons.filter(l => (l.title || '').toLowerCase().includes(q)) : lessons;
+          const rows = visible.map(l => {
+            const tags = (l.published ? '' : '<span class="tag tag-draft">Draft</span>') +
+                         (l.locked ? '<span class="tag tag-locked">🔒</span>' : '');
+            return `<div class="admin-lesson ${l.id === selectedLessonId ? 'selected' : ''}" draggable="true" data-lesson="${escAttrQ(l.id)}" data-folder="${escAttrQ(f.id)}">
+                      <span class="drag-dots">⠿</span><span class="admin-lesson-title">${escHTML(l.title)}</span>${tags}</div>`;
+          }).join('') || `<p class="folder-empty">No ${vol ? 'topics' : 'lessons'}</p>`;
+          return `<div class="folder" data-folder="${escAttrQ(f.id)}" draggable="true">
+            <div class="folder-head">
+              <span class="drag-dots folder-drag" title="Drag to reorder">⠿</span>
+              <input class="folder-name-input" value="${escAttrQ(f.name)}" data-folder="${escAttrQ(f.id)}" placeholder="${vol ? 'e.g. Volume One' : 'Folder name'}" />
+              <span class="folder-count">${lessons.length}</span>
+              <button class="icon-btn" data-act="del-folder" data-folder="${escAttrQ(f.id)}" title="Delete">✕</button>
+            </div>
+            <div class="folder-meta">
+              <button class="mini-btn" data-act="new-lesson" data-folder="${escAttrQ(f.id)}">+ ${itemWord}</button>
+            </div>
+            <div class="folder-lessons" data-folder="${escAttrQ(f.id)}">${rows}</div>
+          </div>`;
+        }).join('');
+      }
+      panel.innerHTML = html;
+      wireFolderManager(panel);
+    }
+
+    function wireFolderManager(list) {
+      const nf = list.querySelector('#btnNewFolder');
+      if (nf) nf.addEventListener('click', () => {
+        const folder = newFolderTemplate();
+        DATA.folders.push(folder); commit(); renderNav();
+        const inp = document.querySelector('.folder[data-folder="' + folder.id + '"] .folder-name-input');
+        if (inp) { inp.focus(); inp.select(); }
+      });
+
       list.querySelectorAll('.admin-lesson').forEach(el => {
         el.addEventListener('click', () => { selectedLessonId = el.dataset.lesson; renderAdmin(); });
         el.addEventListener('dragstart', e => {
           dragData = { type: 'lesson', id: el.dataset.lesson, from: el.dataset.folder };
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', el.dataset.lesson);
-          e.stopPropagation();
+          e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', el.dataset.lesson); e.stopPropagation();
         });
-        el.addEventListener('dragover', e => {
-          if (dragData && dragData.type === 'lesson') { e.preventDefault(); e.stopPropagation(); el.classList.add('drag-over'); }
-        });
+        el.addEventListener('dragover', e => { if (dragData && dragData.type === 'lesson') { e.preventDefault(); e.stopPropagation(); el.classList.add('drag-over'); } });
         el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
         el.addEventListener('drop', e => {
           el.classList.remove('drag-over');
@@ -945,7 +1194,6 @@
         });
       });
 
-      // lesson drop zone (append / move into folder)
       list.querySelectorAll('.folder-lessons').forEach(zone => {
         zone.addEventListener('dragover', e => { if (dragData && dragData.type === 'lesson') e.preventDefault(); });
         zone.addEventListener('drop', e => {
@@ -953,14 +1201,12 @@
         });
       });
 
-      // folders: reorder + accept dropped lessons
       list.querySelectorAll('.folder').forEach(fEl => {
         fEl.addEventListener('dragstart', e => {
-          if (e.target.closest('.admin-lesson')) return;                 // lesson handles itself
+          if (e.target.closest('.admin-lesson')) return;
           if (e.target.closest('input,select,button')) { e.preventDefault(); return; }
           dragData = { type: 'folder', id: fEl.dataset.folder };
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', fEl.dataset.folder);
+          e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', fEl.dataset.folder);
         });
         fEl.addEventListener('dragover', e => {
           if (!dragData) return;
@@ -976,26 +1222,14 @@
         });
       });
 
-      // folder name / subject / buttons
       list.querySelectorAll('.folder-name-input').forEach(inp => {
         inp.addEventListener('input', () => { const f = DATA.folders.find(x => x.id === inp.dataset.folder); if (f) { f.name = inp.value; commit(); } });
         inp.addEventListener('mousedown', e => e.stopPropagation());
       });
-      list.querySelectorAll('.folder-subject').forEach(sel => {
-        sel.addEventListener('change', () => { const f = DATA.folders.find(x => x.id === sel.dataset.folder); if (f) { f.subject = sel.value; commit(); } });
-      });
-      list.querySelectorAll('.folder-book').forEach(sel => {
-        sel.addEventListener('change', () => {
-          const f = DATA.folders.find(x => x.id === sel.dataset.folder);
-          if (!f) return;
-          if (sel.value) f.book = sel.value; else delete f.book;
-          commit(); renderSidebar();   // re-render to reflect Learn-module ↔ volume change
-        });
-      });
       list.querySelectorAll('[data-act="del-folder"]').forEach(btn => {
         btn.addEventListener('click', () => {
           const f = DATA.folders.find(x => x.id === btn.dataset.folder);
-          if (!f || !confirm(`Delete folder "${f.name}" and all its lessons?`)) return;
+          if (!f || !confirm(`Delete "${f.name}" and everything in it?`)) return;
           if ((f.lessons || []).some(l => l.id === selectedLessonId)) selectedLessonId = null;
           DATA.folders = DATA.folders.filter(x => x.id !== f.id);
           commit(); renderAdmin();
@@ -1013,6 +1247,54 @@
       });
     }
 
+    /* ── Scholars management (edited in the main pane) ───────────────── */
+    function renderScholarsManager(main) {
+      if (!Array.isArray(DATA.scholars) || !DATA.scholars.length) {
+        DATA.scholars = DEFAULT_SCHOLARS.map(s => ({ id: uid(), name: s.name, initials: s.initials, desc: s.desc }));
+        commit();
+      }
+      main.innerHTML = `
+        <div class="editor-head">
+          <h2 class="sc-mgr-title">Scholars</h2>
+          <button class="admin-btn primary" id="btnNewScholar">+ Add scholar</button>
+        </div>
+        <p class="editor-label">These appear in the “Scholars” section of the public site.</p>
+        <div class="sc-list" id="scList">` +
+        DATA.scholars.map(s => `
+          <div class="sc-card" data-scholar="${escAttrQ(s.id)}">
+            <div class="sc-avatar">${escHTML((s.initials || (s.name || '?')[0] || '?').toUpperCase())}</div>
+            <div class="sc-fields">
+              <div class="sc-row">
+                <input class="sc-name" value="${escAttrQ(s.name || '')}" placeholder="Scholar name" />
+                <input class="sc-init" value="${escAttrQ(s.initials || '')}" placeholder="II" maxlength="3" title="Avatar initials" />
+                <button class="icon-btn" data-act="del-scholar" title="Delete">✕</button>
+              </div>
+              <textarea class="sc-desc" rows="2" placeholder="Description / dates (new lines allowed)">${escHTML(s.desc || '')}</textarea>
+            </div>
+          </div>`).join('') +
+        `</div>`;
+
+      main.querySelector('#btnNewScholar').addEventListener('click', () => {
+        DATA.scholars.push({ id: uid(), name: 'New Scholar', initials: '', desc: '' });
+        commit(); renderScholarsManager(main);
+      });
+      main.querySelectorAll('.sc-card').forEach(card => {
+        const s = DATA.scholars.find(x => x.id === card.dataset.scholar);
+        if (!s) return;
+        card.querySelector('.sc-name').addEventListener('input', e => { s.name = e.target.value; commit(); });
+        card.querySelector('.sc-init').addEventListener('input', e => {
+          s.initials = e.target.value; commit();
+          card.querySelector('.sc-avatar').textContent = (s.initials || (s.name || '?')[0] || '?').toUpperCase();
+        });
+        card.querySelector('.sc-desc').addEventListener('input', e => { s.desc = e.target.value; commit(); });
+        card.querySelector('[data-act="del-scholar"]').addEventListener('click', () => {
+          if (!confirm(`Delete "${s.name}"?`)) return;
+          DATA.scholars = DATA.scholars.filter(x => x.id !== s.id);
+          commit(); renderScholarsManager(main);
+        });
+      });
+    }
+
     function moveLesson(lessonId, toFolderId, beforeLessonId) {
       if (beforeLessonId === lessonId) return;
       const src = findLessonById(lessonId);
@@ -1023,7 +1305,7 @@
       let idx = toFolder.lessons.length;
       if (beforeLessonId) { const bi = toFolder.lessons.findIndex(l => l.id === beforeLessonId); if (bi >= 0) idx = bi; }
       toFolder.lessons.splice(idx, 0, lesson);
-      commit(); renderSidebar();
+      commit(); renderNav();
     }
 
     function moveFolder(folderId, beforeFolderId) {
@@ -1034,7 +1316,7 @@
       let idx = DATA.folders.length;
       if (beforeFolderId) { const bi = DATA.folders.findIndex(f => f.id === beforeFolderId); if (bi >= 0) idx = bi; }
       DATA.folders.splice(idx, 0, folder);
-      commit(); renderSidebar();
+      commit(); renderNav();
     }
 
     function renderEditor() {
@@ -1072,14 +1354,19 @@
           <span class="rt-sep"></span>
           <span class="rt-hl-label">Highlight</span>
           <span class="hl-swatches" id="topSwatches">${hlSwatchHTML()}</span>
-          <span class="rt-hint">Editing live in <b id="designHint"></b> — type right here</span>
+          <span class="rt-sep"></span>
+          <button type="button" class="rt-btn" id="btnAyah" title="Insert a Quranic ayah box">۞ Ayah</button>
+          <button type="button" class="rt-btn" id="btnSection" title="Insert a section box">▤ Section</button>
+          <span class="rt-sec-swatches" id="secSwatches" title="Section colour — click inside a section first">${secSwatchHTML()}</span>
         </div>
-        <label class="editor-label">Content — what you type is what visitors see</label>
+        <label class="editor-label"><b id="designHint"></b> · editing live — what you type is what visitors see</label>
         <div class="editor-surface" id="editorSurface"></div>`;
 
       const elTitle  = document.getElementById('edTitle');
       const surface  = document.getElementById('editorSurface');
       const hintEl   = document.getElementById('designHint');
+
+      const syncContent = () => { l.content = sanitizeHTML(activeRich.innerHTML); scheduleSave(); };
 
       /* (re)build the editable surface in the lesson's active design.
          The body itself is contenteditable, so you edit inside the real
@@ -1106,18 +1393,10 @@
         const ec = document.getElementById('edContent');
         // legacy Markdown converts on the fly; keep a brand-new lesson empty for the placeholder
         ec.innerHTML = (l.content && l.content.trim()) ? renderLessonHTML(l.content) : '';
-        wireEditable(ec);
+        enhanceComponents(ec);                 // make ayah/section parts editable
+        ec.addEventListener('input', syncContent);
         activeRich = ec;
-        activeRichSync = () => { l.content = ec.innerHTML; scheduleSave(); };
-      }
-
-      function wireEditable(ec) {
-        ec.addEventListener('input', () => { l.content = ec.innerHTML; scheduleSave(); });
-        ec.addEventListener('blur', () => {
-          const clean = sanitizeHTML(ec.innerHTML);
-          if (clean !== ec.innerHTML) ec.innerHTML = clean;
-          l.content = clean; scheduleSave();
-        });
+        activeRichSync = syncContent;
       }
 
       buildSurface();
@@ -1131,7 +1410,7 @@
       });
 
       // block-format toolbar (headings / list / paragraph)
-      document.querySelectorAll('#blockToolbar .rt-btn').forEach(btn => {
+      document.querySelectorAll('#blockToolbar .rt-btn[data-block]').forEach(btn => {
         btn.addEventListener('mousedown', e => e.preventDefault());
         btn.addEventListener('click', () => {
           const ec = activeRich; if (!ec) return;
@@ -1139,7 +1418,7 @@
           const b = btn.dataset.block;
           if (b === 'ul') document.execCommand('insertUnorderedList', false, null);
           else document.execCommand('formatBlock', false, '<' + b + '>');
-          l.content = ec.innerHTML; scheduleSave();
+          syncContent();
         });
       });
 
@@ -1147,6 +1426,20 @@
       document.querySelectorAll('#topSwatches .hl-swatch').forEach(sw => {
         sw.addEventListener('mousedown', e => e.preventDefault());
         sw.addEventListener('click', () => applyHL(sw.dataset.hl));
+      });
+
+      // insert blocks: ayah box / section box
+      const btnAyah = document.getElementById('btnAyah');
+      const btnSection = document.getElementById('btnSection');
+      btnAyah.addEventListener('mousedown', e => e.preventDefault());
+      btnAyah.addEventListener('click', () => insertComponent(ayahBoxHTML()));
+      btnSection.addEventListener('mousedown', e => e.preventDefault());
+      btnSection.addEventListener('click', () => insertComponent(sectionBoxHTML()));
+
+      // section background swatches (act on the section around the caret)
+      document.querySelectorAll('#secSwatches .sec-swatch').forEach(sw => {
+        sw.addEventListener('mousedown', e => e.preventDefault());
+        sw.addEventListener('click', () => setSectionColor(sw.dataset.sec));
       });
 
       // per-lesson design picker — rebuilds the editing surface in that design
@@ -1160,8 +1453,8 @@
         });
       });
 
-      document.getElementById('edPublished').addEventListener('change', e => { l.published = e.target.checked; commit(); renderSidebar(); });
-      document.getElementById('edLocked').addEventListener('change',   e => { l.locked = e.target.checked; commit(); renderSidebar(); });
+      document.getElementById('edPublished').addEventListener('change', e => { l.published = e.target.checked; commit(); renderNav(); });
+      document.getElementById('edLocked').addEventListener('change',   e => { l.locked = e.target.checked; commit(); renderNav(); });
       document.getElementById('edDelete').addEventListener('click', () => {
         if (!confirm(`Delete lesson "${l.title}"?`)) return;
         found.folder.lessons.splice(found.index, 1);
@@ -1170,14 +1463,63 @@
       });
     }
 
-    /* ── toolbar actions ────────────────────────────────────────────── */
-    document.getElementById('btnNewFolder').addEventListener('click', () => {
-      const folder = { id: uid(), name: 'New Folder', subject: SUBJECT_OPTIONS[0][0], lessons: [] };
-      DATA.folders.push(folder); commit(); renderSidebar();
-      const inp = document.querySelector('.folder[data-folder="' + folder.id + '"] .folder-name-input');
-      if (inp) { inp.focus(); inp.select(); }
-    });
+    /* ── component blocks: ayah box & section box ───────────────────── */
+    const SEC_COLORS = [
+      { key: 'yellow', css: '#fef9c3' }, { key: 'mint', css: '#d1fae5' },
+      { key: 'blue', css: '#e0f2fe' },   { key: 'pink', css: '#fce7f3' },
+      { key: 'peach', css: '#ffedd5' }
+    ];
+    function secSwatchHTML() {
+      return SEC_COLORS.map(c =>
+        `<button type="button" class="sec-swatch" data-sec="${c.key}" title="${c.key} section" style="background:${c.css}"></button>`
+      ).join('');
+    }
+    function ayahBoxHTML() {
+      return '<div class="ayah-box"><div class="ayah-content">' +
+             '<div class="ayah-arabic" dir="rtl" lang="ar"></div>' +
+             '<div class="ayah-trans"></div></div></div>';
+    }
+    function sectionBoxHTML() {
+      return '<div class="section-box section-bg-yellow"><div class="section-pill">Section title</div>' +
+             '<div class="section-body"><p><br></p></div></div>';
+    }
+    /* contenteditable=false frame, contenteditable=true editable parts */
+    function enhanceComponents(root) {
+      root.querySelectorAll('.ayah-box, .section-box').forEach(b => b.setAttribute('contenteditable', 'false'));
+      root.querySelectorAll('.ayah-arabic, .ayah-trans, .section-pill, .section-body').forEach(p => p.setAttribute('contenteditable', 'true'));
+    }
+    function insertComponent(html) {
+      const ec = activeRich; if (!ec) return;
+      ec.focus();
+      const sel = window.getSelection();
+      let range;
+      if (sel && sel.rangeCount && ec.contains(sel.getRangeAt(0).commonAncestorContainer)) range = sel.getRangeAt(0);
+      else { range = document.createRange(); range.selectNodeContents(ec); range.collapse(false); }
+      range.deleteContents();
+      const tpl = document.createElement('div'); tpl.innerHTML = html.trim();
+      const node = tpl.firstElementChild;
+      range.insertNode(node);
+      // a trailing empty paragraph so the caret can leave the block
+      const after = document.createElement('p'); after.appendChild(document.createElement('br'));
+      if (node.parentNode) node.parentNode.insertBefore(after, node.nextSibling);
+      enhanceComponents(ec);
+      const field = node.querySelector('.ayah-arabic, .section-pill, .section-body');
+      if (field) { const r = document.createRange(); r.selectNodeContents(field); r.collapse(true); sel.removeAllRanges(); sel.addRange(r); }
+      if (activeRichSync) activeRichSync();
+    }
+    function setSectionColor(key) {
+      const ec = activeRich; if (!ec) return;
+      const sel = window.getSelection();
+      if (!sel || !sel.rangeCount) return;
+      let node = sel.getRangeAt(0).commonAncestorContainer;
+      if (node.nodeType === 3) node = node.parentNode;
+      const sec = node.closest ? node.closest('.section-box') : null;
+      if (!sec) { alert('Click inside a section first, then pick a colour.'); return; }
+      sec.className = 'section-box section-bg-' + key;
+      if (activeRichSync) activeRichSync();
+    }
 
+    /* ── toolbar actions ────────────────────────────────────────────── */
     document.getElementById('btnExport').addEventListener('click', () => {
       const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -1206,7 +1548,7 @@
       reader.readAsText(file);
     });
 
-    document.getElementById('adminSearch').addEventListener('input', renderSidebar);
+    document.getElementById('adminSearch').addEventListener('input', renderNav);
 
     document.addEventListener('dragend', () => {
       dragData = null;

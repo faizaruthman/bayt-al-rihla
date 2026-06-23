@@ -598,6 +598,28 @@
     .focus-body h3 { font-size: 1.12rem; font-weight: 800; margin: 24px 0 8px; }
     .focus-body h4 { font-size: 1rem;    font-weight: 700; margin: 20px 0 6px; }
 
+    /* ── Flashcard editor (main pane) ────────────────────────────────── */
+    .fc-edit-field { margin-bottom: 16px; }
+    .fc-input {
+      width: 100%; padding: 11px 14px; border: 1.5px solid var(--t200); border-radius: 10px;
+      font-family: 'Inter', sans-serif; font-size: 0.92rem; color: var(--t900);
+      outline: none; resize: vertical; transition: border-color var(--ease), box-shadow var(--ease);
+    }
+    .fc-input:focus { border-color: var(--g600); box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+    .fc-rtl { text-align: right; }
+    .fc-preview { margin-top: 22px; }
+    .fc-preview-card {
+      background: linear-gradient(135deg, var(--g50), var(--mint));
+      border: 1px solid var(--g200); border-radius: var(--radius);
+      padding: 26px 22px; text-align: center; box-shadow: var(--sh0); margin-top: 8px;
+    }
+    .fc-preview-en { font-size: 1.1rem; font-weight: 700; color: var(--t900); }
+    .fc-preview-divider { width: 40px; height: 2px; background: var(--g200); border-radius: var(--pill); margin: 12px auto; }
+    .fc-preview-target { font-size: 2rem; line-height: 1.7; color: var(--g900); }
+    .fc-preview-translit { font-size: 0.95rem; font-style: italic; color: var(--t500); margin-top: 6px; }
+    .fc-preview-translit:empty, .fc-preview-note:empty { display: none; }
+    .fc-preview-note { font-size: 0.84rem; color: var(--t700); margin-top: 8px; }
+
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 768px) {
       .admin-body { flex-direction: column; }
@@ -701,7 +723,7 @@
       seerah:  { name: 'Seerah' },
       ethics:  { name: 'Questions' },
       history: { name: 'Islamic History' },
-      arabic:  { name: 'Arabic' }
+      arabic:  { name: 'Arabic / Urdu' }
     };
 
     /* ══════════════════════════════════════════════════════════════════
@@ -1027,13 +1049,30 @@
     ];
 
     let navArea   = null;   // subject key or 'scholars'
-    let navSub    = null;   // 'learn' | 'books' | 'questions' | 'scholars' | 'qmanage'
+    let navSub    = null;   // 'learn' | 'books' | 'questions' | 'scholars' | 'qmanage' | 'fcmanage'
     let navBookId = null;   // a specific book while managing its volumes
     let adminQCat = null;   // selected Questions category (3-level manager)
     let adminQFolder = null;// selected folder within that category
 
+    /* flashcards manager state (Arabic / Urdu) */
+    let adminFcLang     = null;  // 'arabic' | 'urdu'
+    let adminFcScenario = null;  // scenario id within that language
+    let selectedFcCardId = null; // flashcard being edited in the main pane
+
     /* the "Questions" subject is keyed 'ethics' but uses its own 3-level model */
     const QSUBJECT = 'ethics';
+    /* the "Arabic / Urdu" subject is keyed 'arabic' but uses a flashcard model */
+    const FCSUBJECT = 'arabic';
+    const FC_LANG_NAMES = { arabic: 'Arabic', urdu: 'Urdu' };
+
+    /* ensure DATA.flashcards = { arabic:[], urdu:[] } exists; returns true if changed */
+    function ensureFlashcards() {
+      let changed = false;
+      if (!DATA.flashcards || typeof DATA.flashcards !== 'object' || Array.isArray(DATA.flashcards)) { DATA.flashcards = {}; changed = true; }
+      if (!Array.isArray(DATA.flashcards.arabic)) { DATA.flashcards.arabic = []; changed = true; }
+      if (!Array.isArray(DATA.flashcards.urdu))   { DATA.flashcards.urdu = [];   changed = true; }
+      return changed;
+    }
 
     /* ensure DATA.questions exists; migrate any legacy ethics/questions folders.
        returns true if the tree changed (so the caller can persist). */
@@ -1062,13 +1101,15 @@
       const gd = document.getElementById('globalDesign');
       if (gd) gd.value = (DATA.settings && DATA.settings.defaultDesign === 'focus') ? 'focus' : 'classic';
       const searchWrap = document.getElementById('adminSearchWrap');
-      if (searchWrap) searchWrap.style.visibility = (navArea && navSub && navArea !== 'scholars' && navArea !== QSUBJECT) ? 'visible' : 'hidden';
+      if (searchWrap) searchWrap.style.visibility = (navArea && navSub && navArea !== 'scholars' && navArea !== QSUBJECT && navArea !== FCSUBJECT) ? 'visible' : 'hidden';
 
       renderNav();
 
-      // Scholars are edited in the main pane; everything else uses the lesson editor
+      // Scholars + flashcards have their own main-pane editors; everything else uses the lesson editor
       if (navArea === 'scholars' && navSub === 'scholars') {
         renderScholarsManager(document.getElementById('adminMain'));
+      } else if (navArea === FCSUBJECT) {
+        renderFcEditor(document.getElementById('adminMain'));
       } else {
         renderEditor();
       }
@@ -1082,6 +1123,9 @@
       } else if (navArea === QSUBJECT) {            // Questions: dedicated 3-level manager
         renderQuestionsManager(panel);
         return;
+      } else if (navArea === FCSUBJECT) {           // Arabic / Urdu: flashcard manager
+        renderFlashcardsManager(panel);
+        return;
       } else if (!navSub) {
         panel.innerHTML = renderSubs();
       } else if (navArea === 'scholars') {
@@ -1092,8 +1136,9 @@
       }
       panel.querySelectorAll('[data-area]').forEach(b => b.addEventListener('click', () => {
         navArea = b.dataset.area;
-        navSub = navArea === 'scholars' ? 'scholars' : navArea === QSUBJECT ? 'qmanage' : null;
+        navSub = navArea === 'scholars' ? 'scholars' : navArea === QSUBJECT ? 'qmanage' : navArea === FCSUBJECT ? 'fcmanage' : null;
         navBookId = null; adminQCat = null; adminQFolder = null; selectedLessonId = null;
+        adminFcLang = null; adminFcScenario = null; selectedFcCardId = null;
         renderAdmin();
       }));
       panel.querySelectorAll('[data-sub]').forEach(b => b.addEventListener('click', () => {
@@ -1107,11 +1152,21 @@
       const parts = [`<button class="crumb ${!navArea ? 'current' : ''}" data-nav="root">Areas</button>`];
       if (navArea) {
         const a = AREAS.find(x => x.key === navArea);
-        const areaCurrent = navArea === QSUBJECT ? !adminQCat : !navSub;
+        const areaCurrent = navArea === QSUBJECT ? !adminQCat : navArea === FCSUBJECT ? !adminFcLang : !navSub;
         parts.push('<span class="crumb-sep">›</span>',
           `<button class="crumb ${areaCurrent ? 'current' : ''}" data-nav="area">${escHTML(a ? a.name : navArea)}</button>`);
       }
-      if (navArea === QSUBJECT) {
+      if (navArea === FCSUBJECT) {
+        if (adminFcLang) {
+          parts.push('<span class="crumb-sep">›</span>',
+            `<button class="crumb ${!adminFcScenario ? 'current' : ''}" data-nav="fclang">${escHTML(FC_LANG_NAMES[adminFcLang] || 'Language')}</button>`);
+        }
+        if (adminFcScenario) {
+          const sc = ((DATA.flashcards && DATA.flashcards[adminFcLang]) || []).find(s => s.id === adminFcScenario);
+          parts.push('<span class="crumb-sep">›</span>',
+            `<button class="crumb current" data-nav="fcscenario">${escHTML(sc ? sc.name : 'Scenario')}</button>`);
+        }
+      } else if (navArea === QSUBJECT) {
         if (adminQCat) {
           const cat = (DATA.questions.categories || []).find(c => c.id === adminQCat);
           parts.push('<span class="crumb-sep">›</span>',
@@ -1138,15 +1193,21 @@
                      (navArea ? '<button class="nav-back-btn" id="navUp">← Back</button>' : '');
       el.querySelectorAll('.crumb').forEach(c => c.addEventListener('click', () => {
         const t = c.dataset.nav;
-        if (t === 'root') { navArea = null; navSub = null; navBookId = null; adminQCat = null; adminQFolder = null; }
-        else if (t === 'area') { navSub = (navArea === 'scholars' ? 'scholars' : navArea === QSUBJECT ? 'qmanage' : null); navBookId = null; adminQCat = null; adminQFolder = null; }
+        if (t === 'root') { navArea = null; navSub = null; navBookId = null; adminQCat = null; adminQFolder = null; adminFcLang = null; adminFcScenario = null; selectedFcCardId = null; }
+        else if (t === 'area') { navSub = (navArea === 'scholars' ? 'scholars' : navArea === QSUBJECT ? 'qmanage' : navArea === FCSUBJECT ? 'fcmanage' : null); navBookId = null; adminQCat = null; adminQFolder = null; adminFcLang = null; adminFcScenario = null; selectedFcCardId = null; }
         else if (t === 'sub') { navBookId = null; }
         else if (t === 'qcat') { adminQFolder = null; }
+        else if (t === 'fclang') { adminFcScenario = null; selectedFcCardId = null; }
         selectedLessonId = null; renderAdmin();
       }));
       const up = document.getElementById('navUp');
       if (up) up.addEventListener('click', () => {
-        if (navArea === QSUBJECT) {
+        if (navArea === FCSUBJECT) {
+          if (adminFcScenario) { adminFcScenario = null; selectedFcCardId = null; }
+          else if (adminFcLang) adminFcLang = null;
+          else { navArea = null; navSub = null; }
+        }
+        else if (navArea === QSUBJECT) {
           if (adminQFolder) adminQFolder = null;
           else if (adminQCat) adminQCat = null;
           else { navArea = null; navSub = null; }
@@ -1529,6 +1590,162 @@
         row.addEventListener('dragover', e => { if (dragData && dragData.type === 'qcat' && dragData.id !== row.dataset.qcat) { e.preventDefault(); row.classList.add('drag-over'); } });
         row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
         row.addEventListener('drop', e => { row.classList.remove('drag-over'); if (dragData && dragData.type === 'qcat') { e.preventDefault(); arrMove(cats, dragData.id, row.dataset.qcat); commit(); renderNav(); } });
+      });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       FLASHCARDS MANAGER — Language → Scenarios → Flashcards
+       ------------------------------------------------------------------
+       Writes to DATA.flashcards = { arabic:[scenario], urdu:[scenario] }.
+       scenario = { id, name, cards: [ {id, en, target, translit, note} ] }.
+       Drag-and-drop reorders scenarios and flashcards (uses arrMove + the
+       shared dragData/dragend handling already in this file).
+    ══════════════════════════════════════════════════════════════════ */
+    function renderFlashcardsManager(panel) {
+      if (ensureFlashcards()) commit();
+
+      // ── Level 1: choose a language ──
+      if (!adminFcLang) {
+        panel.innerHTML = '<div class="nav-heading">Choose a language to manage</div><div class="nav-list">' +
+          Object.entries(FC_LANG_NAMES).map(([k, name]) => {
+            const cnt = (DATA.flashcards[k] || []).length;
+            return `<button class="nav-item" data-fclang="${k}"><span><span class="nav-item-title">${escHTML(name)}</span><span class="nav-item-desc">${cnt} scenario${cnt !== 1 ? 's' : ''}</span></span><span class="nav-arrow">→</span></button>`;
+          }).join('') + '</div>';
+        panel.querySelectorAll('[data-fclang]').forEach(b => b.addEventListener('click', () => {
+          adminFcLang = b.dataset.fclang; adminFcScenario = null; selectedFcCardId = null; renderAdmin();
+        }));
+        return;
+      }
+
+      const list = DATA.flashcards[adminFcLang] = DATA.flashcards[adminFcLang] || [];
+
+      // ── Level 2: scenarios for that language ──
+      if (!adminFcScenario) {
+        let html = `<button class="admin-btn primary block" id="btnNewScenario">+ New Scenario</button>`;
+        html += list.length ? list.map(s => `
+          <div class="folder fc-scn-row" data-scn="${escAttrQ(s.id)}" draggable="true">
+            <div class="folder-head">
+              <span class="drag-dots" title="Drag to reorder">⠿</span>
+              <input class="folder-name-input fc-scn-name" value="${escAttrQ(s.name)}" data-scn="${escAttrQ(s.id)}" placeholder="e.g. At School" />
+              <span class="folder-count">${(s.cards || []).length}</span>
+              <button class="icon-btn" data-act="del-scn" data-scn="${escAttrQ(s.id)}" title="Delete scenario">✕</button>
+            </div>
+            <div class="folder-meta"><button class="mini-btn" data-act="open-scn" data-scn="${escAttrQ(s.id)}">Open →</button></div>
+          </div>`).join('') : '<p class="sidebar-empty">No scenarios yet.<br>Create one to begin.</p>';
+        panel.innerHTML = html;
+
+        panel.querySelector('#btnNewScenario').addEventListener('click', () => {
+          const s = { id: uid(), name: 'New Scenario', cards: [] };
+          list.push(s); commit(); renderNav();
+          const inp = panel.querySelector('.fc-scn-row[data-scn="' + s.id + '"] .fc-scn-name');
+          if (inp) { inp.focus(); inp.select(); }
+        });
+        panel.querySelectorAll('.fc-scn-name').forEach(inp => {
+          inp.addEventListener('input', () => { const s = list.find(x => x.id === inp.dataset.scn); if (s) { s.name = inp.value; commit(); } });
+          inp.addEventListener('mousedown', e => e.stopPropagation());
+        });
+        panel.querySelectorAll('[data-act="open-scn"]').forEach(b => b.addEventListener('click', () => { adminFcScenario = b.dataset.scn; selectedFcCardId = null; renderAdmin(); }));
+        panel.querySelectorAll('[data-act="del-scn"]').forEach(b => b.addEventListener('click', () => {
+          const s = list.find(x => x.id === b.dataset.scn);
+          if (!s || !confirm(`Delete scenario "${s.name}" and all its flashcards?`)) return;
+          const i = list.findIndex(x => x.id === s.id); if (i >= 0) list.splice(i, 1);
+          commit(); renderAdmin();
+        }));
+        panel.querySelectorAll('.fc-scn-row').forEach(row => {
+          row.addEventListener('dragstart', e => { if (e.target.closest('input,button')) { e.preventDefault(); return; } dragData = { type: 'scn', id: row.dataset.scn }; e.dataTransfer.effectAllowed = 'move'; });
+          row.addEventListener('dragover', e => { if (dragData && dragData.type === 'scn' && dragData.id !== row.dataset.scn) { e.preventDefault(); row.classList.add('drag-over'); } });
+          row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+          row.addEventListener('drop', e => { row.classList.remove('drag-over'); if (dragData && dragData.type === 'scn') { e.preventDefault(); arrMove(list, dragData.id, row.dataset.scn); commit(); renderNav(); } });
+        });
+        return;
+      }
+
+      // ── Level 3: flashcards within a scenario ──
+      const scn = list.find(s => s.id === adminFcScenario);
+      if (!scn) { adminFcScenario = null; return renderFlashcardsManager(panel); }
+      scn.cards = scn.cards || [];
+      const rows = scn.cards.map(c => {
+        const title = c.en ? escHTML(c.en) : '<em style="color:var(--t400)">(no English yet)</em>';
+        const incomplete = !c.en || !c.target;
+        return `<div class="admin-lesson ${c.id === selectedFcCardId ? 'selected' : ''}" draggable="true" data-fccard="${escAttrQ(c.id)}">
+                  <span class="drag-dots">⠿</span><span class="admin-lesson-title">${title}</span>${incomplete ? '<span class="tag tag-draft">Draft</span>' : ''}</div>`;
+      }).join('') || '<p class="folder-empty">No flashcards yet</p>';
+      panel.innerHTML = `<button class="admin-btn primary block" id="btnNewCard">+ New Flashcard</button><div class="folder-lessons" id="fcCardZone">${rows}</div>`;
+
+      panel.querySelector('#btnNewCard').addEventListener('click', () => {
+        const c = { id: uid(), en: '', target: '', translit: '', note: '' };
+        scn.cards.push(c); selectedFcCardId = c.id; commit(); renderAdmin();
+      });
+      panel.querySelectorAll('.admin-lesson').forEach(el => {
+        el.addEventListener('click', () => { selectedFcCardId = el.dataset.fccard; renderAdmin(); });
+        el.addEventListener('dragstart', e => { dragData = { type: 'fccard', id: el.dataset.fccard }; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', el.dataset.fccard); });
+        el.addEventListener('dragover', e => { if (dragData && dragData.type === 'fccard') { e.preventDefault(); el.classList.add('drag-over'); } });
+        el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+        el.addEventListener('drop', e => { el.classList.remove('drag-over'); if (dragData && dragData.type === 'fccard') { e.preventDefault(); arrMove(scn.cards, dragData.id, el.dataset.fccard); commit(); renderNav(); } });
+      });
+    }
+
+    /* flashcard editor (main pane) — the 4 fields + a live preview */
+    function renderFcEditor(main) {
+      ensureFlashcards();
+      if (!adminFcLang)     { main.innerHTML = '<div class="editor-empty">Choose a language on the left to manage its flashcards.</div>'; return; }
+      if (!adminFcScenario) { main.innerHTML = '<div class="editor-empty">Choose or create a scenario on the left.</div>'; return; }
+      const scn = (DATA.flashcards[adminFcLang] || []).find(s => s.id === adminFcScenario);
+      if (!scn) { main.innerHTML = '<div class="editor-empty">Scenario not found.</div>'; return; }
+      const card = (scn.cards || []).find(c => c.id === selectedFcCardId);
+      if (!card) { main.innerHTML = '<div class="editor-empty">Select a flashcard to edit, or create one with “+ New Flashcard”.</div>'; return; }
+
+      const L = FC_LANG_NAMES[adminFcLang];
+      const rtlFont = adminFcLang === 'urdu' ? "'Noto Nastaliq Urdu','Amiri',serif" : "'Amiri','Noto Naskh Arabic',serif";
+      main.innerHTML = `
+        <div class="editor-head">
+          <h2 class="sc-mgr-title">${escHTML(L)} flashcard</h2>
+          <button class="admin-btn danger" id="fcDelete">Delete</button>
+        </div>
+        <p class="editor-label">Scenario · ${escHTML(scn.name)}</p>
+        <div class="fc-edit-field">
+          <label class="editor-label">English phrase (front)</label>
+          <textarea class="fc-input" id="fcEn" rows="2" placeholder="e.g. Where is the classroom?">${escHTML(card.en || '')}</textarea>
+        </div>
+        <div class="fc-edit-field">
+          <label class="editor-label">${escHTML(L)} answer — right-to-left</label>
+          <textarea class="fc-input fc-rtl" id="fcTarget" dir="rtl" lang="${adminFcLang === 'urdu' ? 'ur' : 'ar'}" rows="2" placeholder="…" style="font-family:${rtlFont};font-size:1.5rem;line-height:1.9;">${escHTML(card.target || '')}</textarea>
+        </div>
+        <div class="fc-edit-field">
+          <label class="editor-label">Transliteration (optional)</label>
+          <input class="fc-input" id="fcTranslit" value="${escAttrQ(card.translit || '')}" placeholder="e.g. ayna al-faṣl?" />
+        </div>
+        <div class="fc-edit-field">
+          <label class="editor-label">Note / context (optional)</label>
+          <textarea class="fc-input" id="fcNote" rows="2" placeholder="A short hint or usage note…">${escHTML(card.note || '')}</textarea>
+        </div>
+        <div class="fc-preview">
+          <span class="editor-label">Live preview (the answer side of the card)</span>
+          <div class="fc-preview-card">
+            <p class="fc-preview-en" id="fcPvEn">${escHTML(card.en || '')}</p>
+            <div class="fc-preview-divider"></div>
+            <p class="fc-preview-target" id="fcPvTarget" dir="rtl" style="font-family:${rtlFont}">${escHTML(card.target || '')}</p>
+            <p class="fc-preview-translit" id="fcPvTranslit">${escHTML(card.translit || '')}</p>
+            <p class="fc-preview-note" id="fcPvNote">${escHTML(card.note || '')}</p>
+          </div>
+        </div>`;
+
+      const sidebarTitle = () => {
+        const lbl = document.querySelector('.admin-lesson[data-fccard="' + card.id + '"] .admin-lesson-title');
+        if (lbl) lbl.textContent = card.en || '(no English yet)';
+      };
+      const en = document.getElementById('fcEn');
+      const tg = document.getElementById('fcTarget');
+      const tl = document.getElementById('fcTranslit');
+      const nt = document.getElementById('fcNote');
+      en.addEventListener('input', () => { card.en = en.value; document.getElementById('fcPvEn').textContent = card.en; sidebarTitle(); scheduleSave(); });
+      tg.addEventListener('input', () => { card.target = tg.value; document.getElementById('fcPvTarget').textContent = card.target; scheduleSave(); });
+      tl.addEventListener('input', () => { card.translit = tl.value; document.getElementById('fcPvTranslit').textContent = card.translit; scheduleSave(); });
+      nt.addEventListener('input', () => { card.note = nt.value; document.getElementById('fcPvNote').textContent = card.note; scheduleSave(); });
+      document.getElementById('fcDelete').addEventListener('click', () => {
+        if (!confirm('Delete this flashcard?')) return;
+        const i = scn.cards.findIndex(c => c.id === card.id); if (i >= 0) scn.cards.splice(i, 1);
+        selectedFcCardId = null; commit(); renderAdmin();
       });
     }
 

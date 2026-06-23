@@ -6,7 +6,7 @@
   <title>Bayt Al-Rihla — Islamic Knowledge Hub</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@600;700&family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet" />
 
   <style>
     /* ── Reset ──────────────────────────────────────────────────────── */
@@ -1085,6 +1085,96 @@
     .topic-title { flex: 1; min-width: 0; font-size: 0.95rem; font-weight: 600; color: var(--t900); }
     .topic-empty { text-align: center; color: var(--t400); padding: 54px 0; font-size: 0.92rem; }
 
+    /* ── Flashcards (Arabic / Urdu language learning) ────────────────── */
+    /* language choice */
+    .fc-lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; margin: 0 auto; }
+    .fc-lang-card {
+      display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+      font-family: 'Inter', sans-serif; border: none; border-radius: var(--radius);
+      padding: 46px 28px; cursor: pointer; box-shadow: var(--sh0);
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .fc-lang-card:hover { transform: translateY(-6px); box-shadow: var(--sh2); }
+    .fc-lang-script { font-family: 'Amiri', serif; font-size: 2.9rem; line-height: 1.1; color: var(--t900); }
+    .fc-lang-card[data-fclang="urdu"] .fc-lang-script { font-family: 'Noto Nastaliq Urdu', 'Amiri', serif; font-size: 2.4rem; line-height: 1.8; }
+    .fc-lang-name { font-size: 1.4rem; font-weight: 800; color: var(--t900); letter-spacing: -0.3px; }
+    .fc-lang-sub  { font-size: 0.78rem; font-weight: 700; color: var(--t700); background: rgba(255,255,255,0.6); border-radius: var(--pill); padding: 3px 12px; }
+    .fc-lang-go   { margin-top: 6px; font-size: 0.85rem; font-weight: 700; color: var(--t900); }
+
+    .fc-disabled { opacity: 0.5; cursor: not-allowed; }
+    .fc-disabled:hover { transform: none; box-shadow: var(--sh0); }
+
+    /* study view */
+    .fc-study { max-width: 600px; margin: 0 auto; padding: 0 5% 96px; }
+    .fc-topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+    .fc-progress-label { font-size: 0.8rem; font-weight: 700; color: var(--t700); white-space: nowrap; }
+    .fc-progress { flex: 1; height: 8px; background: var(--t100); border-radius: var(--pill); overflow: hidden; }
+    .fc-progress-fill { height: 100%; background: var(--g600); border-radius: var(--pill); transition: width 0.35s ease; }
+    .fc-restart {
+      border: 1.5px solid var(--t200); background: var(--white); color: var(--t700);
+      font-family: 'Inter', sans-serif; font-size: 0.76rem; font-weight: 700;
+      padding: 7px 13px; border-radius: var(--pill); cursor: pointer; white-space: nowrap;
+      transition: background var(--ease), color var(--ease), border-color var(--ease);
+    }
+    .fc-restart:hover { background: var(--g50); color: var(--g700); border-color: var(--g200); }
+
+    .fc-card { perspective: 1600px; margin-bottom: 22px; }
+    .fc-card-inner {
+      position: relative; width: 100%; min-height: 320px;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+    }
+    .fc-card.flipped .fc-card-inner { transform: rotateY(180deg); }
+    .fc-face {
+      position: absolute; inset: 0;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+      padding: 34px 28px; border-radius: var(--radius); box-shadow: var(--sh1); overflow-y: auto;
+    }
+    .fc-front { background: var(--white); border: 1px solid var(--t200); cursor: pointer; }
+    .fc-back  { background: linear-gradient(135deg, var(--g50), var(--mint)); border: 1px solid var(--g200); transform: rotateY(180deg); }
+    .fc-face-tag { font-size: 0.66rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--t400); }
+    .fc-en { font-size: 1.5rem; font-weight: 700; color: var(--t900); line-height: 1.4; text-align: center; }
+    .fc-target { font-size: 2.4rem; line-height: 1.7; color: var(--g900); text-align: center; }
+    .fc-card[data-lang="urdu"] .fc-target { font-size: 2.2rem; line-height: 2; }
+    .fc-translit { font-size: 1rem; font-style: italic; color: var(--t500); text-align: center; }
+    .fc-note { font-size: 0.85rem; color: var(--t700); text-align: center; background: rgba(255,255,255,0.6); padding: 8px 14px; border-radius: var(--radius-sm); }
+    .fc-tap-hint { font-size: 0.74rem; color: var(--t400); margin-top: 6px; }
+
+    .fc-actions { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+    .fc-flip-btn {
+      width: 100%; max-width: 340px; padding: 15px; background: var(--g700); color: #fff; border: none;
+      border-radius: var(--pill); font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; transition: background var(--ease), transform var(--ease);
+    }
+    .fc-flip-btn:hover { background: var(--g900); transform: translateY(-2px); }
+    .fc-rate { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; }
+    .fc-rate-btn {
+      padding: 15px 8px; border: none; border-radius: var(--radius-sm); cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: 0.84rem; font-weight: 700;
+      transition: transform var(--ease), box-shadow var(--ease);
+    }
+    .fc-rate-btn:hover { transform: translateY(-2px); box-shadow: var(--sh1); }
+    .fc-red   { background: #fee2e2; color: #991b1b; }
+    .fc-amber { background: #fef3c7; color: #92400e; }
+    .fc-green { background: #dcfce7; color: #166534; }
+
+    /* end-of-session summary */
+    .fc-summary { text-align: center; background: var(--white); border: 1px solid var(--t200); border-radius: var(--radius); padding: 44px 28px; box-shadow: var(--sh1); }
+    .fc-summary-emoji { font-size: 3rem; display: block; margin-bottom: 10px; }
+    .fc-summary-title { font-size: 1.7rem; font-weight: 800; color: var(--t900); margin-bottom: 6px; }
+    .fc-summary-sub { font-size: 0.9rem; color: var(--t500); margin-bottom: 26px; }
+    .fc-summary-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+    .fc-stat { border-radius: var(--radius-sm); padding: 18px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .fc-stat-num { font-size: 1.8rem; font-weight: 800; }
+    .fc-stat-lbl { font-size: 0.72rem; font-weight: 700; }
+    .fc-stat-green { background: #dcfce7; color: #166534; }
+    .fc-stat-amber { background: #fef3c7; color: #92400e; }
+    .fc-stat-red   { background: #fee2e2; color: #991b1b; }
+    .fc-summary-note { font-size: 0.85rem; color: var(--t500); margin-bottom: 24px; }
+    .fc-summary-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .fc-summary-actions button { cursor: pointer; }
+
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
       .subjects-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1131,10 +1221,21 @@
 
       .focus-article { padding: 40px 20px 100px; }
       .focus-body { font-size: 1.08rem; line-height: 1.9; }
+
+      .fc-lang-grid { grid-template-columns: 1fr; gap: 16px; }
+      .fc-lang-card { padding: 36px 24px; }
+      .fc-card-inner { min-height: 300px; }
+      .fc-en { font-size: 1.32rem; }
+      .fc-target { font-size: 2.1rem; }
+      .fc-card[data-lang="urdu"] .fc-target { font-size: 1.9rem; }
+      .fc-rate-btn { font-size: 0.78rem; padding: 14px 6px; }
     }
     @media (max-width: 480px) {
       .subjects-grid { grid-template-columns: 1fr; }
       .scholars-grid { grid-template-columns: 1fr !important; }
+      .fc-topbar { flex-wrap: wrap; }
+      .fc-en { font-size: 1.2rem; }
+      .fc-target { font-size: 1.85rem; }
     }
   </style>
 </head>
@@ -1271,11 +1372,11 @@
         <p class="subject-name">Seerah</p>
         <p class="subject-desc">The life and biography of the Prophet ﷺ</p>
       </div>
-      <div class="subject-card fade-in d2" data-subject="arabic" role="button" tabindex="0" aria-label="Open Arabic">
+      <div class="subject-card fade-in d2" data-subject="arabic" role="button" tabindex="0" aria-label="Open Arabic / Urdu">
         <span class="subject-card-arrow">↗</span>
         <span class="subject-icon">✒️</span>
-        <p class="subject-name">Arabic</p>
-        <p class="subject-desc">The language of the Quran</p>
+        <p class="subject-name">Arabic / Urdu</p>
+        <p class="subject-desc">Learn everyday phrases with flashcards</p>
       </div>
       <div class="subject-card fade-in d3" data-subject="history" role="button" tabindex="0" aria-label="Open Islamic History">
         <span class="subject-card-arrow">↗</span>
@@ -1417,7 +1518,7 @@
       seerah:  { name: 'Seerah',          icon: '🌙',  comingSoon: true },
       ethics:  { name: 'Questions',        icon: '💬',  comingSoon: true },
       history: { name: 'Islamic History', icon: '🏛️', comingSoon: true },
-      arabic:  { name: 'Arabic',          icon: '✒️', comingSoon: true }
+      arabic:  { name: 'Arabic / Urdu',   icon: '✒️' }
     };
 
     /* ══════════════════════════════════════════════════════════════════
@@ -1477,8 +1578,19 @@
     let currentQCat        = null;     // selected category on the dedicated Questions page
     let currentQFolder     = null;     // open folder within that category
 
+    /* flashcards (Arabic / Urdu) state */
+    let fcLang             = null;     // 'arabic' | 'urdu'
+    let fcScenarioId       = null;     // open scenario within that language
+    let fcSession          = null;     // live study session (queue, counts, …)
+
     /* the "Questions" subject card routes via this key but uses its own page */
     const QSUBJECT = 'ethics';
+    /* the "Arabic / Urdu" subject card routes via this key into the flashcard flow */
+    const FCSUBJECT = 'arabic';
+    const FC_LANGS = {
+      arabic: { name: 'Arabic', script: 'العربية', font: "'Amiri','Noto Naskh Arabic',serif", lang: 'ar' },
+      urdu:   { name: 'Urdu',   script: 'اردو',     font: "'Noto Nastaliq Urdu','Amiri',serif", lang: 'ur' }
+    };
 
     /* Questions data (Categories → Folders → Lessons). Falls back to any
        legacy ethics/questions folders so nothing is lost before migration. */
@@ -2134,13 +2246,222 @@
       if (qs) qs.addEventListener('input', () => paint(qs.value));
     }
 
+    /* ══ FLASHCARDS (Arabic / Urdu) ══════════════════════════════════════
+       Data lives at DATA.flashcards = { arabic: [scenario], urdu: [scenario] }
+       scenario = { id, name, cards: [ { id, en, target, translit, note } ] }
+       Everything is driven by what the admin adds — no scenarios are
+       hard-coded here. Per-viewer ratings persist in localStorage only.
+    ══════════════════════════════════════════════════════════════════ */
+    const LS_FC_RATINGS = 'bar_fc_ratings_v1';
+
+    function getFlashcards() {
+      return (DATA.flashcards && typeof DATA.flashcards === 'object') ? DATA.flashcards : {};
+    }
+    function getScenarios(lang) {
+      const arr = getFlashcards()[lang];
+      return Array.isArray(arr) ? arr : [];
+    }
+    function loadFcRatings() { return safeParse(localStorage.getItem(LS_FC_RATINGS)) || {}; }
+    function saveFcRating(lang, scenarioId, cardId, rating) {
+      const all = loadFcRatings();
+      (all[lang] = all[lang] || {});
+      (all[lang][scenarioId] = all[lang][scenarioId] || {});
+      all[lang][scenarioId][cardId] = { rating, ts: Date.now() };
+      try { localStorage.setItem(LS_FC_RATINGS, JSON.stringify(all)); } catch (e) {}
+    }
+
+    /* STEP 1 — pick a language */
+    function renderFcLang(data) {
+      spSearchWrap.style.display = 'none';
+      if (spBookIcon) spBookIcon.style.display = 'none';
+      setHeader(data.name, 'Choose a language to learn with flashcards.', '');
+      spContent.innerHTML = `<div class="sp-menu"><div class="fc-lang-grid">${
+        Object.entries(FC_LANGS).map(([key, L]) => {
+          const cnt = getScenarios(key).length;
+          const pal = key === 'arabic' ? 'orange' : 'sky';
+          return `<button class="fc-lang-card" style="background:var(--${pal})" data-fclang="${key}">
+            <span class="fc-lang-script">${L.script}</span>
+            <span class="fc-lang-name">${L.name}</span>
+            <span class="fc-lang-sub">${cnt} scenario${cnt !== 1 ? 's' : ''}</span>
+            <span class="fc-lang-go">Start →</span>
+          </button>`;
+        }).join('')
+      }</div></div>`;
+    }
+
+    /* STEP 2 — pick a scenario for the chosen language */
+    function renderFcScenarios(data) {
+      spSearchWrap.style.display = 'none';
+      if (spBookIcon) spBookIcon.style.display = 'none';
+      const L = FC_LANGS[fcLang] || FC_LANGS.arabic;
+      setHeader(breadcrumb(data.name, L.name), `Pick a scenario to study its ${L.name} flashcards.`, '');
+      const scenarios = getScenarios(fcLang);
+      if (!scenarios.length) {
+        spContent.innerHTML = `<div class="sp-curriculum"><button class="section-back" id="fcBackLang">← Choose language</button>${
+          comingSoonHTML(data, `${L.name} flashcard scenarios are being prepared. Check back soon, in shā’ Allāh.`)}</div>`;
+        return;
+      }
+      spContent.innerHTML = `<div class="sp-curriculum">
+        <button class="section-back" id="fcBackLang">← Choose language</button>
+        <div class="folder-grid">${scenarios.map((s, i) => {
+          const cnt = (s.cards || []).length;
+          const pal = FOLDER_PASTELS[i % FOLDER_PASTELS.length];
+          const dis = cnt === 0;
+          return `<button class="folder-card${dis ? ' fc-disabled' : ''}" style="background:var(--${pal})" ${dis ? 'disabled' : `data-fcscenario="${escAttrQ(s.id)}"`}>
+            <span class="folder-card-main">
+              <span class="folder-card-name">${escHTML(s.name)}</span>
+              <span class="folder-card-sub">${cnt} card${cnt !== 1 ? 's' : ''}</span>
+            </span>
+            <span class="folder-card-go">→</span>
+          </button>`;
+        }).join('')}</div>
+      </div>`;
+    }
+
+    /* build a fresh shuffled study session for the current scenario */
+    function startFcSession(shuffle) {
+      const scn = getScenarios(fcLang).find(s => s.id === fcScenarioId);
+      const cards = (scn && Array.isArray(scn.cards)) ? scn.cards.slice() : [];
+      if (shuffle) {
+        for (let i = cards.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+      }
+      const map = {};
+      cards.forEach(c => { map[c.id] = c; });
+      fcSession = {
+        scenarioId: fcScenarioId,
+        map,
+        queue: cards.map(c => c.id),
+        total: cards.length,
+        mastered: 0,
+        masteredSet: {},
+        counts: { green: 0, amber: 0, red: 0 },
+        done: false
+      };
+    }
+
+    /* STEP 3 — study one card at a time (flip + rate + re-queue) */
+    function renderFcStudy(data) {
+      spSearchWrap.style.display = 'none';
+      if (spBookIcon) spBookIcon.style.display = 'none';
+      const L = FC_LANGS[fcLang] || FC_LANGS.arabic;
+      const scn = getScenarios(fcLang).find(s => s.id === fcScenarioId);
+      if (!scn || !(scn.cards || []).length) { showView('fcscenarios'); return; }
+      if (!fcSession || fcSession.scenarioId !== fcScenarioId) startFcSession(true);
+      setHeader(breadcrumb(data.name, escHTML(scn.name)), `${L.name} flashcards`, '');
+
+      if (fcSession.done || !fcSession.queue.length) { renderFcSummary(data, scn, L); return; }
+
+      const cardId = fcSession.queue[0];
+      const card   = fcSession.map[cardId] || {};
+      const pos     = Math.min(fcSession.mastered + 1, fcSession.total);
+      const pct     = fcSession.total ? (fcSession.mastered / fcSession.total * 100) : 0;
+
+      spContent.innerHTML = `<div class="fc-study">
+        <button class="section-back" id="fcBackScenarios">← All scenarios</button>
+        <div class="fc-topbar">
+          <span class="fc-progress-label">Card ${pos} / ${fcSession.total}</span>
+          <div class="fc-progress"><div class="fc-progress-fill" style="width:${pct}%"></div></div>
+          <button class="fc-restart" id="fcRestart" title="Restart &amp; shuffle">⟳ Shuffle</button>
+        </div>
+        <div class="fc-card" id="fcCard" data-lang="${fcLang}">
+          <div class="fc-card-inner">
+            <div class="fc-face fc-front">
+              <span class="fc-face-tag">English</span>
+              <p class="fc-en">${escHTML(card.en || '')}</p>
+              <span class="fc-tap-hint">Tap the card to reveal</span>
+            </div>
+            <div class="fc-face fc-back">
+              <span class="fc-face-tag">${escHTML(L.name)}</span>
+              <p class="fc-target" dir="rtl" lang="${L.lang}" style="font-family:${L.font}">${escHTML(card.target || '')}</p>
+              ${card.translit ? `<p class="fc-translit">${escHTML(card.translit)}</p>` : ''}
+              ${card.note ? `<p class="fc-note">${escHTML(card.note)}</p>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="fc-actions">
+          <button class="fc-flip-btn" id="fcFlip">Show answer</button>
+          <div class="fc-rate" id="fcRate" hidden>
+            <button class="fc-rate-btn fc-red"   data-rate="red">Didn't know</button>
+            <button class="fc-rate-btn fc-amber" data-rate="amber">Almost</button>
+            <button class="fc-rate-btn fc-green" data-rate="green">Knew it</button>
+          </div>
+        </div>
+      </div>`;
+
+      const cardEl = document.getElementById('fcCard');
+      const flipBtn = document.getElementById('fcFlip');
+      const rate = document.getElementById('fcRate');
+      function flip() {
+        if (cardEl.classList.contains('flipped')) return;
+        cardEl.classList.add('flipped');
+        flipBtn.hidden = true;
+        rate.hidden = false;
+      }
+      cardEl.addEventListener('click', flip);
+      flipBtn.addEventListener('click', e => { e.stopPropagation(); flip(); });
+      rate.querySelectorAll('[data-rate]').forEach(b =>
+        b.addEventListener('click', e => { e.stopPropagation(); rateFcCard(cardId, b.dataset.rate); }));
+      document.getElementById('fcRestart').addEventListener('click', () => {
+        startFcSession(true); renderFcStudy(data); window.scrollTo({ top: 0, behavior: 'instant' });
+      });
+      document.getElementById('fcBackScenarios').addEventListener('click', () => showView('fcscenarios'));
+    }
+
+    /* record a rating, re-queue (red sooner, amber later, green = done), advance */
+    function rateFcCard(cardId, rating) {
+      if (!fcSession || fcSession.queue[0] !== cardId) return;
+      fcSession.queue.shift();
+      fcSession.counts[rating] = (fcSession.counts[rating] || 0) + 1;
+      saveFcRating(fcLang, fcScenarioId, cardId, rating);
+      if (rating === 'green') {
+        if (!fcSession.masteredSet[cardId]) { fcSession.masteredSet[cardId] = 1; fcSession.mastered++; }
+      } else {
+        const offset = rating === 'red' ? 2 : 5;          // red comes back sooner
+        const idx = Math.min(fcSession.queue.length, offset);
+        fcSession.queue.splice(idx, 0, cardId);
+      }
+      if (!fcSession.queue.length) fcSession.done = true;
+      renderFcStudy(SUBJECTS[currentKey]);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function renderFcSummary(data, scn, L) {
+      const c = fcSession.counts;
+      spContent.innerHTML = `<div class="fc-study">
+        <button class="section-back" id="fcBackScenarios">← All scenarios</button>
+        <div class="fc-summary">
+          <span class="fc-summary-emoji">🎉</span>
+          <h2 class="fc-summary-title">Scenario complete!</h2>
+          <p class="fc-summary-sub">${escHTML(scn.name)} · ${escHTML(L.name)}</p>
+          <div class="fc-summary-stats">
+            <div class="fc-stat fc-stat-green"><span class="fc-stat-num">${c.green || 0}</span><span class="fc-stat-lbl">Knew it</span></div>
+            <div class="fc-stat fc-stat-amber"><span class="fc-stat-num">${c.amber || 0}</span><span class="fc-stat-lbl">Almost</span></div>
+            <div class="fc-stat fc-stat-red"><span class="fc-stat-num">${c.red || 0}</span><span class="fc-stat-lbl">Didn't know</span></div>
+          </div>
+          <p class="fc-summary-note">${fcSession.total} card${fcSession.total !== 1 ? 's' : ''} mastered this round.</p>
+          <div class="fc-summary-actions">
+            <button class="btn-primary" id="fcAgain">Study again ⟳</button>
+            <button class="btn-secondary" id="fcToScenarios">Back to scenarios</button>
+          </div>
+        </div>
+      </div>`;
+      document.getElementById('fcAgain').addEventListener('click', () => {
+        startFcSession(true); renderFcStudy(data); window.scrollTo({ top: 0, behavior: 'instant' });
+      });
+      document.getElementById('fcToScenarios').addEventListener('click', () => showView('fcscenarios'));
+      document.getElementById('fcBackScenarios').addEventListener('click', () => showView('fcscenarios'));
+    }
+
     /* ── render whatever the current state points at ────────────────── */
     function renderView() {
       const data = SUBJECTS[currentKey];
       if (!data) return;
 
       navSubjectName.textContent = data.name;
-      navBackLabel.textContent   = currentView === 'menu' ? 'Back to home' : 'Back';
+      navBackLabel.textContent   = (currentView === 'menu' || currentView === 'fclang') ? 'Back to home' : 'Back';
       spSearchEl.value = '';
       if (spBookIcon) spBookIcon.style.display = 'none';
       // Focus reading hides the header; make sure it's visible for every other view
@@ -2152,10 +2473,14 @@
       else if (currentView === 'questions') renderQuestions(data);
       else if (currentView === 'qpage')     renderQuestionsPage(data);
       else if (currentView === 'lesson')    renderReading(data);
+      else if (currentView === 'fclang')      renderFcLang(data);
+      else if (currentView === 'fcscenarios') renderFcScenarios(data);
+      else if (currentView === 'fcstudy')     renderFcStudy(data);
       else                                  renderMenu(data);
 
-      const leaf = currentView === 'menu' ? '' :
+      const leaf = (currentView === 'menu' || currentView === 'fclang') ? '' :
         currentView === 'qpage' ? ' — Questions' :
+        (currentView === 'fcscenarios' || currentView === 'fcstudy') ? ' — Flashcards' :
         ' — ' + currentView.charAt(0).toUpperCase() + currentView.slice(1);
       document.title = `${data.name}${leaf} — Bayt Al-Rihla`;
     }
@@ -2165,10 +2490,13 @@
       if (!data) return;
 
       currentKey  = key;
-      currentView = (key === QSUBJECT) ? 'qpage' : 'menu';
+      currentView = (key === QSUBJECT) ? 'qpage' : (key === FCSUBJECT) ? 'fclang' : 'menu';
       currentFolderId = null;
       currentQCat = null;
       currentQFolder = null;
+      fcLang = null;
+      fcScenarioId = null;
+      fcSession = null;
       renderView();
 
       // Transition: fade out main → show subject page → fade in
@@ -2200,6 +2528,9 @@
       else if ((currentView === 'learn' || currentView === 'questions') && currentFolderId) {
         currentFolderId = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' });
       }
+      else if (currentView === 'fcstudy') showView('fcscenarios');
+      else if (currentView === 'fcscenarios') { fcLang = null; showView('fclang'); }
+      else if (currentView === 'fclang') closeSubject();
       else if (currentView === 'book') showView('books');
       else if (currentView !== 'menu') showView('menu');
       else closeSubject();
@@ -2218,6 +2549,9 @@
         currentFolderId = null;
         currentQCat = null;
         currentQFolder = null;
+        fcLang = null;
+        fcScenarioId = null;
+        fcSession = null;
         window.scrollTo({ top: 0, behavior: 'instant' });
         document.title = 'Bayt Al-Rihla — Islamic Knowledge Hub';
       }, 350);
@@ -2235,6 +2569,13 @@
     spContent.addEventListener('click', e => {
       if (e.target.closest('#focusBack')) { goBack(); return; }
       if (e.target.closest('#secBack')) { currentFolderId = null; renderView(); window.scrollTo({ top: 0, behavior: 'instant' }); return; }
+
+      // flashcard flow navigation (study-view buttons wire their own handlers)
+      if (e.target.closest('#fcBackLang')) { fcLang = null; showView('fclang'); return; }
+      const fclangBtn = e.target.closest('[data-fclang]');
+      if (fclangBtn) { fcLang = fclangBtn.dataset.fclang; showView('fcscenarios'); return; }
+      const fcscnBtn = e.target.closest('[data-fcscenario]');
+      if (fcscnBtn) { fcScenarioId = fcscnBtn.dataset.fcscenario; fcSession = null; showView('fcstudy'); return; }
 
       // dedicated Questions page navigation
       const qcat = e.target.closest('.qcat-item[data-qcat]');
